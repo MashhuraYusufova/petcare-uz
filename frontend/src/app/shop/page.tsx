@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import { Search, Star, Heart, SlidersHorizontal, ChevronDown, ShoppingCart } from "lucide-react";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 interface Product {
   id: string;
@@ -28,6 +29,7 @@ export default function ShopPage() {
   const [sort, setSort] = useState("Featured");
   const [search, setSearch] = useState("");
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   useEffect(() => {
     api.get<Product[]>("/api/products")
@@ -35,6 +37,18 @@ export default function ShopPage() {
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
+
+  const addToCart = async (productId: string) => {
+    setAddingToCart(productId);
+    try {
+      await api.post("/api/cart", { productId, quantity: 1 });
+      toast.success("Added to cart");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add to cart");
+    } finally {
+      setAddingToCart(null);
+    }
+  };
 
   let filtered = products.filter(p =>
     (activecat === "All" || p.cat === activecat) &&
@@ -175,8 +189,12 @@ export default function ShopPage() {
                         <span className="text-sm font-bold text-[#192A51] dark:text-white">{p.price.toLocaleString()}</span>
                         {p.oldPrice && <span className="ml-1 text-[10px] line-through text-[#6b7a99]">{p.oldPrice.toLocaleString()}</span>}
                       </div>
-                      <button className="bg-[#4399E1] hover:bg-[#2d84d0] text-white p-1.5 rounded-lg transition">
-                        <ShoppingCart size={13} />
+                      <button
+                        onClick={() => addToCart(p.id)}
+                        disabled={addingToCart === p.id}
+                        className="bg-[#4399E1] hover:bg-[#2d84d0] text-white p-1.5 rounded-lg transition disabled:opacity-50"
+                      >
+                        <ShoppingCart size={13} className={addingToCart === p.id ? "animate-pulse" : ""} />
                       </button>
                     </div>
                   </div>

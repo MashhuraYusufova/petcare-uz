@@ -13,6 +13,7 @@ import wishlistRouter from "./routes/wishlist";
 import dashboardRouter from "./routes/dashboard";
 import adminRouter from "./routes/admin";
 import vetDashboardRouter from "./routes/vet-dashboard";
+import cartRouter from "./routes/cart";
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use("/api/wishlist", wishlistRouter);
 app.use("/api/dashboard", dashboardRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/vet", vetDashboardRouter);
+app.use("/api/cart", cartRouter);
 
 app.get("/api/health", async (_req, res) => {
   try {

@@ -2,9 +2,10 @@
 import Link from "next/link";
 import { useTheme } from "./ThemeProvider";
 import { Sun, Moon, ShoppingCart, User, Menu, X, Globe, Heart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
+import { api } from "@/lib/api";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
@@ -17,6 +18,17 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [lang, setLang] = useState<"EN" | "UZ">("EN");
   const { user, logout } = useAuth();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      api.get<any[]>("/api/cart")
+        .then(items => setCartCount(items.length))
+        .catch(console.error);
+    } else {
+      setCartCount(0);
+    }
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-[#0f1825]/95 backdrop-blur border-b border-border shadow-sm">
@@ -65,11 +77,15 @@ export default function Navbar() {
           </Link>
 
           <Link
-            href="/shop"
+            href="/cart"
             className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#4399E1] transition"
           >
             <ShoppingCart size={18} />
-            <span className="absolute top-1 right-1 w-4 h-4 bg-[#4399E1] text-white text-[9px] font-bold rounded-full flex items-center justify-center">3</span>
+            {cartCount > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-[#4399E1] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+                {cartCount}
+              </span>
+            )}
           </Link>
 
           {user ? (
