@@ -32,7 +32,7 @@ export default function Navbar() {
   }, [user]);
 
   return (
-    <BSNavbar sticky="top" expand="md" className="bg-white border-bottom shadow-sm" style={{ backgroundColor: theme === 'dark' ? '#0f1825' : '#ffffff', borderColor: theme === 'dark' ? '#1e3060' : '#e8eef7' }}>
+    <BSNavbar sticky="top" expand="md" className="border-bottom shadow-sm" style={{ backgroundColor: 'var(--nav-bg)', borderColor: 'var(--card-border)' }}>
       <Container fluid="xl" className="h-100">
         <Link href="/" className="navbar-brand d-flex align-items-center me-4">
           {theme === "dark" ? (
@@ -43,7 +43,7 @@ export default function Navbar() {
         </Link>
 
         <BSNavbar.Toggle aria-controls="mobile-nav" onClick={() => setShowMobile(true)} className="border-0 shadow-none">
-          <Menu size={24} style={{ color: theme === 'dark' ? '#ffffff' : '#192A51' }} />
+          <Menu size={24} style={{ color: 'var(--foreground)' }} />
         </BSNavbar.Toggle>
 
         <BSNavbar.Collapse className="d-none d-md-flex">
@@ -53,9 +53,9 @@ export default function Navbar() {
                 key={l.href}
                 href={l.href}
                 className="nav-link text-sm fw-medium transition-colors"
-                style={{ color: theme === 'dark' ? '#c8d8f0' : '#192A51' }}
+                style={{ color: 'var(--foreground)' }}
                 onMouseEnter={(e) => e.currentTarget.style.color = '#4399E1'}
-                onMouseLeave={(e) => e.currentTarget.style.color = theme === 'dark' ? '#c8d8f0' : '#192A51'}
+                onMouseLeave={(e) => e.currentTarget.style.color = 'var(--foreground)'}
               >
                 {l.label}
               </Link>
@@ -67,7 +67,7 @@ export default function Navbar() {
               variant="link"
               onClick={() => setLang(l => l === "EN" ? "UZ" : "EN")}
               className="text-decoration-none d-flex align-items-center gap-1 text-xs fw-semibold px-2 py-1 rounded-3 transition"
-              style={{ color: '#6b7a99' }}
+              style={{ color: 'var(--muted-text)' }}
             >
               <Globe size={14} />
               {lang}
@@ -77,7 +77,7 @@ export default function Navbar() {
               variant="link"
               onClick={toggle}
               className="p-0 w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
-              style={{ color: '#6b7a99', backgroundColor: 'transparent' }}
+              style={{ color: 'var(--muted-text)', backgroundColor: 'transparent' }}
             >
               {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
             </Button>
@@ -85,7 +85,7 @@ export default function Navbar() {
             <Link
               href="/dashboard"
               className="w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
-              style={{ color: '#6b7a99' }}
+              style={{ color: 'var(--muted-text)' }}
             >
               <Heart size={18} />
             </Link>
@@ -93,7 +93,7 @@ export default function Navbar() {
             <Link
               href="/cart"
               className="position-relative w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
-              style={{ color: '#6b7a99' }}
+              style={{ color: 'var(--muted-text)' }}
             >
               <ShoppingCart size={18} />
               {cartCount > 0 && (
@@ -134,7 +134,7 @@ export default function Navbar() {
           </div>
         </BSNavbar.Collapse>
 
-        <Offcanvas show={showMobile} onHide={() => setShowMobile(false)} placement="end" style={{ backgroundColor: theme === 'dark' ? '#0f1825' : '#ffffff' }}>
+        <Offcanvas show={showMobile} onHide={() => setShowMobile(false)} placement="end" style={{ backgroundColor: 'var(--background)', color: 'var(--foreground)' }}>
           <Offcanvas.Header closeButton className={theme === 'dark' ? 'btn-close-white' : ''}>
             <Offcanvas.Title>Menu</Offcanvas.Title>
           </Offcanvas.Header>
@@ -145,7 +145,7 @@ export default function Navbar() {
                 href={l.href}
                 onClick={() => setShowMobile(false)}
                 className="text-decoration-none fw-medium py-2 border-bottom"
-                style={{ color: theme === 'dark' ? '#c8d8f0' : '#192A51', borderColor: theme === 'dark' ? '#1e3060' : '#e8eef7' }}
+                style={{ color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
               >
                 {l.label}
               </Link>

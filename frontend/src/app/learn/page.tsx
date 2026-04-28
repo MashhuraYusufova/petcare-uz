@@ -56,23 +56,24 @@ export default function LearnPage() {
   );
 
   return (
-    <div className="min-vh-100 d-flex flex-column bg-white">
+    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
-      <section style={{ background: "linear-gradient(90deg, #DDEDFF 0%, #ffffff 100%)", padding: "3rem 1.5rem" }}>
+      <section style={{ background: "var(--hero-gradient, linear-gradient(90deg, #DDEDFF 0%, #ffffff 100%))", padding: "3rem 1.5rem" }}>
         <Container>
-          <h1 className="fw-bold mb-1" style={{ color: "#192A51", fontSize: '2rem' }}>Pet Care Learning Hub</h1>
-          <p className="small mb-4" style={{ color: "#6b7a99" }}>Expert guides, tips, and advice from our veterinary team</p>
+          <h1 className="fw-bold mb-1" style={{ color: "var(--foreground)", fontSize: '2rem' }}>Pet Care Learning Hub</h1>
+          <p className="small mb-4" style={{ color: "var(--muted-text)" }}>Expert guides, tips, and advice from our veterinary team</p>
           <div className="position-relative" style={{ maxWidth: 576 }}>
-            <InputGroup className="bg-white border rounded-4 shadow-sm overflow-hidden">
+            <InputGroup className="border rounded-4 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
               <InputGroup.Text className="bg-transparent border-0 ps-3">
-                <Search size={18} style={{ color: "#6b7a99" }} />
+                <Search size={18} style={{ color: "var(--muted-text)" }} />
               </InputGroup.Text>
               <Form.Control
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search articles..."
                 className="border-0 py-3 shadow-none text-sm"
+                style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}
               />
             </InputGroup>
           </div>
@@ -107,24 +108,25 @@ export default function LearnPage() {
               key={c}
               size="sm"
               onClick={() => setActivecat(c)}
-              className={`rounded-pill px-4 py-2 border fw-bold small transition ${activecat === c ? "shadow-sm border-0" : "bg-white border-light text-muted"}`}
+              className={`rounded-pill px-4 py-2 border fw-bold small transition ${activecat === c ? "shadow-sm border-0" : ""}`}
               style={{
-                backgroundColor: activecat === c ? "#4399E1" : "#ffffff",
-                color: activecat === c ? "#ffffff" : "#6b7a99",
+                backgroundColor: activecat === c ? "#4399E1" : "var(--card-bg)",
+                color: activecat === c ? "#ffffff" : "var(--muted-text)",
+                borderColor: activecat === c ? "#4399E1" : "var(--card-border)",
                 fontSize: 13
               }}
             >
               {c}
             </Button>
           ))}
-          <span className="ms-md-auto extra-small text-muted align-self-center">{loading ? "..." : filtered.length} articles</span>
+          <span className="ms-md-auto extra-small align-self-center" style={{ color: 'var(--muted-text)' }}>{loading ? "..." : filtered.length} articles</span>
         </div>
 
         {loading ? (
           <Row className="g-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <Col xs={6} sm={4} lg={3} key={i}>
-                <div className="bg-light rounded-4 border animate-pulse" style={{ height: 240 }} />
+                <div className="rounded-4 border animate-pulse" style={{ height: 240, backgroundColor: 'var(--section-bg)', borderColor: 'var(--card-border)' }} />
               </Col>
             ))}
           </Row>
@@ -134,17 +136,17 @@ export default function LearnPage() {
               const Icon = catIconMap[a.cat] || catIconMap.default;
               return (
                 <Col xs={12} sm={6} lg={3} key={a.id}>
-                  <Card className="rounded-4 border-light overflow-hidden shadow-none h-100 transition hover-shadow-sm group cursor-pointer">
+                  <Card className="rounded-4 overflow-hidden shadow-none h-100 transition hover-shadow-sm group cursor-pointer" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', border: '1px solid var(--card-border)' }}>
                     <div className="d-flex align-items-center justify-content-center" style={{ height: 144, backgroundColor: "#DDEDFF" }}>
                       <Icon size={52} className="transition duration-300 group-hover-scale-110" style={{ color: "rgba(67, 153, 225, 0.6)" }} />
                     </div>
                     <Card.Body className="p-4 d-flex flex-column gap-2">
                       <div className="d-flex align-items-center justify-content-between mb-1">
                         <Badge pill className="fw-bold px-2 py-0.5" style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 9 }}>{a.cat}</Badge>
-                        <span className="extra-small text-muted" style={{ fontSize: 9 }}>{a.date}</span>
+                        <span className="extra-small" style={{ fontSize: 9, color: 'var(--muted-text)' }}>{a.date}</span>
                       </div>
-                      <Card.Title className="small fw-bold mb-2 text-dark lh-sm h-100" style={{ height: '2.8em', overflow: 'hidden' }}>{a.title}</Card.Title>
-                      <div className="mt-auto d-flex align-items-center justify-content-between extra-small text-muted" style={{ fontSize: 10 }}>
+                      <Card.Title className="small fw-bold mb-2 lh-sm h-100" style={{ height: '2.8em', overflow: 'hidden', color: 'var(--foreground)' }}>{a.title}</Card.Title>
+                      <div className="mt-auto d-flex align-items-center justify-content-between extra-small" style={{ fontSize: 10, color: 'var(--muted-text)' }}>
                         <span className="d-flex align-items-center gap-1"><BookOpen size={10} /> {a.read}</span>
                         <span className="truncate" style={{ maxWidth: 80 }}>{a.author}</span>
                       </div>

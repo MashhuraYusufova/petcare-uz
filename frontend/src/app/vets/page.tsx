@@ -71,23 +71,24 @@ export default function VetsPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex flex-column bg-white">
+    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
-      <section style={{ background: "linear-gradient(90deg, #DDEDFF 0%, #ffffff 100%)", padding: "3rem 1.5rem" }}>
+      <section style={{ background: "var(--hero-gradient, linear-gradient(90deg, #DDEDFF 0%, #ffffff 100%))", padding: "3rem 1.5rem" }}>
         <Container>
-          <h1 className="fw-bold mb-1" style={{ color: "#192A51", fontSize: '2rem' }}>Find a Veterinarian</h1>
-          <p className="small mb-4" style={{ color: "#6b7a99" }}>Book trusted vets near you, online or in-person</p>
+          <h1 className="fw-bold mb-1" style={{ color: "var(--foreground)", fontSize: '2rem' }}>Find a Veterinarian</h1>
+          <p className="small mb-4" style={{ color: "var(--muted-text)" }}>Book trusted vets near you, online or in-person</p>
           <div className="position-relative" style={{ maxWidth: 576 }}>
-            <InputGroup className="bg-white border rounded-4 shadow-sm overflow-hidden">
+            <InputGroup className="border rounded-4 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
               <InputGroup.Text className="bg-transparent border-0 ps-3">
-                <Search size={18} style={{ color: "#6b7a99" }} />
+                <Search size={18} style={{ color: "var(--muted-text)" }} />
               </InputGroup.Text>
               <Form.Control
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 placeholder="Search by vet name or clinic..."
                 className="border-0 py-3 shadow-none text-sm"
+                style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}
               />
             </InputGroup>
           </div>
@@ -96,13 +97,13 @@ export default function VetsPage() {
 
       <Container className="py-5">
         <div className="d-flex flex-wrap align-items-center gap-3 mb-4">
-          <div className="d-flex align-items-center gap-2 small text-muted"><Filter size={14} /> Filter:</div>
+          <div className="d-flex align-items-center gap-2 small" style={{ color: 'var(--muted-text)' }}><Filter size={14} /> Filter:</div>
           <Form.Select
             size="sm"
             value={spec}
             onChange={e => setSpec(e.target.value)}
             className="rounded-3 border shadow-none w-auto"
-            style={{ fontSize: '0.875rem' }}
+            style={{ fontSize: '0.875rem', backgroundColor: 'var(--input-bg)', color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
           >
             {specs.map(s => <option key={s} value={s}>{s}</option>)}
           </Form.Select>
@@ -111,12 +112,12 @@ export default function VetsPage() {
             value={district}
             onChange={e => setDistrict(e.target.value)}
             className="rounded-3 border shadow-none w-auto"
-            style={{ fontSize: '0.875rem' }}
+            style={{ fontSize: '0.875rem', backgroundColor: 'var(--input-bg)', color: 'var(--foreground)', borderColor: 'var(--card-border)' }}
           >
             {districts.map(d => <option key={d} value={d}>{d}</option>)}
           </Form.Select>
-          <p className="ms-md-auto mb-0 small text-muted">
-            <span className="fw-bold text-dark">{loading ? "..." : filtered.length}</span> vets found
+          <p className="ms-md-auto mb-0 small" style={{ color: 'var(--muted-text)' }}>
+            <span className="fw-bold" style={{ color: 'var(--foreground)' }}>{loading ? "..." : filtered.length}</span> vets found
           </p>
         </div>
 
@@ -124,7 +125,7 @@ export default function VetsPage() {
           <Row className="g-4">
             <Col lg={8}>
               <div className="d-flex flex-column gap-3">
-                {[1, 2, 3].map(i => <div key={i} className="bg-light rounded-4 border animate-pulse" style={{ height: 160 }} />)}
+                {[1, 2, 3].map(i => <div key={i} className="rounded-4 border animate-pulse" style={{ height: 160, backgroundColor: 'var(--section-bg)', borderColor: 'var(--card-border)' }} />)}
               </div>
             </Col>
           </Row>
@@ -136,42 +137,42 @@ export default function VetsPage() {
                   <Card
                     key={v.id}
                     onClick={() => { setSelected(v.id); setSelectedSlot(null); setBooked(false); setBookError(""); }}
-                    className={`rounded-4 p-4 border transition cursor-pointer shadow-none ${selected === v.id ? "border-primary shadow-sm" : "border-light"}`}
-                    style={{ borderColor: selected === v.id ? "#4399E1" : "#e8eef7" }}
+                    className={`rounded-4 p-4 border transition cursor-pointer shadow-none`}
+                    style={{ backgroundColor: 'var(--card-bg)', borderColor: selected === v.id ? "#4399E1" : "var(--card-border)", color: 'var(--foreground)' }}
                   >
                     <div className="d-flex align-items-start gap-4 flex-wrap flex-sm-nowrap">
-                      <div className="rounded-4 bg-light d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
+                      <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
                         <UserRound size={32} style={{ color: "#4399E1" }} />
                       </div>
                       <div className="flex-grow-1">
                         <div className="d-flex align-items-start justify-content-between gap-2 mb-2">
                           <div>
-                            <p className="fw-bold mb-0 text-dark">{v.name}</p>
+                            <p className="fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{v.name}</p>
                             <p className="small fw-medium mb-0" style={{ color: "#4399E1" }}>{v.spec}</p>
                           </div>
-                          <Badge pill className="fw-semibold px-2.5 py-1" style={{ backgroundColor: v.avail ? "#ffeef0" : "#f8faff", color: v.avail ? "#FFA9AC" : "#6b7a99", fontSize: 10 }}>
+                          <Badge pill className="fw-semibold px-2.5 py-1" style={{ backgroundColor: v.avail ? "#ffeef0" : "var(--section-bg)", color: v.avail ? "#FFA9AC" : "var(--muted-text)", fontSize: 10 }}>
                             ● {v.avail ? "Available" : "Unavailable"}
                           </Badge>
                         </div>
                         <div className="d-flex flex-wrap align-items-center gap-3 mb-3">
-                          <span className="d-flex align-items-center gap-1 extra-small text-muted"><MapPin size={11} /> {v.clinic}, {v.district}</span>
-                          <span className="d-flex align-items-center gap-1 extra-small text-muted"><Clock size={11} /> {v.exp} experience</span>
+                          <span className="d-flex align-items-center gap-1 extra-small" style={{ color: 'var(--muted-text)' }}><MapPin size={11} /> {v.clinic}, {v.district}</span>
+                          <span className="d-flex align-items-center gap-1 extra-small" style={{ color: 'var(--muted-text)' }}><Clock size={11} /> {v.exp} experience</span>
                         </div>
                         <div className="d-flex align-items-center justify-content-between flex-wrap gap-2">
                           <div className="d-flex align-items-center gap-2">
                             <div className="d-flex align-items-center">
                               {Array.from({ length: 5 }).map((_, i) => <Star key={i} size={11} style={{ fill: i < Math.floor(v.rating) ? "#fbbf24" : "transparent", color: i < Math.floor(v.rating) ? "#fbbf24" : "#e5e7eb" }} />)}
                             </div>
-                            <span className="extra-small text-muted">{v.rating} · {v.reviews} reviews</span>
+                            <span className="extra-small" style={{ color: 'var(--muted-text)' }}>{v.rating} · {v.reviews} reviews</span>
                           </div>
-                          <span className="small fw-bold text-dark">{v.price} sum / visit</span>
+                          <span className="small fw-bold" style={{ color: 'var(--foreground)' }}>{v.price} sum / visit</span>
                         </div>
                       </div>
                     </div>
 
                     {v.avail && v.slots.length > 0 && (
-                      <div className="mt-4 pt-4 border-top">
-                        <p className="extra-small fw-bold text-muted mb-2 text-uppercase tracking-wider">Today&apos;s available slots:</p>
+                      <div className="mt-4 pt-4 border-top" style={{ borderColor: 'var(--card-border)' }}>
+                        <p className="extra-small fw-bold mb-2 text-uppercase tracking-wider" style={{ color: 'var(--muted-text)' }}>Today&apos;s available slots:</p>
                         <div className="d-flex flex-wrap gap-2">
                           {v.slots.map(slot => (
                             <Button
@@ -182,8 +183,8 @@ export default function VetsPage() {
                               className="rounded-3 extra-small px-3 border shadow-none"
                               style={{
                                 backgroundColor: selected === v.id && selectedSlot === slot ? "#4399E1" : "transparent",
-                                color: selected === v.id && selectedSlot === slot ? "#ffffff" : "#192A51",
-                                borderColor: selected === v.id && selectedSlot === slot ? "#4399E1" : "#e8eef7",
+                                color: selected === v.id && selectedSlot === slot ? "#ffffff" : "var(--foreground)",
+                                borderColor: selected === v.id && selectedSlot === slot ? "#4399E1" : "var(--card-border)",
                                 fontSize: 11
                               }}
                             >
@@ -200,22 +201,22 @@ export default function VetsPage() {
 
             <Col lg={4}>
               <aside className="sticky-top" style={{ top: '6rem' }}>
-                <Card className="rounded-4 border-light p-4 shadow-sm">
+                <Card className="rounded-4 p-4 shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--foreground)' }}>
                   {!selectedVet ? (
                     <div className="text-center py-4">
                       <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
                         <Stethoscope size={32} style={{ color: "#4399E1" }} />
                       </div>
-                      <p className="fw-bold mb-1 small text-dark">Select a Vet</p>
-                      <p className="extra-small text-muted mb-0">Click on a vet card to see booking details</p>
+                      <p className="fw-bold mb-1 small" style={{ color: 'var(--foreground)' }}>Select a Vet</p>
+                      <p className="extra-small mb-0" style={{ color: 'var(--muted-text)' }}>Click on a vet card to see booking details</p>
                     </div>
                   ) : booked ? (
                     <div className="text-center py-4">
                       <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "#ffeef0" }}>
                         <CheckCircle size={36} style={{ color: "#FFA9AC" }} />
                       </div>
-                      <p className="fw-bold mb-1 text-dark">Appointment Booked!</p>
-                      <p className="small text-muted mb-1">{selectedVet.name}</p>
+                      <p className="fw-bold mb-1" style={{ color: 'var(--foreground)' }}>Appointment Booked!</p>
+                      <p className="small mb-1" style={{ color: 'var(--muted-text)' }}>{selectedVet.name}</p>
                       <p className="small fw-bold mb-4" style={{ color: "#4399E1" }}>Today at {selectedSlot}</p>
                       <Button
                         onClick={() => { setSelected(null); setBooked(false); setSelectedSlot(null); }}
@@ -227,22 +228,22 @@ export default function VetsPage() {
                     </div>
                   ) : (
                     <>
-                      <h3 className="fw-bold mb-4 small text-dark">Book Appointment</h3>
+                      <h3 className="fw-bold mb-4 small" style={{ color: 'var(--foreground)' }}>Book Appointment</h3>
                       <div className="d-flex align-items-center gap-3 mb-4">
                         <div className="rounded-3 d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, backgroundColor: "#DDEDFF" }}>
                           <UserRound size={24} style={{ color: "#4399E1" }} />
                         </div>
                         <div>
-                          <p className="small fw-bold mb-0 text-dark">{selectedVet.name}</p>
+                          <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{selectedVet.name}</p>
                           <p className="extra-small mb-0" style={{ color: "#4399E1" }}>{selectedVet.spec}</p>
                         </div>
                       </div>
-                      <div className="bg-light rounded-3 p-3 mb-4 d-flex flex-column gap-2" style={{ backgroundColor: "#f8faff" }}>
-                        <div className="d-flex justify-content-between extra-small"><span className="text-muted">Clinic</span><span className="fw-medium text-dark">{selectedVet.clinic}</span></div>
-                        <div className="d-flex justify-content-between extra-small"><span className="text-muted">Location</span><span className="fw-medium text-dark">{selectedVet.district}</span></div>
-                        <div className="d-flex justify-content-between small pt-1 border-top"><span className="text-muted">Consultation</span><span className="fw-bold text-dark">{selectedVet.price} sum</span></div>
+                      <div className="rounded-3 p-3 mb-4 d-flex flex-column gap-2" style={{ backgroundColor: "var(--section-bg)" }}>
+                        <div className="d-flex justify-content-between extra-small"><span style={{ color: 'var(--muted-text)' }}>Clinic</span><span className="fw-medium" style={{ color: 'var(--foreground)' }}>{selectedVet.clinic}</span></div>
+                        <div className="d-flex justify-content-between extra-small"><span style={{ color: 'var(--muted-text)' }}>Location</span><span className="fw-medium" style={{ color: 'var(--foreground)' }}>{selectedVet.district}</span></div>
+                        <div className="d-flex justify-content-between small pt-1 border-top" style={{ borderColor: 'var(--card-border)' }}><span style={{ color: 'var(--muted-text)' }}>Consultation</span><span className="fw-bold" style={{ color: 'var(--foreground)' }}>{selectedVet.price} sum</span></div>
                       </div>
-                      <p className="extra-small fw-bold text-dark mb-2 text-uppercase tracking-wider">Select Time Slot</p>
+                      <p className="extra-small fw-bold mb-2 text-uppercase tracking-wider" style={{ color: 'var(--foreground)' }}>Select Time Slot</p>
                       {selectedVet.avail && selectedVet.slots.length > 0 ? (
                         <div className="d-flex flex-wrap gap-2 mb-4">
                           {selectedVet.slots.map(slot => (
@@ -254,8 +255,8 @@ export default function VetsPage() {
                               className="rounded-3 extra-small px-3 border shadow-none"
                               style={{
                                 backgroundColor: selectedSlot === slot ? "#4399E1" : "transparent",
-                                color: selectedSlot === slot ? "#ffffff" : "#192A51",
-                                borderColor: selectedSlot === slot ? "#4399E1" : "#e8eef7",
+                                color: selectedSlot === slot ? "#ffffff" : "var(--foreground)",
+                                borderColor: selectedSlot === slot ? "#4399E1" : "var(--card-border)",
                                 fontSize: 11
                               }}
                             >

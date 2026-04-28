@@ -1,12 +1,28 @@
 :root {
   --background: #ffffff;
   --foreground: #192A51;
+  --card-bg: #ffffff;
+  --card-border: #e8eef7;
+  --muted-text: #6b7a99;
+  --section-bg: #f8faff;
+  --input-bg: #ffffff;
+  --nav-bg: #ffffff;
+  --footer-bg: #DDEDFF;
+  --hero-gradient: linear-gradient(135deg, #DDEDFF 0%, #ffffff 50%, #ffeef0 100%);
   --font-montserrat: "Montserrat", sans-serif;
 }
 
-[data-theme='dark'] {
+.dark {
   --background: #0f1825;
   --foreground: #ffffff;
+  --card-bg: #1e293b;
+  --card-border: #334155;
+  --muted-text: #94a3b8;
+  --section-bg: #1e293b;
+  --input-bg: #0f172a;
+  --nav-bg: #0f1825;
+  --footer-bg: #0f172a;
+  --hero-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%);
 }
 
 body {

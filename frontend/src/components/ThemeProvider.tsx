@@ -12,7 +12,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const stored = localStorage.getItem("petcare-theme") as Theme | null;
-    if (stored) setTheme(stored);
+    if (stored) {
+      setTheme(stored);
+    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+      setTheme("dark");
+    }
   }, []);
 
   useEffect(() => {
