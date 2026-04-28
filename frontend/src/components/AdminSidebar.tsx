@@ -2,6 +2,7 @@
 import { LayoutDashboard, ShoppingBag, Stethoscope, BookOpen, Calendar, BarChart3, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import { Nav } from "react-bootstrap";
+import Image from "next/image";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview" },
@@ -18,11 +19,12 @@ export default function AdminSidebar({ tab, setTab, setSidebarOpen }: any) {
   return (
     <div className="d-flex flex-column h-100" style={{ backgroundColor: "#192A51" }}>
       <div className="p-4 border-bottom border-white border-opacity-10">
-        <div className="d-flex align-items-center gap-2">
-          <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 32, height: 32, backgroundColor: "#4399E1" }}>🐾</div>
-          <span className="fw-bold text-white">PetCare <span style={{ color: "#4399E1" }}>Admin</span></span>
+        <div className="d-flex align-items-center gap-3">
+          <Image src="/logo-dark.png" alt="PetCare" width={120} height={34} className="h-8 w-auto brightness-0 invert" priority />
+          <span className="badge rounded-pill fw-bold small py-1 px-2" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#4399E1", fontSize: 10 }}>ADMIN</span>
         </div>
       </div>
+
       <Nav className="flex-column p-3 flex-grow-1">
         {navItems.map(n => (
           <Nav.Link

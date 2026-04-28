@@ -2,6 +2,7 @@
 import { LayoutDashboard, Calendar, Clock, Users, Settings } from "lucide-react";
 import Link from "next/link";
 import { Nav, Badge } from "react-bootstrap";
+import Image from "next/image";
 
 const navItems = [
   { icon: LayoutDashboard, label: "Overview" },
@@ -16,9 +17,9 @@ export default function VetSidebar({ vet, user, tab, setTab, setSidebarOpen, pen
     <div className="d-flex flex-column h-100" style={{ backgroundColor: "#192A51" }}>
       <div className="p-4 border-bottom border-white border-opacity-10">
         <div className="d-flex flex-column gap-3">
-          <div className="d-flex align-items-center gap-2">
-            <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 32, height: 32, backgroundColor: "#4399E1" }}>🐾</div>
-            <span className="fw-bold text-white small">PetCare <span style={{ color: "#4399E1" }}>Vets</span></span>
+          <div className="d-flex align-items-center gap-3">
+            <Image src="/logo-dark.png" alt="PetCare" width={110} height={32} className="h-7 w-auto brightness-0 invert" priority />
+            <span className="badge rounded-pill fw-bold small py-1 px-2" style={{ backgroundColor: "rgba(255,255,255,0.1)", color: "#4399E1", fontSize: 9 }}>VETS</span>
           </div>
           <div className="d-flex align-items-center gap-2.5 bg-white bg-opacity-10 p-2 rounded-3">
             <div className="rounded-3 d-flex align-items-center justify-content-center h4 mb-0" style={{ width: 40, height: 40, backgroundColor: "rgba(255, 255, 255, 0.1)" }}>👩‍⚕️</div>
