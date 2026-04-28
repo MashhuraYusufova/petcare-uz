@@ -27,6 +27,12 @@ export default function CartPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    if (!api.getToken()) {
+      setItems([]);
+      setLoading(false);
+      return;
+    }
+
     fetchCart();
   }, []);
 

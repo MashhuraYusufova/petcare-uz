@@ -78,7 +78,7 @@ function addToCart(req, res) {
 function updateQuantity(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         const { quantity } = req.body;
-        const { productId } = req.params;
+        const productId = String(req.params.productId);
         try {
             const item = yield cartService.updateCartItemQuantity(req.user.userId, productId, quantity);
             res.json(item);
@@ -90,7 +90,7 @@ function updateQuantity(req, res) {
 }
 function removeFromCart(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
-        const { productId } = req.params;
+        const productId = String(req.params.productId);
         try {
             yield cartService.removeFromCart(req.user.userId, productId);
             res.json({ message: "Removed from cart" });

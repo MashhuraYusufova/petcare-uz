@@ -27,7 +27,7 @@ export async function addToCart(req: AuthRequest, res: Response) {
 
 export async function updateQuantity(req: AuthRequest, res: Response) {
   const { quantity } = req.body;
-  const { productId } = req.params;
+  const productId = String(req.params.productId);
   try {
     const item = await cartService.updateCartItemQuantity(req.user!.userId, productId, quantity);
     res.json(item);
@@ -37,7 +37,7 @@ export async function updateQuantity(req: AuthRequest, res: Response) {
 }
 
 export async function removeFromCart(req: AuthRequest, res: Response) {
-  const { productId } = req.params;
+  const productId = String(req.params.productId);
   try {
     await cartService.removeFromCart(req.user!.userId, productId);
     res.json({ message: "Removed from cart" });
