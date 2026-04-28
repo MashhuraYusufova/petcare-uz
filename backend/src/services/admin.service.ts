@@ -21,6 +21,48 @@ export async function getOverviewStats() {
   return { usersCount, ordersCount, appointmentsCount, productsCount, vetsCount, totalRevenue };
 }
 
+export async function getAdvancedAnalytics() {
+  const orders = await prisma.order.findMany({
+    select: { item: true, price: true, date: true }
+  });
+
+  const productCounts = orders.reduce((acc, order) => {
+    acc[order.item] = (acc[order.item] || 0) + 1;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const topProducts = Object.entries(productCounts)
+    .map(([name, count]) => ({ name, count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const mostBoughtProduct = topProducts.length > 0 ? topProducts[0].name : "N/A";
+
+  const revenueByDate = orders.reduce((acc, order) => {
+    const dateStr = order.date.split('T')[0] || order.date;
+    const priceNum = parseInt(order.price.replace(/,/g, ""), 10);
+    const amount = isNaN(priceNum) ? 0 : priceNum;
+    
+    acc[dateStr] = (acc[dateStr] || 0) + amount;
+    return acc;
+  }, {} as Record<string, number>);
+
+  const revenueTimeline = Object.entries(revenueByDate)
+    .map(([date, revenue]) => ({ date, revenue }))
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
+  const highestRevenueDay = revenueTimeline.length > 0
+    ? revenueTimeline.reduce((max, curr) => (curr.revenue > max.revenue ? curr : max), revenueTimeline[0])
+    : { date: "N/A", revenue: 0 };
+
+  return {
+    topProducts,
+    revenueTimeline,
+    mostBoughtProduct,
+    highestRevenueDay
+  };
+}
+
 export async function getAllUsers() {
   return prisma.user.findMany({
     select: { id: true, name: true, email: true, role: true, createdAt: true },

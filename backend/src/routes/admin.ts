@@ -12,6 +12,7 @@ const wrap = (fn: (req: AuthRequest, res: Response) => Promise<void>) =>
 router.use(authMiddleware, (req: any, res, next) => adminOnly(req as AuthRequest, res, next));
 
 router.get("/overview", wrap(adminController.getOverview));
+router.get("/analytics", wrap(adminController.getAnalytics));
 router.get("/users", wrap(adminController.getUsers));
 router.patch("/users/:id/role", wrap(adminController.updateUserRole));
 router.get("/appointments", wrap(adminController.getAppointments));

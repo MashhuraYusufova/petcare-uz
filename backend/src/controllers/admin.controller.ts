@@ -10,6 +10,14 @@ export async function getOverview(_req: AuthRequest, res: Response) {
   }
 }
 
+export async function getAnalytics(_req: AuthRequest, res: Response) {
+  try {
+    res.json(await adminService.getAdvancedAnalytics());
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 export async function getUsers(_req: AuthRequest, res: Response) {
   try {
     res.json(await adminService.getAllUsers());

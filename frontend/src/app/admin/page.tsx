@@ -1,5 +1,9 @@
 "use client";
-import { useState, useEffect, type FormEvent } from "react";
+import { useState, useEffect, useMemo, type FormEvent } from "react";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, Legend, ResponsiveContainer,
+  PieChart, Pie, Cell, LineChart, Line
+} from 'recharts';
 import { Menu, TrendingUp, TrendingDown, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -12,6 +16,13 @@ import AdminSidebar from "@/components/AdminSidebar";
 interface OverviewStats {
   usersCount: number; ordersCount: number; appointmentsCount: number;
   productsCount: number; vetsCount: number; totalRevenue: number;
+}
+
+interface AdvancedAnalytics {
+  topProducts: { name: string, count: number }[];
+  revenueTimeline: { date: string, revenue: number }[];
+  mostBoughtProduct: string;
+  highestRevenueDay: { date: string, revenue: number };
 }
 
 interface Product {
@@ -85,6 +96,7 @@ export default function AdminPage() {
   const router = useRouter();
 
   const [stats, setStats] = useState<OverviewStats | null>(null);
+  const [analytics, setAnalytics] = useState<AdvancedAnalytics | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [vets, setVets] = useState<Vet[]>([]);
@@ -102,6 +114,24 @@ export default function AdminPage() {
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
   const [editingVetId, setEditingVetId] = useState<string | null>(null);
 
+  const appointmentsByStatus = useMemo(() => {
+    const counts = appointments.reduce((acc, curr) => {
+      acc[curr.status] = (acc[curr.status] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [appointments]);
+
+  const productsByCategory = useMemo(() => {
+    const counts = products.reduce((acc, curr) => {
+      acc[curr.cat] = (acc[curr.cat] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    return Object.entries(counts).map(([name, value]) => ({ name, value }));
+  }, [products]);
+
+  const COLORS = ['#4399E1', '#48BB78', '#ECC94B', '#F56565', '#9F7AEA'];
+
   useEffect(() => {
     if (!authLoading && !user) router.push("/auth");
     if (!authLoading && user && user.role !== "admin") router.push("/dashboard");
@@ -115,8 +145,9 @@ export default function AdminPage() {
       api.get<Vet[]>("/api/vets"),
       api.get<Appointment[]>("/api/admin/appointments"),
       api.get<{ id: string, name: string }[]>("/api/products/categories"),
-    ]).then(([s, p, v, a, c]) => {
-      setStats(s); setProducts(p); setVets(v); setAppointments(a); setCategories(c);
+      api.get<AdvancedAnalytics>("/api/admin/analytics"),
+    ]).then(([s, p, v, a, c, an]) => {
+      setStats(s); setProducts(p); setVets(v); setAppointments(a); setCategories(c); setAnalytics(an);
     }).catch(console.error).finally(() => setLoading(false));
   }, [user]);
 
@@ -313,6 +344,116 @@ export default function AdminPage() {
                         </Card>
                       </Col>
                     ))}
+                  </Row>
+
+                  {analytics && (
+                    <Row className="g-4 mb-4">
+                      <Col lg={4}>
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'var(--card-bg)' }}>
+                          <p className="extra-small text-muted mb-1" style={{ fontSize: 11 }}>Most Bought Product</p>
+                          <p className="h5 fw-bold mb-0 text-primary text-truncate">{analytics.mostBoughtProduct}</p>
+                        </Card>
+                      </Col>
+                      <Col lg={4}>
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'var(--card-bg)' }}>
+                          <p className="extra-small text-muted mb-1" style={{ fontSize: 11 }}>Highest Revenue Day</p>
+                          <p className="h5 fw-bold mb-0 text-success">{analytics.highestRevenueDay.date === 'N/A' ? 'N/A' : new Date(analytics.highestRevenueDay.date).toLocaleDateString()}</p>
+                          {analytics.highestRevenueDay.revenue > 0 && <p className="extra-small text-muted mt-1 mb-0">{analytics.highestRevenueDay.revenue.toLocaleString()} sum</p>}
+                        </Card>
+                      </Col>
+                      <Col lg={4}>
+                         <Card className="rounded-4 border-0 shadow-sm p-4 h-100 d-flex flex-column justify-content-center" style={{ backgroundColor: 'var(--card-bg)' }}>
+                          <p className="extra-small text-muted mb-1" style={{ fontSize: 11 }}>Total Products Tracked</p>
+                          <p className="h5 fw-bold mb-0 text-warning">{analytics.topProducts.length}</p>
+                        </Card>
+                      </Col>
+                    </Row>
+                  )}
+
+                  {analytics && analytics.revenueTimeline.length > 0 && (
+                    <Row className="g-4 mb-4">
+                      <Col lg={12}>
+                        <Card className="rounded-4 border-0 shadow-sm h-100" style={{ backgroundColor: 'var(--card-bg)' }}>
+                          <Card.Header className="p-4 border-0 bg-transparent">
+                            <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Revenue Over Time</p>
+                          </Card.Header>
+                          <Card.Body className="p-4 pt-0">
+                            <div style={{ height: 300 }}>
+                              <ResponsiveContainer width="100%" height="100%">
+                                <LineChart data={analytics.revenueTimeline}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" vertical={false} />
+                                  <XAxis dataKey="date" stroke="var(--muted-text)" fontSize={12} tickFormatter={(val) => isNaN(new Date(val).getTime()) ? val : new Date(val).toLocaleDateString()} />
+                                  <YAxis stroke="var(--muted-text)" fontSize={12} width={80} tickFormatter={(val) => `${(val / 1000)}k`} />
+                                  <RechartsTooltip 
+                                    contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--foreground)' }}
+                                    formatter={(value: number) => [`${value.toLocaleString()} sum`, 'Revenue']}
+                                    labelFormatter={(label) => isNaN(new Date(label).getTime()) ? label : new Date(label).toLocaleDateString()}
+                                  />
+                                  <Line type="monotone" dataKey="revenue" stroke="#48BB78" strokeWidth={3} dot={{ r: 4, fill: '#48BB78' }} activeDot={{ r: 6 }} />
+                                </LineChart>
+                              </ResponsiveContainer>
+                            </div>
+                          </Card.Body>
+                        </Card>
+                      </Col>
+                    </Row>
+                  )}
+
+                  <Row className="g-4 mb-4">
+                    <Col lg={8}>
+                      <Card className="rounded-4 border-0 shadow-sm h-100" style={{ backgroundColor: 'var(--card-bg)' }}>
+                        <Card.Header className="p-4 border-0 bg-transparent">
+                          <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Products by Category</p>
+                        </Card.Header>
+                        <Card.Body className="p-4 pt-0">
+                          <div style={{ height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={productsByCategory}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--card-border)" />
+                                <XAxis dataKey="name" stroke="var(--muted-text)" fontSize={12} />
+                                <YAxis stroke="var(--muted-text)" fontSize={12} allowDecimals={false} />
+                                <RechartsTooltip 
+                                  contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--foreground)' }}
+                                />
+                                <Bar dataKey="value" fill="#4399E1" radius={[4, 4, 0, 0]} name="Products" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
+                    <Col lg={4}>
+                      <Card className="rounded-4 border-0 shadow-sm h-100" style={{ backgroundColor: 'var(--card-bg)' }}>
+                        <Card.Header className="p-4 border-0 bg-transparent">
+                          <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Appointments by Status</p>
+                        </Card.Header>
+                        <Card.Body className="p-4 pt-0">
+                          <div style={{ height: 300 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={appointmentsByStatus}
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={60}
+                                  outerRadius={80}
+                                  paddingAngle={5}
+                                  dataKey="value"
+                                >
+                                  {appointmentsByStatus.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                  ))}
+                                </Pie>
+                                <RechartsTooltip 
+                                  contentStyle={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--foreground)' }}
+                                />
+                                <Legend />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </Card.Body>
+                      </Card>
+                    </Col>
                   </Row>
 
                   <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
