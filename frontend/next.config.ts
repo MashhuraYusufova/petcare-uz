@@ -1,5 +1,8 @@
 import type { NextConfig } from "next";
-import { loaderPath } from "orchids-visual-edits/loader";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
+const loaderPath = require.resolve("orchids-visual-edits/loader.js");
 
 const apiUrl = process.env.API_URL?.replace(/\/$/, "");
 
