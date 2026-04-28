@@ -1,85 +1,47 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-
-@custom-variant dark (&:is(.dark *));
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-montserrat);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-}
-
 :root {
-  --radius: 0.75rem;
   --background: #ffffff;
   --foreground: #192A51;
-  --card: #ffffff;
-  --card-foreground: #192A51;
-  --primary: #4399E1;
-  --primary-foreground: #ffffff;
-  --secondary: #DDEDFF;
-  --secondary-foreground: #192A51;
-  --muted: #f5f8ff;
-  --muted-foreground: #6b7a99;
-  --accent: #FFA9AC;
-  --accent-foreground: #192A51;
-  --destructive: #ef4444;
-  --border: #e8eef7;
-  --input: #e8eef7;
-  --ring: #4399E1;
+  --font-montserrat: "Montserrat", sans-serif;
 }
 
-.dark {
+[data-theme='dark'] {
   --background: #0f1825;
-  --foreground: #e8f0fe;
-  --card: #1a2744;
-  --card-foreground: #e8f0fe;
-  --primary: #4399E1;
-  --primary-foreground: #ffffff;
-  --secondary: #1e3060;
-  --secondary-foreground: #e8f0fe;
-  --muted: #162035;
-  --muted-foreground: #8fa4c8;
-  --accent: #FFA9AC;
-  --accent-foreground: #192A51;
-  --destructive: #f87171;
-  --border: #1e3060;
-  --input: #1e3060;
-  --ring: #4399E1;
+  --foreground: #ffffff;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    font-family: var(--font-montserrat), 'Montserrat', sans-serif !important;
-  }
-  h1, h2, h3, h4, h5, h6, p, span, a, button, input, label {
-    font-family: var(--font-montserrat), 'Montserrat', sans-serif;
-  }
+body {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif !important;
+  background-color: var(--background) !important;
+  color: var(--foreground) !important;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, a, button, input, label, select, textarea {
+  font-family: var(--font-montserrat), 'Montserrat', sans-serif !important;
 }
 
 /* Hide Next.js dev indicator portal */
 nextjs-portal {
   display: none !important;
+}
+
+/* Bootstrap Overrides */
+.btn-primary {
+  background-color: #4399E1 !important;
+  border-color: #4399E1 !important;
+}
+
+.text-primary {
+  color: #4399E1 !important;
+}
+
+.bg-primary {
+  background-color: #4399E1 !important;
+}
+
+.rounded-4 {
+  border-radius: 1rem !important;
+}
+
+.extra-small {
+  font-size: 0.75rem;
 }

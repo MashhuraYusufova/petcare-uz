@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { Container, Button } from "react-bootstrap";
 
 type ReporterProps = {
   /*  ⎯⎯ props are only provided on the global-error page ⎯⎯ */
@@ -97,39 +98,49 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
   /* ─ global-error UI ─ */
   return (
     <html>
-      <body className="min-h-screen bg-background text-foreground flex items-center justify-center p-4">
-        <div className="max-w-md w-full text-center space-y-6">
-          <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-destructive">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        />
+      </head>
+      <body className="vh-100 d-flex align-items-center justify-content-center p-4 bg-light">
+        <Container className="text-center" style={{ maxWidth: 500 }}>
+          <div className="mb-4">
+            <h1 className="h3 fw-bold text-danger mb-3">
               Something went wrong!
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted mb-4">
               An unexpected error occurred. Please try again fixing with Orchids
             </p>
-          </div>
-          <div className="space-y-2">
-            {process.env.NODE_ENV === "development" && (
-              <details className="mt-4 text-left">
-                <summary className="cursor-pointer text-sm text-muted-foreground hover:text-foreground">
-                  Error details
-                </summary>
-                <pre className="mt-2 text-xs bg-muted p-2 rounded overflow-auto">
-                  {error.message}
-                  {error.stack && (
-                    <div className="mt-2 text-muted-foreground">
-                      {error.stack}
-                    </div>
-                  )}
-                  {error.digest && (
-                    <div className="mt-2 text-muted-foreground">
-                      Digest: {error.digest}
-                    </div>
-                  )}
-                </pre>
-              </details>
+            {reset && (
+              <Button onClick={() => reset()} variant="primary" className="rounded-pill px-4 py-2 fw-bold border-0" style={{ backgroundColor: "#4399E1" }}>
+                Try again
+              </Button>
             )}
           </div>
-        </div>
+          
+          {process.env.NODE_ENV === "development" && (
+            <details className="text-start mt-4">
+              <summary className="text-muted cursor-pointer small mb-2" style={{ cursor: 'pointer' }}>
+                Error details
+              </summary>
+              <pre className="p-3 bg-white border rounded small overflow-auto text-dark" style={{ maxHeight: 300 }}>
+                <div className="fw-bold mb-2">{error.message}</div>
+                {error.stack && (
+                  <div className="text-muted opacity-75 mt-2" style={{ fontSize: '0.75rem' }}>
+                    {error.stack}
+                  </div>
+                )}
+                {error.digest && (
+                  <div className="text-muted opacity-75 mt-2" style={{ fontSize: '0.75rem' }}>
+                    Digest: {error.digest}
+                  </div>
+                )}
+              </pre>
+            </details>
+          )}
+        </Container>
       </body>
     </html>
   );

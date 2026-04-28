@@ -1,13 +1,12 @@
 "use client";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, PawPrint, Globe, Send } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, ArrowLeft, PawPrint, Globe, Send, Sun, Moon } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
-import { Sun, Moon } from "lucide-react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
-import { useEffect } from "react";
+import { Container, Row, Col, Card, Form, Button, InputGroup, Alert, Nav } from "react-bootstrap";
 
 type Mode = "login" | "signup" | "forgot";
 
@@ -55,164 +54,203 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="min-vh-100 d-flex bg-white">
       {/* Left visual panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-gradient-to-br from-[#4399E1] to-[#192A51] p-12 text-white relative overflow-hidden">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-20 left-20 w-64 h-64 bg-white rounded-full blur-3xl" />
-          <div className="absolute bottom-20 right-10 w-40 h-40 bg-[#FFA9AC] rounded-full blur-2xl" />
+      <div className="d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden" style={{ width: '50%', background: "linear-gradient(135deg, #4399E1 0%, #192A51 100%)" }}>
+        <div className="position-absolute inset-0 opacity-10 pointer-events-none">
+          <div className="position-absolute top-0 start-0 w-100 h-100" style={{ background: "radial-gradient(circle at 20% 20%, #ffffff 0%, transparent 40%), radial-gradient(circle at 80% 80%, #FFA9AC 0%, transparent 30%)", filter: "blur(60px)" }} />
         </div>
-        <div className="relative z-10">
-          <Link href="/" className="w-fit block">
+        <div className="position-relative z-1">
+          <Link href="/" className="d-block w-fit">
             <Image src="/logo-dark.png" alt="PetCare" width={140} height={40} className="h-10 w-auto brightness-0 invert" />
           </Link>
         </div>
-        <div className="relative z-10 flex flex-col gap-6">
-          <div className="w-24 h-24 bg-white/10 rounded-3xl flex items-center justify-center">
-            <PawPrint size={52} className="text-[#FFA9AC]" />
+        <div className="position-relative z-1 d-flex flex-column gap-4">
+          <div className="d-flex align-items-center justify-content-center rounded-4 mb-2" style={{ width: 80, height: 80, backgroundColor: "rgba(255, 255, 255, 0.1)" }}>
+            <PawPrint size={48} style={{ color: "#FFA9AC" }} />
           </div>
-          <h2 className="text-3xl font-extrabold leading-tight">
+          <h2 className="fw-bold fs-1 lh-sm mb-0">
             {mode === "login" ? "Welcome Back!" : mode === "signup" ? "Join PetCare Today" : "Reset Your Password"}
           </h2>
-          <p className="text-white/80 text-base leading-relaxed max-w-sm">
+          <p className="opacity-75 lead fs-6 mb-2" style={{ maxWidth: 400 }}>
             {mode === "login"
               ? "Access your orders, vet appointments, and personalized pet care recommendations."
               : mode === "signup"
               ? "Create your account and get access to premium pet products, trusted vets, and care guides."
               : "No worries! Enter your email and we'll send you a reset link."}
           </p>
-          <div className="flex flex-col gap-3">
+          <div className="d-flex flex-column gap-2">
             {["10,000+ Happy Pet Owners", "50+ Trusted Veterinarians", "200+ Premium Products"].map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm text-white/80">
-                <span className="w-5 h-5 bg-[#FFA9AC]/40 rounded-full flex items-center justify-center"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              <div key={f} className="d-flex align-items-center gap-2 small opacity-75">
+                <div className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: 18, height: 18, backgroundColor: "rgba(255, 169, 172, 0.4)" }}>
+                  <svg width="8" height="8" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-4.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
                 {f}
               </div>
             ))}
           </div>
         </div>
-        <p className="relative z-10 text-xs text-white/50">© 2025 PetCare.uz · Uzbekistan&apos;s #1 Pet Platform</p>
+        <p className="position-relative z-1 small opacity-50 mb-0">© 2025 PetCare.uz · Uzbekistan&apos;s #1 Pet Platform</p>
       </div>
 
       {/* Right form panel */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 relative">
-        <div className="absolute top-5 left-5 right-5 flex items-center justify-between">
-          <Link href="/" className="lg:hidden flex items-center gap-1.5 text-sm text-[#6b7a99] hover:text-[#4399E1] transition">
-            <ArrowLeft size={16} /> Back to Home
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 position-relative">
+        <div className="position-absolute top-0 start-0 end-0 p-4 d-flex align-items-center justify-content-between">
+          <Link href="/" className="d-lg-none d-flex align-items-center gap-2 text-decoration-none small" style={{ color: "#6b7a99" }}>
+            <ArrowLeft size={16} /> Back
           </Link>
-          <div className="hidden lg:flex" />
-          <button onClick={toggle} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#6b7a99] dark:text-[#8fa4c8] transition">
+          <div className="d-none d-lg-block" />
+          <Button variant="link" onClick={toggle} className="p-0 w-9 h-9 rounded-circle d-flex align-items-center justify-content-center text-decoration-none" style={{ color: '#6b7a99', backgroundColor: theme === 'dark' ? '#1e3060' : '#DDEDFF' }}>
             {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
+          </Button>
         </div>
 
-        <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
+        <div className="w-100" style={{ maxWidth: 400 }}>
+          <div className="d-lg-none d-flex justify-content-center mb-5">
             <Image src={theme === "dark" ? "/logo-dark.png" : "/logo-light.png"} alt="PetCare" width={130} height={36} className="h-9 w-auto" />
           </div>
 
           {mode !== "forgot" && (
-            <div className="flex bg-[#f8faff] dark:bg-[#1a2744] rounded-2xl p-1 mb-8">
+            <Nav className="bg-light rounded-4 p-1 mb-5 nav-pills nav-fill">
               {(["login", "signup"] as Mode[]).map(m => (
-                <button
-                  key={m}
-                  onClick={() => { setMode(m); setError(""); }}
-                  className={`flex-1 text-sm font-semibold py-2.5 rounded-xl transition capitalize ${mode === m ? "bg-white dark:bg-[#162035] text-[#4399E1] shadow-sm" : "text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#4399E1]"}`}
-                >
-                  {m === "login" ? "Sign In" : "Sign Up"}
-                </button>
+                <Nav.Item key={m}>
+                  <Nav.Link
+                    active={mode === m}
+                    onClick={() => { setMode(m); setError(""); }}
+                    className={`rounded-3 small fw-bold py-2 border-0 ${mode === m ? "bg-white shadow-sm" : "text-muted"}`}
+                    style={{ color: mode === m ? "#4399E1" : "" }}
+                  >
+                    {m === "login" ? "Sign In" : "Sign Up"}
+                  </Nav.Link>
+                </Nav.Item>
               ))}
-            </div>
+            </Nav>
           )}
 
-          <h2 className="text-2xl font-bold text-[#192A51] dark:text-white mb-1">
+          <h2 className="fw-bold mb-1" style={{ color: "#192A51", fontSize: '1.5rem' }}>
             {mode === "login" ? "Sign in to your account" : mode === "signup" ? "Create your account" : "Forgot password?"}
           </h2>
-          <p className="text-sm text-[#6b7a99] dark:text-[#8fa4c8] mb-8">
+          <p className="small mb-5" style={{ color: "#6b7a99" }}>
             {mode === "login" ? "Enter your credentials to continue" : mode === "signup" ? "It only takes a minute — join free!" : "We'll send a reset link to your email"}
           </p>
 
           {error && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400">
+            <Alert variant="danger" className="rounded-4 py-3 small border-0 mb-4" style={{ backgroundColor: "#fee2e2", color: "#dc2626" }}>
               {error}
-            </div>
+            </Alert>
           )}
 
-          <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+          <Form onSubmit={handleSubmit} className="d-flex flex-column gap-4">
             {mode === "signup" && (
-              <div>
-                <label className="text-xs font-semibold text-[#192A51] dark:text-white block mb-1.5">Full Name</label>
-                <div className="flex items-center bg-[#f8faff] dark:bg-[#1a2744] border border-border rounded-xl px-3.5 gap-2.5 focus-within:border-[#4399E1] transition">
-                  <User size={16} className="text-[#6b7a99] shrink-0" />
-                  <input value={name} onChange={e => setName(e.target.value)} type="text" placeholder="Your full name" className="flex-1 py-3 text-sm bg-transparent outline-none text-[#192A51] dark:text-white placeholder:text-[#6b7a99]" required />
-                </div>
-              </div>
+              <Form.Group>
+                <Form.Label className="extra-small fw-bold text-uppercase mb-2" style={{ fontSize: 10, letterSpacing: '0.05em' }}>Full Name</Form.Label>
+                <InputGroup className="bg-light border rounded-3 overflow-hidden">
+                  <InputGroup.Text className="bg-transparent border-0 pe-0">
+                    <User size={16} style={{ color: "#6b7a99" }} />
+                  </InputGroup.Text>
+                  <Form.Control
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    type="text"
+                    placeholder="Your full name"
+                    className="bg-transparent border-0 py-2.5 small shadow-none"
+                    required
+                  />
+                </InputGroup>
+              </Form.Group>
             )}
 
-            <div>
-              <label className="text-xs font-semibold text-[#192A51] dark:text-white block mb-1.5">Email Address</label>
-              <div className="flex items-center bg-[#f8faff] dark:bg-[#1a2744] border border-border rounded-xl px-3.5 gap-2.5 focus-within:border-[#4399E1] transition">
-                <Mail size={16} className="text-[#6b7a99] shrink-0" />
-                <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="you@email.com" className="flex-1 py-3 text-sm bg-transparent outline-none text-[#192A51] dark:text-white placeholder:text-[#6b7a99]" required />
-              </div>
-            </div>
+            <Form.Group>
+              <Form.Label className="extra-small fw-bold text-uppercase mb-2" style={{ fontSize: 10, letterSpacing: '0.05em' }}>Email Address</Form.Label>
+              <InputGroup className="bg-light border rounded-3 overflow-hidden">
+                <InputGroup.Text className="bg-transparent border-0 pe-0">
+                  <Mail size={16} style={{ color: "#6b7a99" }} />
+                </InputGroup.Text>
+                <Form.Control
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  type="email"
+                  placeholder="you@email.com"
+                  className="bg-transparent border-0 py-2.5 small shadow-none"
+                  required
+                />
+              </InputGroup>
+            </Form.Group>
 
             {mode !== "forgot" && (
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-semibold text-[#192A51] dark:text-white">Password</label>
+              <Form.Group>
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Form.Label className="extra-small fw-bold text-uppercase mb-0" style={{ fontSize: 10, letterSpacing: '0.05em' }}>Password</Form.Label>
                   {mode === "login" && (
-                    <button type="button" onClick={() => setMode("forgot")} className="text-xs text-[#FFA9AC] hover:underline font-medium">
+                    <Button variant="link" onClick={() => setMode("forgot")} className="p-0 extra-small fw-bold text-decoration-none" style={{ fontSize: 10, color: "#FFA9AC" }}>
                       Forgot password?
-                    </button>
+                    </Button>
                   )}
                 </div>
-                <div className="flex items-center bg-[#f8faff] dark:bg-[#1a2744] border border-border rounded-xl px-3.5 gap-2.5 focus-within:border-[#4399E1] transition">
-                  <Lock size={16} className="text-[#6b7a99] shrink-0" />
-                  <input value={password} onChange={e => setPassword(e.target.value)} type={show ? "text" : "password"} placeholder="••••••••" className="flex-1 py-3 text-sm bg-transparent outline-none text-[#192A51] dark:text-white placeholder:text-[#6b7a99]" required />
-                  <button type="button" onClick={() => setShow(s => !s)} className="text-[#6b7a99] hover:text-[#4399E1] transition shrink-0">
+                <InputGroup className="bg-light border rounded-3 overflow-hidden">
+                  <InputGroup.Text className="bg-transparent border-0 pe-0">
+                    <Lock size={16} style={{ color: "#6b7a99" }} />
+                  </InputGroup.Text>
+                  <Form.Control
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    type={show ? "text" : "password"}
+                    placeholder="••••••••"
+                    className="bg-transparent border-0 py-2.5 small shadow-none"
+                    required
+                  />
+                  <Button variant="link" onClick={() => setShow(s => !s)} className="bg-transparent border-0 text-decoration-none" style={{ color: "#6b7a99" }}>
                     {show ? <EyeOff size={16} /> : <Eye size={16} />}
-                  </button>
-                </div>
-              </div>
+                  </Button>
+                </InputGroup>
+              </Form.Group>
             )}
 
             {mode === "login" && (
-              <label className="flex items-center gap-2.5 cursor-pointer">
-                <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} className="w-4 h-4 accent-[#4399E1] rounded" />
-                <span className="text-sm text-[#6b7a99] dark:text-[#8fa4c8]">Remember me for 30 days</span>
-              </label>
+              <Form.Check
+                type="checkbox"
+                label={<span className="small text-muted ms-1">Remember me for 30 days</span>}
+                checked={remember}
+                onChange={e => setRemember(e.target.checked)}
+                className="cursor-pointer"
+              />
             )}
 
-            <button
+            <Button
               type="submit"
               disabled={submitting}
-              className="mt-2 w-full bg-[#4399E1] hover:bg-[#2d84d0] disabled:opacity-60 text-white font-bold text-sm py-3.5 rounded-xl transition shadow-md shadow-[#4399E1]/30"
+              className="w-100 rounded-3 py-3 fw-bold border-0 shadow-sm mt-2 transition"
+              style={{ backgroundColor: "#4399E1", color: "#ffffff" }}
             >
               {submitting ? "Please wait..." : mode === "login" ? "Sign In" : mode === "signup" ? "Create Account" : "Send Reset Link"}
-            </button>
+            </Button>
 
             {mode === "forgot" && (
-              <button type="button" onClick={() => setMode("login")} className="flex items-center justify-center gap-1.5 text-sm text-[#6b7a99] hover:text-[#4399E1] transition">
+              <Button variant="link" onClick={() => setMode("login")} className="d-flex align-items-center justify-content-center gap-2 text-decoration-none small text-muted">
                 <ArrowLeft size={14} /> Back to Sign In
-              </button>
+              </Button>
             )}
-          </form>
+          </Form>
 
           {mode !== "forgot" && (
             <>
-              <div className="flex items-center gap-3 my-6">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-xs text-[#6b7a99]">or continue with</span>
-                <div className="flex-1 h-px bg-border" />
+              <div className="d-flex align-items-center gap-3 my-5">
+                <div className="flex-grow-1 border-top" />
+                <span className="extra-small text-muted fw-medium text-uppercase" style={{ fontSize: 10 }}>or continue with</span>
+                <div className="flex-grow-1 border-top" />
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <button className="flex items-center justify-center gap-2 border border-border rounded-xl py-2.5 text-sm font-medium text-[#192A51] dark:text-white hover:bg-[#f8faff] dark:hover:bg-[#1a2744] transition">
-                  <Globe size={16} className="text-[#4399E1]" /> Google
-                </button>
-                <button className="flex items-center justify-center gap-2 border border-border rounded-xl py-2.5 text-sm font-medium text-[#192A51] dark:text-white hover:bg-[#f8faff] dark:hover:bg-[#1a2744] transition">
-                  <Send size={16} className="text-[#4399E1]" /> Telegram
-                </button>
-              </div>
+              <Row className="g-3">
+                <Col xs={6}>
+                  <Button variant="outline-light" className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2 text-dark">
+                    <Globe size={16} style={{ color: "#4399E1" }} /> Google
+                  </Button>
+                </Col>
+                <Col xs={6}>
+                  <Button variant="outline-light" className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2 text-dark">
+                    <Send size={16} style={{ color: "#4399E1" }} /> Telegram
+                  </Button>
+                </Col>
+              </Row>
             </>
           )}
         </div>

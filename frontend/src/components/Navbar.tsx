@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { Container, Navbar as BSNavbar, Nav, Button, Badge, Offcanvas } from "react-bootstrap";
 
 const navLinks = [
   { label: "Shop", href: "/shop" },
@@ -15,7 +16,7 @@ const navLinks = [
 
 export default function Navbar() {
   const { theme, toggle } = useTheme();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [showMobile, setShowMobile] = useState(false);
   const [lang, setLang] = useState<"EN" | "UZ">("EN");
   const { user, logout } = useAuth();
   const [cartCount, setCartCount] = useState(0);
@@ -31,9 +32,9 @@ export default function Navbar() {
   }, [user]);
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 dark:bg-[#0f1825]/95 backdrop-blur border-b border-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
-        <Link href="/" className="flex items-center shrink-0">
+    <BSNavbar sticky="top" expand="md" className="bg-white border-bottom shadow-sm" style={{ backgroundColor: theme === 'dark' ? '#0f1825' : '#ffffff', borderColor: theme === 'dark' ? '#1e3060' : '#e8eef7' }}>
+      <Container fluid="xl" className="h-100">
+        <Link href="/" className="navbar-brand d-flex align-items-center me-4">
           {theme === "dark" ? (
             <Image src="/logo-dark.png" alt="PetCare" width={140} height={40} className="h-10 w-auto" priority />
           ) : (
@@ -41,123 +42,141 @@ export default function Navbar() {
           )}
         </Link>
 
-        <nav className="hidden md:flex items-center gap-6">
-          {navLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-sm font-medium text-[#192A51] dark:text-[#c8d8f0] hover:text-[#4399E1] dark:hover:text-[#4399E1] transition-colors"
+        <BSNavbar.Toggle aria-controls="mobile-nav" onClick={() => setShowMobile(true)} className="border-0 shadow-none">
+          <Menu size={24} style={{ color: theme === 'dark' ? '#ffffff' : '#192A51' }} />
+        </BSNavbar.Toggle>
+
+        <BSNavbar.Collapse className="d-none d-md-flex">
+          <Nav className="me-auto gap-3">
+            {navLinks.map(l => (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="nav-link text-sm fw-medium transition-colors"
+                style={{ color: theme === 'dark' ? '#c8d8f0' : '#192A51' }}
+                onMouseEnter={(e) => e.currentTarget.style.color = '#4399E1'}
+                onMouseLeave={(e) => e.currentTarget.style.color = theme === 'dark' ? '#c8d8f0' : '#192A51'}
+              >
+                {l.label}
+              </Link>
+            ))}
+          </Nav>
+
+          <div className="d-flex align-items-center gap-2">
+            <Button
+              variant="link"
+              onClick={() => setLang(l => l === "EN" ? "UZ" : "EN")}
+              className="text-decoration-none d-flex align-items-center gap-1 text-xs fw-semibold px-2 py-1 rounded-3 transition"
+              style={{ color: '#6b7a99' }}
             >
-              {l.label}
+              <Globe size={14} />
+              {lang}
+            </Button>
+
+            <Button
+              variant="link"
+              onClick={toggle}
+              className="p-0 w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
+              style={{ color: '#6b7a99', backgroundColor: 'transparent' }}
+            >
+              {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
+            </Button>
+
+            <Link
+              href="/dashboard"
+              className="w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
+              style={{ color: '#6b7a99' }}
+            >
+              <Heart size={18} />
             </Link>
-          ))}
-        </nav>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setLang(l => l === "EN" ? "UZ" : "EN")}
-            className="hidden md:flex items-center gap-1 text-xs font-semibold text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#4399E1] px-2 py-1 rounded-lg hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] transition"
-          >
-            <Globe size={14} />
-            {lang}
-          </button>
+            <Link
+              href="/cart"
+              className="position-relative w-9 h-9 d-flex align-items-center justify-content-center rounded-circle transition text-decoration-none"
+              style={{ color: '#6b7a99' }}
+            >
+              <ShoppingCart size={18} />
+              {cartCount > 0 && (
+                <Badge pill className="position-absolute top-0 end-0 p-1 d-flex align-items-center justify-content-center" style={{ backgroundColor: '#4399E1', width: 16, height: 16, fontSize: 9 }}>
+                  {cartCount}
+                </Badge>
+              )}
+            </Link>
 
-          <button
-            onClick={toggle}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#4399E1] transition"
-          >
-            {theme === "light" ? <Moon size={18} /> : <Sun size={18} />}
-          </button>
-
-          <Link
-            href="/dashboard"
-            className="hidden md:flex w-9 h-9 items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#FFA9AC] transition"
-          >
-            <Heart size={18} />
-          </Link>
-
-          <Link
-            href="/cart"
-            className="relative w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#6b7a99] dark:text-[#8fa4c8] hover:text-[#4399E1] transition"
-          >
-            <ShoppingCart size={18} />
-            {cartCount > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-[#4399E1] text-white text-[9px] font-bold rounded-full flex items-center justify-center">
-                {cartCount}
-              </span>
+            {user ? (
+              <div className="d-flex align-items-center gap-3 ms-2">
+                <Link
+                  href={user.role === "admin" ? "/admin" : user.role === "vet" ? "/vet-dashboard" : "/dashboard"}
+                  className="btn btn-sm fw-semibold rounded-pill px-3 d-flex align-items-center gap-2"
+                  style={{ backgroundColor: '#DDEDFF', color: '#4399E1', border: 'none' }}
+                >
+                  <User size={14} />
+                  {user.name.split(" ")[0]}
+                </Link>
+                <Button
+                  variant="link"
+                  onClick={logout}
+                  className="text-decoration-none p-0 small fw-medium text-muted hover-danger transition"
+                  style={{ fontSize: '0.75rem' }}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Link
+                href="/auth"
+                className="btn btn-sm fw-semibold rounded-pill px-4 ms-2"
+                style={{ backgroundColor: '#4399E1', color: '#ffffff', border: 'none' }}
+              >
+                Sign In
+              </Link>
             )}
-          </Link>
+          </div>
+        </BSNavbar.Collapse>
 
-          {user ? (
-            <div className="hidden md:flex items-center gap-2">
+        <Offcanvas show={showMobile} onHide={() => setShowMobile(false)} placement="end" style={{ backgroundColor: theme === 'dark' ? '#0f1825' : '#ffffff' }}>
+          <Offcanvas.Header closeButton className={theme === 'dark' ? 'btn-close-white' : ''}>
+            <Offcanvas.Title>Menu</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body className="d-flex flex-column gap-3">
+            {navLinks.map(l => (
               <Link
-                href={user.role === "admin" ? "/admin" : user.role === "vet" ? "/vet-dashboard" : "/dashboard"}
-                className="flex items-center gap-1.5 bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1] text-sm font-semibold px-4 py-2 rounded-full transition hover:bg-[#4399E1] hover:text-white"
+                key={l.href}
+                href={l.href}
+                onClick={() => setShowMobile(false)}
+                className="text-decoration-none fw-medium py-2 border-bottom"
+                style={{ color: theme === 'dark' ? '#c8d8f0' : '#192A51', borderColor: theme === 'dark' ? '#1e3060' : '#e8eef7' }}
               >
-                <User size={14} />
-                {user.name.split(" ")[0]}
+                {l.label}
               </Link>
-              <button
-                onClick={logout}
-                className="text-xs text-[#6b7a99] hover:text-red-400 transition font-medium"
-              >
-                Sign Out
-              </button>
-            </div>
-          ) : (
-            <Link
-              href="/auth"
-              className="hidden md:flex items-center gap-1.5 bg-[#4399E1] hover:bg-[#2d84d0] text-white text-sm font-semibold px-4 py-2 rounded-full transition"
-            >
-              <User size={14} />
-              Sign In
-            </Link>
-          )}
-
-          <button
-            className="md:hidden w-9 h-9 flex items-center justify-center rounded-full hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060] text-[#192A51] dark:text-white transition"
-            onClick={() => setMobileOpen(o => !o)}
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
-        </div>
-      </div>
-
-      {mobileOpen && (
-        <div className="md:hidden border-t border-border bg-white dark:bg-[#0f1825] px-4 py-4 flex flex-col gap-3">
-          {navLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => setMobileOpen(false)}
-              className="text-sm font-medium text-[#192A51] dark:text-[#c8d8f0] hover:text-[#4399E1] transition py-2 border-b border-border last:border-0"
-            >
-              {l.label}
-            </Link>
-          ))}
-          {user ? (
-            <div className="flex flex-col gap-2 mt-2">
+            ))}
+            {user ? (
+              <div className="d-flex flex-column gap-2 mt-2">
+                <Link
+                  href={user.role === "admin" ? "/admin" : user.role === "vet" ? "/vet-dashboard" : "/dashboard"}
+                  onClick={() => setShowMobile(false)}
+                  className="btn fw-semibold rounded-pill py-2 d-flex align-items-center justify-content-center gap-2"
+                  style={{ backgroundColor: '#4399E1', color: '#ffffff', border: 'none' }}
+                >
+                  <User size={14} /> {user.role === "admin" ? "Admin Panel" : user.role === "vet" ? "Vet Dashboard" : "Dashboard"}
+                </Link>
+                <Button variant="link" onClick={() => { logout(); setShowMobile(false); }} className="text-decoration-none text-danger fw-medium py-1">
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
               <Link
-                href={user.role === "admin" ? "/admin" : user.role === "vet" ? "/vet-dashboard" : "/dashboard"}
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center justify-center gap-1.5 bg-[#4399E1] text-white text-sm font-semibold px-4 py-2.5 rounded-full"
+                href="/auth"
+                onClick={() => setShowMobile(false)}
+                className="btn fw-semibold rounded-pill py-2 mt-2"
+                style={{ backgroundColor: '#4399E1', color: '#ffffff', border: 'none' }}
               >
-                <User size={14} /> {user.role === "admin" ? "Admin Panel" : user.role === "vet" ? "Vet Dashboard" : "Dashboard"}
+                Sign In
               </Link>
-              <button onClick={() => { logout(); setMobileOpen(false); }} className="text-sm text-red-400 font-medium py-1">Sign Out</button>
-            </div>
-          ) : (
-            <Link
-              href="/auth"
-              onClick={() => setMobileOpen(false)}
-              className="mt-2 flex items-center justify-center gap-1.5 bg-[#4399E1] text-white text-sm font-semibold px-4 py-2.5 rounded-full"
-            >
-              <User size={14} />
-              Sign In
-            </Link>
-          )}
-        </div>
-      )}
-    </header>
+            )}
+          </Offcanvas.Body>
+        </Offcanvas>
+      </Container>
+    </BSNavbar>
   );
 }

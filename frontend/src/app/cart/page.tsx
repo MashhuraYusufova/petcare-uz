@@ -7,6 +7,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Container, Row, Col, Card, Button, Badge } from "react-bootstrap";
 
 interface Product {
   id: string;
@@ -90,101 +91,120 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-vh-100 d-flex flex-column bg-white">
       <Navbar />
 
-      <main className="flex-1 max-w-7xl mx-auto px-6 py-12 w-full">
-        <h1 className="text-3xl font-bold text-[#192A51] dark:text-white mb-8 flex items-center gap-3">
-          <ShoppingBag className="text-[#4399E1]" /> Shopping Cart
-        </h1>
+      <main className="flex-grow-1 py-5">
+        <Container>
+          <h1 className="fw-bold mb-5 d-flex align-items-center gap-3" style={{ color: "#192A51", fontSize: '2rem' }}>
+            <ShoppingBag style={{ color: "#4399E1" }} /> Shopping Cart
+          </h1>
 
-        {loading ? (
-          <div className="flex flex-col gap-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-32 bg-white dark:bg-[#1a2744] rounded-2xl animate-pulse border border-border" />
-            ))}
-          </div>
-        ) : items.length === 0 ? (
-          <div className="bg-white dark:bg-[#1a2744] rounded-3xl p-12 text-center border border-border shadow-sm">
-            <div className="w-20 h-20 bg-[#DDEDFF] dark:bg-[#1e3060] rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShoppingBag size={32} className="text-[#4399E1]" />
-            </div>
-            <h2 className="text-xl font-bold text-[#192A51] dark:text-white mb-2">Your cart is empty</h2>
-            <p className="text-[#6b7a99] dark:text-[#8fa4c8] mb-8">Looks like you haven't added any premium products yet.</p>
-            <Link href="/shop" className="inline-flex items-center gap-2 bg-[#4399E1] text-white px-8 py-3 rounded-2xl font-bold hover:bg-[#2d84d0] transition shadow-lg shadow-blue-200 dark:shadow-none">
-              Start Shopping <ArrowRight size={18} />
-            </Link>
-          </div>
-        ) : (
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-1 flex flex-col gap-4">
-              {items.map(item => (
-                <div key={item.id} className="bg-white dark:bg-[#1a2744] rounded-2xl p-4 border border-border shadow-sm flex items-center gap-6">
-                  <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0 border border-border">
-                    <img src={item.product.img} alt={item.product.name} className="w-full h-full object-cover" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-[#4399E1] font-bold uppercase tracking-wider">{item.product.brand}</p>
-                    <h3 className="text-lg font-bold text-[#192A51] dark:text-white truncate">{item.product.name}</h3>
-                    <p className="text-[#4399E1] font-bold mt-1">{item.product.price.toLocaleString()} sum</p>
-                  </div>
-                  <div className="flex items-center gap-3 bg-[#f8fafc] dark:bg-[#0f172a] p-1.5 rounded-xl border border-border">
-                    <button
-                      onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-[#1a2744] transition text-[#192A51] dark:text-white"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className="w-8 text-center font-bold text-[#192A51] dark:text-white">{item.quantity}</span>
-                    <button
-                      onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white dark:hover:bg-[#1a2744] transition text-[#192A51] dark:text-white"
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                  <button
-                    onClick={() => removeItem(item.productId)}
-                    className="p-3 text-[#FFA9AC] hover:bg-[#FFF5F5] dark:hover:bg-[#2d1a1a] rounded-xl transition"
-                  >
-                    <Trash2 size={20} />
-                  </button>
-                </div>
+          {loading ? (
+            <div className="d-flex flex-column gap-4">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="bg-light rounded-4 border animate-pulse" style={{ height: 120 }} />
               ))}
             </div>
-
-            <div className="w-full lg:w-96 shrink-0">
-              <div className="bg-white dark:bg-[#1a2744] rounded-3xl p-6 border border-border shadow-sm sticky top-8">
-                <h3 className="text-xl font-bold text-[#192A51] dark:text-white mb-6">Order Summary</h3>
-                <div className="flex flex-col gap-4 text-sm">
-                  <div className="flex justify-between text-[#6b7a99] dark:text-[#8fa4c8]">
-                    <span>Subtotal</span>
-                    <span className="font-bold text-[#192A51] dark:text-white">{subtotal.toLocaleString()} sum</span>
-                  </div>
-                  <div className="flex justify-between text-[#6b7a99] dark:text-[#8fa4c8]">
-                    <span>Shipping</span>
-                    <span className="font-bold text-[#192A51] dark:text-white">{shipping.toLocaleString()} sum</span>
-                  </div>
-                  <div className="h-px bg-border my-2" />
-                  <div className="flex justify-between text-lg font-bold">
-                    <span className="text-[#192A51] dark:text-white">Total</span>
-                    <span className="text-[#4399E1]">{total.toLocaleString()} sum</span>
-                  </div>
-                </div>
-                <button
-                  onClick={checkout}
-                  disabled={checkingOut}
-                  className="w-full bg-[#192A51] text-white py-4 rounded-2xl font-bold mt-8 hover:bg-[#253d75] transition shadow-lg disabled:opacity-50"
-                >
-                  {checkingOut ? "Processing..." : "Checkout Now"}
-                </button>
-                <Link href="/shop" className="block text-center text-sm font-bold text-[#4399E1] mt-4 hover:underline">
-                  Continue Shopping
-                </Link>
+          ) : items.length === 0 ? (
+            <Card className="rounded-4 p-5 text-center border-0 bg-light shadow-none">
+              <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: 80, height: 80, backgroundColor: "#DDEDFF" }}>
+                <ShoppingBag size={32} style={{ color: "#4399E1" }} />
               </div>
-            </div>
-          </div>
-        )}
+              <h2 className="fw-bold mb-2" style={{ color: "#192A51" }}>Your cart is empty</h2>
+              <p className="text-muted mb-5">Looks like you haven't added any premium products yet.</p>
+              <Link href="/shop" className="btn btn-lg fw-bold rounded-4 px-5 py-3 shadow-none transition" style={{ backgroundColor: "#4399E1", color: "#ffffff" }}>
+                Start Shopping <ArrowRight size={18} className="ms-2" />
+              </Link>
+            </Card>
+          ) : (
+            <Row className="g-5">
+              <Col lg={8}>
+                <div className="d-flex flex-column gap-4">
+                  {items.map(item => (
+                    <Card key={item.id} className="rounded-4 p-4 border shadow-none bg-white">
+                      <Row className="align-items-center g-4">
+                        <Col xs="auto">
+                          <div className="rounded-3 overflow-hidden border" style={{ width: 96, height: 96 }}>
+                            <img src={item.product.img} alt={item.product.name} className="w-100 h-100 object-fit-cover" />
+                          </div>
+                        </Col>
+                        <Col className="min-w-0">
+                          <p className="extra-small fw-bold text-uppercase mb-1" style={{ color: "#4399E1", fontSize: 10, letterSpacing: '0.05em' }}>{item.product.brand}</p>
+                          <h3 className="h6 fw-bold mb-1 text-dark truncate">{item.product.name}</h3>
+                          <p className="fw-bold mb-0" style={{ color: "#4399E1" }}>{item.product.price.toLocaleString()} sum</p>
+                        </Col>
+                        <Col xs="auto">
+                          <div className="d-flex align-items-center gap-2 p-1 bg-light rounded-3 border">
+                            <Button
+                              variant="link"
+                              size="sm"
+                              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center hover-bg-white text-dark"
+                            >
+                              <Minus size={14} />
+                            </Button>
+                            <span className="small fw-bold text-center" style={{ width: 24 }}>{item.quantity}</span>
+                            <Button
+                              variant="link"
+                              size="sm"
+                              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center hover-bg-white text-dark"
+                            >
+                              <Plus size={14} />
+                            </Button>
+                          </div>
+                        </Col>
+                        <Col xs="auto">
+                          <Button
+                            variant="link"
+                            onClick={() => removeItem(item.productId)}
+                            className="p-3 rounded-3 text-decoration-none transition"
+                            style={{ color: "#FFA9AC" }}
+                          >
+                            <Trash2 size={20} />
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Card>
+                  ))}
+                </div>
+              </Col>
+
+              <Col lg={4}>
+                <Card className="rounded-4 p-4 border shadow-sm bg-white sticky-top" style={{ top: '6rem' }}>
+                  <h3 className="h5 fw-bold mb-4 text-dark">Order Summary</h3>
+                  <div className="d-flex flex-column gap-3 small">
+                    <div className="d-flex justify-content-between text-muted">
+                      <span>Subtotal</span>
+                      <span className="fw-bold text-dark">{subtotal.toLocaleString()} sum</span>
+                    </div>
+                    <div className="d-flex justify-content-between text-muted">
+                      <span>Shipping</span>
+                      <span className="fw-bold text-dark">{shipping.toLocaleString()} sum</span>
+                    </div>
+                    <hr className="my-2 border-light" />
+                    <div className="d-flex justify-content-between h5 fw-bold mb-0 pt-1">
+                      <span className="text-dark">Total</span>
+                      <span style={{ color: "#4399E1" }}>{total.toLocaleString()} sum</span>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={checkout}
+                    disabled={checkingOut}
+                    className="w-100 rounded-4 py-3 fw-bold border-0 mt-5 transition shadow-sm"
+                    style={{ backgroundColor: "#192A51", color: "#ffffff" }}
+                  >
+                    {checkingOut ? "Processing..." : "Checkout Now"}
+                  </Button>
+                  <Link href="/shop" className="d-block text-center small fw-bold mt-3 text-decoration-none" style={{ color: "#4399E1" }}>
+                    Continue Shopping
+                  </Link>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </Container>
       </main>
 
       <Footer />

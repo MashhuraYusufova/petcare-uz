@@ -1,6 +1,7 @@
 const config = {
   plugins: {
-    "@tailwindcss/postcss": {},
+    // Autoprefixer is usually recommended for Bootstrap
+    // "autoprefixer": {},
   },
 };
 

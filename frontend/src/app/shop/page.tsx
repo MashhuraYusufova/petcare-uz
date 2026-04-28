@@ -5,6 +5,7 @@ import { Search, Star, Heart, SlidersHorizontal, ChevronDown, Plus } from "lucid
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { Container, Row, Col, Card, Badge, Button, Form, InputGroup, Nav } from "react-bootstrap";
 
 interface Product {
   id: string;
@@ -91,152 +92,173 @@ export default function ShopPage() {
   else if (sort === "Best Rating") filtered = [...filtered].sort((a, b) => b.rating - a.rating);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-vh-100 d-flex flex-column bg-white">
       <Navbar />
 
-      <section className="bg-gradient-to-r from-[#DDEDFF] to-white dark:from-[#1a2744] dark:to-[#0f1825] py-10 px-6">
-        <div className="max-w-7xl mx-auto">
-          <h1 className="text-3xl font-bold text-[#192A51] dark:text-white mb-2">Pet Shop</h1>
-          <p className="text-sm text-[#6b7a99] dark:text-[#8fa4c8]">Premium products for your beloved pets</p>
-          <div className="mt-6 flex items-center bg-white dark:bg-[#1a2744] border border-border rounded-2xl shadow-sm overflow-hidden px-4 gap-3 max-w-xl">
-            <Search size={18} className="text-[#6b7a99] shrink-0" />
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search products..."
-              className="flex-1 py-3.5 text-sm bg-transparent outline-none text-[#192A51] dark:text-white placeholder:text-[#6b7a99]"
-            />
+      <section style={{ background: "linear-gradient(90deg, #DDEDFF 0%, #ffffff 100%)", padding: "3rem 1.5rem" }}>
+        <Container>
+          <h1 className="fw-bold mb-1" style={{ color: "#192A51", fontSize: '2rem' }}>Pet Shop</h1>
+          <p className="small mb-4" style={{ color: "#6b7a99" }}>Premium products for your beloved pets</p>
+          <div className="position-relative" style={{ maxWidth: 576 }}>
+            <InputGroup className="bg-white border rounded-4 shadow-sm overflow-hidden">
+              <InputGroup.Text className="bg-transparent border-0 ps-3">
+                <Search size={18} style={{ color: "#6b7a99" }} />
+              </InputGroup.Text>
+              <Form.Control
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Search products..."
+                className="border-0 py-3 shadow-none text-sm"
+                style={{ fontFamily: "'Montserrat', sans-serif" }}
+              />
+            </InputGroup>
           </div>
-        </div>
+        </Container>
       </section>
 
-      <div className="max-w-7xl mx-auto px-6 py-8 w-full flex gap-8">
-        <aside className="hidden lg:flex flex-col gap-6 w-56 shrink-0">
-          <div>
-            <h3 className="text-sm font-bold text-[#192A51] dark:text-white mb-3 flex items-center gap-2"><SlidersHorizontal size={14} /> Filters</h3>
-            <div className="flex flex-col gap-1">
-              {categories.map(c => (
-                <button
-                  key={c}
-                  onClick={() => setActivecat(c)}
-                  className={`text-left text-sm px-3 py-2 rounded-xl transition font-medium ${activecat === c ? "bg-[#4399E1] text-white" : "text-[#6b7a99] dark:text-[#8fa4c8] hover:bg-[#DDEDFF] dark:hover:bg-[#1e3060]"}`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-          </div>
+      <Container className="py-5">
+        <Row className="g-4">
+          <Col lg={3} className="d-none d-lg-block">
+            <aside className="d-flex flex-column gap-4 sticky-top" style={{ top: '6rem' }}>
+              <div>
+                <h3 className="fw-bold mb-3 d-flex align-items-center gap-2" style={{ fontSize: '0.875rem', color: "#192A51" }}>
+                  <SlidersHorizontal size={14} /> Filters
+                </h3>
+                <Nav className="flex-column gap-1">
+                  {categories.map(c => (
+                    <Button
+                      key={c}
+                      variant="link"
+                      onClick={() => setActivecat(c)}
+                      className={`text-start text-decoration-none px-3 py-2 rounded-3 small fw-medium transition ${activecat === c ? "bg-primary text-white" : "text-muted"}`}
+                      style={{ backgroundColor: activecat === c ? "#4399E1" : "transparent" }}
+                    >
+                      {c}
+                    </Button>
+                  ))}
+                </Nav>
+              </div>
 
-          <div>
-            <h3 className="text-sm font-bold text-[#192A51] dark:text-white mb-3">Price Range</h3>
-            <div className="flex flex-col gap-2">
-              {["Under 50,000", "50,000 – 150,000", "150,000 – 300,000", "Over 300,000"].map(r => (
-                <label key={r} className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="accent-[#4399E1] w-4 h-4 rounded" />
-                  <span className="text-sm text-[#6b7a99] dark:text-[#8fa4c8]">{r} sum</span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-bold text-[#192A51] dark:text-white mb-3">Rating</h3>
-            {[5, 4, 3].map(r => (
-              <label key={r} className="flex items-center gap-2 cursor-pointer mb-1.5">
-                <input type="checkbox" className="accent-[#4399E1] w-4 h-4 rounded" />
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: r }).map((_, i) => <Star key={i} size={12} className="fill-amber-400 text-amber-400" />)}
-                  {Array.from({ length: 5 - r }).map((_, i) => <Star key={i} size={12} className="text-gray-200 dark:text-gray-600" />)}
+              <div>
+                <h3 className="fw-bold mb-3" style={{ fontSize: '0.875rem', color: "#192A51" }}>Price Range</h3>
+                <div className="d-flex flex-column gap-2">
+                  {["Under 50,000", "50,000 – 150,000", "150,000 – 300,000", "Over 300,000"].map(r => (
+                    <Form.Check key={r} type="checkbox" label={<span className="small text-muted">{r} sum</span>} className="cursor-pointer" />
+                  ))}
                 </div>
-                <span className="text-xs text-[#6b7a99]">& up</span>
-              </label>
-            ))}
-          </div>
-        </aside>
+              </div>
 
-        <div className="flex-1">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-            <p className="text-sm text-[#6b7a99] dark:text-[#8fa4c8]">
-              <span className="font-semibold text-[#192A51] dark:text-white">{loading ? "..." : filtered.length}</span> products found
-            </p>
-            <div className="flex items-center gap-2">
-              <div className="lg:hidden flex gap-2 overflow-x-auto">
-                {categories.slice(0, 4).map(c => (
-                  <button
-                    key={c}
-                    onClick={() => setActivecat(c)}
-                    className={`text-xs font-medium px-3 py-1.5 rounded-full whitespace-nowrap transition ${activecat === c ? "bg-[#4399E1] text-white" : "bg-white dark:bg-[#1a2744] border border-border text-[#6b7a99]"}`}
-                  >
-                    {c}
-                  </button>
+              <div>
+                <h3 className="fw-bold mb-3" style={{ fontSize: '0.875rem', color: "#192A51" }}>Rating</h3>
+                {[5, 4, 3].map(r => (
+                  <Form.Check key={r} type="checkbox" className="mb-2 cursor-pointer" label={
+                    <div className="d-flex align-items-center gap-1 ms-1">
+                      <div className="d-flex align-items-center">
+                        {Array.from({ length: r }).map((_, i) => <Star key={i} size={12} style={{ fill: "#fbbf24", color: "#fbbf24" }} />)}
+                        {Array.from({ length: 5 - r }).map((_, i) => <Star key={i} size={12} style={{ color: "#e5e7eb" }} />)}
+                      </div>
+                      <span className="extra-small text-muted ms-1">& up</span>
+                    </div>
+                  } />
                 ))}
               </div>
-              <div className="relative">
-                <select
+            </aside>
+          </Col>
+
+          <Col lg={9}>
+            <div className="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-3">
+              <p className="small mb-0 text-muted">
+                <span className="fw-bold text-dark">{loading ? "..." : filtered.length}</span> products found
+              </p>
+              <div className="d-flex align-items-center gap-3">
+                <div className="d-lg-none d-flex gap-2 overflow-auto pb-1" style={{ maxWidth: '60vw' }}>
+                  {categories.slice(0, 4).map(c => (
+                    <Button
+                      key={c}
+                      size="sm"
+                      onClick={() => setActivecat(c)}
+                      variant={activecat === c ? "primary" : "outline-secondary"}
+                      className="rounded-pill text-nowrap px-3"
+                      style={{ backgroundColor: activecat === c ? "#4399E1" : "transparent", borderColor: activecat === c ? "#4399E1" : "#e5e7eb", fontSize: '0.75rem' }}
+                    >
+                      {c}
+                    </Button>
+                  ))}
+                </div>
+                <Form.Select
+                  size="sm"
                   value={sort}
                   onChange={e => setSort(e.target.value)}
-                  className="text-sm bg-white dark:bg-[#1a2744] border border-border text-[#192A51] dark:text-white rounded-xl px-3 py-2 pr-8 outline-none appearance-none cursor-pointer"
+                  className="rounded-3 border shadow-none"
+                  style={{ width: 'auto', fontSize: '0.875rem', paddingRight: '2rem' }}
                 >
-                  {sortOptions.map(o => <option key={o}>{o}</option>)}
-                </select>
-                <ChevronDown size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#6b7a99] pointer-events-none" />
+                  {sortOptions.map(o => <option key={o} value={o}>{o}</option>)}
+                </Form.Select>
               </div>
             </div>
-          </div>
 
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <div key={i} className="h-64 bg-white dark:bg-[#1a2744] rounded-2xl border border-border animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-5">
-              {filtered.map(p => (
-                <div key={p.id} className="bg-white dark:bg-[#1a2744] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition border border-border group">
-                  <div className="relative h-40 overflow-hidden">
-                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    {p.tag && (
-                      <span className={`absolute top-2 left-2 text-[10px] font-bold px-2 py-0.5 rounded-full ${p.tag === "Sale" || p.tag === "Bestseller" || p.tag === "Popular" ? "bg-[#FFA9AC] text-white" : "bg-[#4399E1] text-white"}`}>
-                        {p.tag}
-                      </span>
-                    )}
-                    <button
-                      onClick={() => toggleWishlist(p.id)}
-                      className="absolute top-2 right-2 w-7 h-7 bg-white dark:bg-[#1a2744] rounded-full flex items-center justify-center shadow transition opacity-0 group-hover:opacity-100"
-                    >
-                      <Heart size={13} className={wishlist.includes(p.id) ? "fill-[#FFA9AC] text-[#FFA9AC]" : "text-[#6b7a99]"} />
-                    </button>
-                  </div>
-                  <div className="p-3 flex flex-col gap-1.5">
-                    <p className="text-[10px] text-[#4399E1] font-medium">{p.brand}</p>
-                    <p className="text-sm font-semibold text-[#192A51] dark:text-white leading-tight">{p.name}</p>
-                    <div className="flex items-center gap-1">
-                      <Star size={10} className="fill-amber-400 text-amber-400" />
-                      <span className="text-[11px] text-[#6b7a99]">{p.rating} ({p.reviews})</span>
-                    </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div>
-                        <span className="text-sm font-bold text-[#192A51] dark:text-white">{p.price.toLocaleString()}</span>
-                        {p.oldPrice && <span className="ml-1 text-[10px] line-through text-[#6b7a99]">{p.oldPrice.toLocaleString()}</span>}
+            {loading ? (
+              <Row className="g-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Col xs={6} sm={4} xl={3} key={i}>
+                    <div className="bg-light rounded-4 border animate-pulse" style={{ height: 260 }} />
+                  </Col>
+                ))}
+              </Row>
+            ) : (
+              <Row className="g-4">
+                {filtered.map(p => (
+                  <Col xs={6} sm={4} xl={3} key={p.id}>
+                    <Card className="h-100 border shadow-none rounded-4 overflow-hidden position-relative group">
+                      <div className="position-relative" style={{ height: 160, overflow: "hidden" }}>
+                        <img src={p.img} alt={p.name} className="w-100 h-100 object-fit-cover transition duration-300" style={{ transform: 'scale(1)' }} onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'} onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'} />
+                        {p.tag && (
+                          <Badge pill className="position-absolute" style={{ top: 8, left: 8, backgroundColor: p.tag === "Sale" || p.tag === "Bestseller" || p.tag === "Popular" ? "#FFA9AC" : "#4399E1", fontSize: 10 }}>
+                            {p.tag}
+                          </Badge>
+                        )}
+                        <Button
+                          variant="light"
+                          size="sm"
+                          onClick={() => toggleWishlist(p.id)}
+                          className="position-absolute rounded-circle p-1 d-flex align-items-center justify-content-center border-0 shadow-sm opacity-0 group-hover-opacity-100 transition"
+                          style={{ top: 8, right: 8, width: 28, height: 28 }}
+                        >
+                          <Heart size={13} style={{ fill: wishlist.includes(p.id) ? "#FFA9AC" : "transparent", color: wishlist.includes(p.id) ? "#FFA9AC" : "#6b7a99" }} />
+                        </Button>
                       </div>
-                      <button
-                        onClick={() => addToCart(p.id)}
-                        disabled={addingToCart === p.id}
-                        aria-label={`Add ${p.name} to cart`}
-                        className="inline-flex items-center gap-1.5 bg-[#4399E1] hover:bg-[#2d84d0] text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50"
-                      >
-                        <Plus size={13} className={addingToCart === p.id ? "animate-pulse" : ""} />
-                        Add
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
+                      <Card.Body className="p-3 d-flex flex-column gap-1">
+                        <p className="extra-small fw-medium mb-0" style={{ color: "#4399E1", fontSize: 10 }}>{p.brand}</p>
+                        <Card.Title className="small fw-bold mb-1" style={{ color: "#192A51", lineHeight: 1.3, height: '2.6em', overflow: 'hidden' }}>{p.name}</Card.Title>
+                        <div className="d-flex align-items-center gap-1 mb-2">
+                          <Star size={10} style={{ fill: "#fbbf24", color: "#fbbf24" }} />
+                          <span className="small text-muted" style={{ fontSize: 11 }}>{p.rating} ({p.reviews})</span>
+                        </div>
+                        <div className="mt-auto d-flex align-items-center justify-content-between">
+                          <div className="d-flex flex-column">
+                            <span className="small fw-bold" style={{ color: "#192A51" }}>{p.price.toLocaleString()}</span>
+                            {p.oldPrice && <span className="extra-small text-decoration-line-through text-muted" style={{ fontSize: 9 }}>{p.oldPrice.toLocaleString()}</span>}
+                          </div>
+                          <Button
+                            size="sm"
+                            onClick={() => addToCart(p.id)}
+                            disabled={addingToCart === p.id}
+                            style={{ backgroundColor: "#4399E1", border: "none", fontSize: 11, padding: '4px 8px', borderRadius: 8 }}
+                            className="d-flex align-items-center gap-1 fw-semibold"
+                          >
+                            <Plus size={12} className={addingToCart === p.id ? "animate-pulse" : ""} />
+                            Add
+                          </Button>
+                        </div>
+                      </Card.Body>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            )}
+          </Col>
+        </Row>
+      </Container>
 
       <Footer />
     </div>

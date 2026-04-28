@@ -1,38 +1,14 @@
 "use client";
 import { useState, useEffect } from "react";
-import { LayoutDashboard, Calendar, Users, Clock, Settings, Menu, CheckCircle, XCircle, Bell } from "lucide-react";
+import { Menu, CheckCircle, XCircle, Bell, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
-import { Sun, Moon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
-
-const navItems = [
-  { icon: LayoutDashboard, label: "Overview" },
-  { icon: Calendar, label: "Appointments" },
-  { icon: Clock, label: "Availability" },
-  { icon: Users, label: "Patient Requests" },
-  { icon: Settings, label: "Profile Settings" },
-];
-
-interface Vet {
-  id: string; name: string; spec: string; clinic: string; district: string;
-  rating: number; reviews: number; exp: string; price: string; avail: boolean;
-  slots: string[]; email: string | null;
-}
-
-interface Appointment {
-  id: string; date: string; status: string; reason: string | null;
-  user: { id: string; name: string; email: string };
-}
-
-interface Stats {
-  upcomingCount: number; pendingCount: number; completedCount: number;
-  rating: number; reviews: number;
-}
-
-interface SlotState { time: string; status: "available" | "blocked" | "booked" }
+import { Container, Row, Col, Card, Button, Badge, Form, Offcanvas } from "react-bootstrap";
+import VetSidebar from "@/components/VetSidebar";
+import { Vet, Appointment, Stats, SlotState } from "@/types/vet";
 
 const ALL_TIMES = ["08:00","09:00","09:30","10:00","10:30","11:00","12:00","13:00","14:00","14:30","15:00","16:00","17:00"];
 
@@ -61,25 +37,33 @@ export default function VetDashboardPage() {
 
   useEffect(() => {
     if (!user || user.role !== "vet") return;
-    Promise.all([
-      api.get<Vet>("/api/vet/me"),
-      api.get<Appointment[]>("/api/vet/appointments"),
-      api.get<Stats>("/api/vet/stats"),
-    ]).then(([v, a, s]) => {
-      setVet(v);
-      setAppointments(a);
-      setStats(s);
-      setProfileForm({ name: v.name, spec: v.spec, clinic: v.clinic, exp: v.exp, price: v.price });
+    async function fetchData() {
+      try {
+        const [v, a, s] = await Promise.all([
+          api.get<Vet>("/api/vet/me"),
+          api.get<Appointment[]>("/api/vet/appointments"),
+          api.get<Stats>("/api/vet/stats"),
+        ]);
+        setVet(v);
+        setAppointments(a);
+        setStats(s);
+        setProfileForm({ name: v.name, spec: v.spec, clinic: v.clinic, exp: v.exp, price: v.price });
 
-      const bookedTimes = new Set(
-        a.filter(ap => ap.status === "Upcoming" || ap.status === "Confirmed")
-          .map(ap => ap.date.split("·")[1]?.trim() ?? "")
-      );
-      setAvailability(ALL_TIMES.map(time => ({
-        time,
-        status: bookedTimes.has(time) ? "booked" : v.slots.includes(time) ? "available" : "blocked",
-      })));
-    }).catch(() => { /* vet profile not linked yet */ }).finally(() => setLoading(false));
+        const bookedTimes = new Set(
+          a.filter(ap => ap.status === "Upcoming" || ap.status === "Confirmed")
+            .map(ap => ap.date.split("·")[1]?.trim() ?? "")
+        );
+        setAvailability(ALL_TIMES.map(time => ({
+          time,
+          status: bookedTimes.has(time) ? "booked" : (v.slots ?? []).includes(time) ? "available" : "blocked",
+        })));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
   }, [user]);
 
   function toggleSlot(time: string) {
@@ -96,11 +80,8 @@ export default function VetDashboardPage() {
     try {
       const updated = await api.put<Vet>("/api/vet/availability", { slots });
       setVet(updated);
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSavingSlots(false);
-    }
+    } catch (err: any) { alert(err.message); }
+    finally { setSavingSlots(false); }
   }
 
   async function saveProfile() {
@@ -108,11 +89,8 @@ export default function VetDashboardPage() {
     try {
       const updated = await api.put<Vet>("/api/vet/profile", profileForm);
       setVet(updated);
-    } catch (err: any) {
-      alert(err.message);
-    } finally {
-      setSavingProfile(false);
-    }
+    } catch (err: any) { alert(err.message); }
+    finally { setSavingProfile(false); }
   }
 
   async function confirmAppointment(id: string) {
@@ -139,269 +117,121 @@ export default function VetDashboardPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="min-h-screen flex bg-[#f8faff] dark:bg-[#0a1220]">
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-60 bg-[#192A51] dark:bg-[#0f1825] text-white transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-5 border-b border-white/10">
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#4399E1] rounded-full flex items-center justify-center text-sm">🐾</div>
-              <span className="font-bold text-sm">Pet<span className="text-[#4399E1]">Care</span> Vets</span>
-            </div>
-            <div className="flex items-center gap-2.5">
-              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">👩‍⚕️</div>
-              <div>
-                <p className="text-sm font-semibold">{vet?.name ?? user.name}</p>
-                <p className="text-xs text-white/60">{vet?.spec ?? "Veterinarian"}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 overflow-y-auto">
-          {navItems.map(n => (
-            <button
-              key={n.label}
-              onClick={() => { setTab(n.label); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 text-sm font-medium px-3 py-2.5 rounded-xl mb-1 transition text-left ${tab === n.label ? "bg-[#4399E1] text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
-            >
-              <n.icon size={16} />
-              {n.label}
-              {n.label === "Patient Requests" && pending.length > 0 && (
-                <span className="ml-auto w-4 h-4 bg-[#FFA9AC] rounded-full text-[10px] font-bold flex items-center justify-center">{pending.length}</span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-white/10">
-          <Link href="/" className="text-xs text-white/50 hover:text-white transition">← Back to Site</Link>
-        </div>
+    <div className="min-vh-100 d-flex bg-light">
+      <aside className="d-none d-lg-block shrink-0" style={{ width: 240 }}>
+        <VetSidebar vet={vet} user={user} tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} pendingCount={pending.length} />
       </aside>
-      {sidebarOpen && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white dark:bg-[#1a2744] border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden" onClick={() => setSidebarOpen(true)}><Menu size={20} className="text-[#192A51] dark:text-white" /></button>
+      <Offcanvas show={sidebarOpen} onHide={() => setSidebarOpen(false)} style={{ width: 240, backgroundColor: "#192A51" }}>
+        <VetSidebar vet={vet} user={user} tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} pendingCount={pending.length} />
+      </Offcanvas>
+
+      <div className="flex-grow-1 d-flex flex-column min-w-0">
+        <header className="bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3">
+          <div className="d-flex align-items-center gap-3">
+            <Button variant="link" className="d-lg-none p-0 text-dark" onClick={() => setSidebarOpen(true)}><Menu size={20} /></Button>
             <div>
-              <h1 className="font-bold text-[#192A51] dark:text-white">{tab}</h1>
-              <p className="text-xs text-[#6b7a99]">Veterinarian Dashboard</p>
+              <h1 className="h6 fw-bold mb-0 text-dark">{tab}</h1>
+              <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Veterinarian Dashboard</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button className="relative w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f8faff] dark:hover:bg-[#1e3060] text-[#6b7a99]">
-              <Bell size={16} />
-              {pending.length > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-[#FFA9AC] rounded-full" />}
-            </button>
-            <button onClick={toggle} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f8faff] dark:hover:bg-[#1e3060] text-[#6b7a99]">
-              {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
+          <div className="d-flex align-items-center gap-2">
+            <Button variant="link" className="p-0 rounded-circle text-muted position-relative" style={{ width: 32, height: 32 }}><Bell size={16} />{pending.length > 0 && <span className="position-absolute top-0 end-0 translate-middle-y translate-middle-x p-1 bg-danger rounded-circle border border-white" />}</Button>
+            <Button variant="link" onClick={toggle} className="p-0 rounded-circle text-muted transition hover-bg-light" style={{ width: 32, height: 32 }}>{theme === "light" ? <Moon size={16} /> : <Sun size={16} />}</Button>
           </div>
         </header>
 
-        <main className="p-6 overflow-auto">
+        <main className="p-4">
           {loading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1,2,3,4].map(i => <div key={i} className="h-28 bg-white dark:bg-[#1a2744] rounded-2xl border border-border animate-pulse" />)}
-            </div>
+            <Row className="g-4">{[1, 2, 3, 4].map(i => <Col xs={6} lg={3} key={i}><Card className="rounded-4 border-0 shadow-sm animate-pulse" style={{ height: 100 }} /></Col>)}</Row>
           ) : !vet ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center">
-              <div className="text-5xl mb-4">🔗</div>
-              <p className="text-lg font-bold text-[#192A51] dark:text-white">Vet profile not linked</p>
-              <p className="text-sm text-[#6b7a99] mt-2 max-w-sm">
-                Your account has the vet role but isn&apos;t linked to a vet profile yet.<br />
-                Ask an admin to set <span className="font-mono bg-[#f0f0f0] dark:bg-[#1e3060] px-1 rounded">email: &quot;{user.email}&quot;</span> on your Vet record.
-              </p>
-            </div>
+            <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🔗</div><h2 className="h4 fw-bold text-dark">Vet profile not linked</h2><p className="text-muted mx-auto" style={{ maxWidth: 400 }}>Your account has the vet role but isn&apos;t linked to a profile. Ask an admin to set <code className="bg-light px-1 rounded">{user.email}</code> on your record.</p></div>
           ) : (
-            <>
+            <Container fluid className="px-0">
               {tab === "Overview" && stats && (
-                <div className="flex flex-col gap-6">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="d-flex flex-column gap-4">
+                  <Row className="g-4">
                     {[
-                      { label: "Upcoming", value: stats.upcomingCount.toString(), icon: "📅", color: "bg-[#DDEDFF] dark:bg-[#1e3060]" },
-                      { label: "Pending Requests", value: stats.pendingCount.toString(), icon: "⏳", color: "bg-[#fff7ed] dark:bg-[#3a2a10]" },
-                      { label: "Completed Total", value: stats.completedCount.toString(), icon: "✅", color: "bg-[#dcfce7] dark:bg-[#1a3a25]" },
-                      { label: "Avg Rating", value: `${stats.rating} ⭐`, icon: "🏆", color: "bg-[#faf5ff] dark:bg-[#2a1a3a]" },
+                      { label: "Upcoming", value: stats.upcomingCount.toString(), icon: "📅", color: "#DDEDFF" },
+                      { label: "Pending", value: stats.pendingCount.toString(), icon: "⏳", color: "#fff7ed" },
+                      { label: "Completed", value: stats.completedCount.toString(), icon: "✅", color: "#dcfce7" },
+                      { label: "Rating", value: `${stats.rating} ⭐`, icon: "🏆", color: "#faf5ff" },
                     ].map(s => (
-                      <div key={s.label} className="bg-white dark:bg-[#1a2744] rounded-2xl p-4 border border-border">
-                        <div className={`w-10 h-10 ${s.color} rounded-xl flex items-center justify-center text-xl mb-3`}>{s.icon}</div>
-                        <p className="text-xl font-bold text-[#192A51] dark:text-white">{s.value}</p>
-                        <p className="text-xs text-[#6b7a99] mt-0.5">{s.label}</p>
-                      </div>
+                      <Col xs={6} lg={3} key={s.label}>
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100"><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 mb-3" style={{ width: 44, height: 44, backgroundColor: s.color }}>{s.icon}</div><p className="h4 fw-bold mb-1 text-dark">{s.value}</p><p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p></Card>
+                      </Col>
                     ))}
-                  </div>
+                  </Row>
 
-                  <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                    <div className="p-4 border-b border-border flex items-center justify-between">
-                      <p className="font-semibold text-[#192A51] dark:text-white text-sm">Upcoming Schedule</p>
-                      <button onClick={() => setTab("Appointments")} className="text-xs text-[#4399E1] hover:underline">View all</button>
-                    </div>
-                    {upcoming.length === 0 ? (
-                      <p className="p-6 text-sm text-[#6b7a99] text-center">No upcoming appointments</p>
-                    ) : (
-                      <div className="divide-y divide-border">
+                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                    <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between"><p className="small fw-bold mb-0 text-dark">Upcoming Schedule</p><Button variant="link" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ fontSize: 11, color: "#4399E1" }}>View all</Button></Card.Header>
+                    {upcoming.length === 0 ? <Card.Body className="text-center py-4"><p className="small text-muted mb-0">No upcoming appointments</p></Card.Body> : (
+                      <div className="list-group list-group-flush border-top">
                         {upcoming.slice(0, 5).map(a => (
-                          <div key={a.id} className="p-4 flex items-center gap-4 hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                            <div className="text-sm font-bold text-[#4399E1] w-20 shrink-0">{a.date.split("·")[1]?.trim() ?? a.date}</div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-semibold text-[#192A51] dark:text-white">{a.user.name}</p>
-                              <p className="text-xs text-[#6b7a99] truncate">{a.reason || "No reason specified"}</p>
-                            </div>
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${a.status === "Confirmed" ? "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-[#DDEDFF] text-[#4399E1]"}`}>{a.status}</span>
+                          <div key={a.id} className="list-group-item p-4 border-0 d-flex align-items-center gap-4 transition hover-bg-light">
+                            <div className="extra-small fw-bold text-primary text-nowrap" style={{ width: 64 }}>{a.date.split("·")[1]?.trim() ?? "—"}</div>
+                            <div className="flex-grow-1 min-w-0"><p className="small fw-bold mb-0 text-dark truncate">{a.user.name}</p><p className="extra-small text-muted mb-0 truncate" style={{ fontSize: 10 }}>{a.reason || "No reason specified"}</p></div>
+                            <Badge pill className={`extra-small fw-bold ${a.status === "Confirmed" ? "bg-success-subtle text-success" : "bg-primary-subtle text-primary"}`}>{a.status}</Badge>
                           </div>
                         ))}
                       </div>
                     )}
-                  </div>
+                  </Card>
                 </div>
               )}
 
               {tab === "Appointments" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-4 border-b border-border">
-                    <p className="font-semibold text-[#192A51] dark:text-white text-sm">All Appointments ({appointments.length})</p>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Appointments ({appointments.length})</p></Card.Header>
+                  <div className="list-group list-group-flush border-top">
+                    {appointments.length === 0 ? <div className="p-5 text-center text-muted small">No appointments yet</div> : appointments.map(a => (
+                      <div key={a.id} className="list-group-item p-4 border-light d-flex align-items-start gap-4 transition hover-bg-light">
+                        <div className="text-center shrink-0" style={{ width: 80 }}><p className="small fw-bold text-primary mb-0">{a.date.split("·")[1]?.trim() ?? "—"}</p><p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>{a.date.split("·")[0]?.trim()}</p></div>
+                        <div className="flex-grow-1 min-w-0"><p className="small fw-bold mb-0 text-dark">{a.user.name}</p><p className="extra-small text-muted mb-1" style={{ fontSize: 11 }}>{a.user.email}</p>{a.reason && <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Reason: {a.reason}</p>}</div>
+                        <Badge pill className={`extra-small fw-bold shrink-0 ${a.status === "Confirmed" ? "bg-success-subtle text-success" : a.status === "Completed" ? "bg-primary-subtle text-primary" : a.status === "Cancelled" || a.status === "Declined" ? "bg-danger-subtle text-danger" : "bg-warning-subtle text-warning"}`}>{a.status}</Badge>
+                      </div>
+                    ))}
                   </div>
-                  {appointments.length === 0 ? (
-                    <p className="p-8 text-sm text-[#6b7a99] text-center">No appointments yet</p>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {appointments.map(a => (
-                        <div key={a.id} className="p-4 flex items-start gap-4 hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                          <div className="shrink-0 text-center w-20">
-                            <p className="text-sm font-bold text-[#4399E1]">{a.date.split("·")[1]?.trim() ?? "—"}</p>
-                            <p className="text-xs text-[#6b7a99]">{a.date.split("·")[0]?.trim()}</p>
-                          </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-semibold text-[#192A51] dark:text-white">{a.user.name}</p>
-                            <p className="text-xs text-[#6b7a99]">{a.user.email}</p>
-                            {a.reason && <p className="text-xs text-[#6b7a99] mt-0.5">Reason: {a.reason}</p>}
-                          </div>
-                          <span className={`text-xs font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-                            a.status === "Confirmed" ? "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                            a.status === "Completed" ? "bg-[#DDEDFF] text-[#4399E1]" :
-                            a.status === "Cancelled" || a.status === "Declined" ? "bg-[#fee2e2] text-red-600" :
-                            "bg-[#fff7ed] text-amber-700"
-                          }`}>{a.status}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                </Card>
               )}
 
               {tab === "Availability" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border p-6">
-                  <h3 className="font-semibold text-[#192A51] dark:text-white mb-1">Manage Availability</h3>
-                  <p className="text-xs text-[#6b7a99] mb-6">Click available slots to block them. Booked slots cannot be changed.</p>
-                  <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 mb-6">
+                <Card className="rounded-4 border-0 shadow-sm p-4">
+                  <h3 className="h6 fw-bold mb-1 text-dark">Manage Availability</h3>
+                  <p className="extra-small text-muted mb-4">Click available slots to block them. Booked slots cannot be changed.</p>
+                  <Row className="g-2 mb-4">
                     {availability.map(s => (
-                      <button
-                        key={s.time}
-                        onClick={() => toggleSlot(s.time)}
-                        disabled={s.status === "booked"}
-                        className={`py-3 px-2 rounded-xl text-sm font-semibold transition text-center ${
-                          s.status === "booked" ? "bg-[#4399E1] text-white cursor-default" :
-                          s.status === "available" ? "bg-[#dcfce7] dark:bg-green-900/30 text-green-700 dark:text-green-400 hover:bg-green-200 border border-green-200" :
-                          "bg-[#f0f0f0] dark:bg-[#1e3060] text-[#6b7a99] line-through"
-                        }`}
-                      >
-                        {s.time}
-                        <span className="block text-[9px] font-normal mt-0.5">
-                          {s.status === "booked" ? "Booked" : s.status === "available" ? "Free" : "Blocked"}
-                        </span>
-                      </button>
+                      <Col xs={4} sm={3} md={2} key={s.time}>
+                        <Button variant={s.status === "booked" ? "primary" : s.status === "available" ? "outline-success" : "light"} disabled={s.status === "booked"} onClick={() => toggleSlot(s.time)} className={`w-100 py-2.5 rounded-3 d-flex flex-column align-items-center gap-1 border-0 shadow-none ${s.status === "blocked" ? "text-decoration-line-through text-muted opacity-50" : ""}`} style={{ backgroundColor: s.status === "booked" ? "#4399E1" : s.status === "available" ? "#dcfce7" : "#f8faff", color: s.status === "booked" ? "#ffffff" : s.status === "available" ? "#15803d" : "#6b7a99" }}><span className="small fw-bold">{s.time}</span><span className="extra-small opacity-75" style={{ fontSize: 9 }}>{s.status === "booked" ? "Booked" : s.status === "available" ? "Free" : "Blocked"}</span></Button>
+                      </Col>
                     ))}
-                  </div>
-                  <div className="flex items-center gap-4 mb-6 text-xs text-[#6b7a99]">
-                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#4399E1] rounded-sm inline-block" /> Booked</span>
-                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#dcfce7] border border-green-200 rounded-sm inline-block" /> Available</span>
-                    <span className="flex items-center gap-1.5"><span className="w-3 h-3 bg-[#f0f0f0] dark:bg-[#1e3060] rounded-sm inline-block" /> Blocked</span>
-                  </div>
-                  <button
-                    onClick={saveAvailability}
-                    disabled={savingSlots}
-                    className="bg-[#4399E1] text-white text-sm font-semibold px-6 py-2.5 rounded-xl hover:bg-[#2d84d0] transition disabled:opacity-50"
-                  >
-                    {savingSlots ? "Saving..." : "Save Availability"}
-                  </button>
-                </div>
+                  </Row>
+                  <div className="d-flex flex-wrap gap-4 mb-5 extra-small text-muted fw-medium"><span className="d-flex align-items-center gap-2"><div className="rounded-1" style={{ width: 12, height: 12, backgroundColor: "#4399E1" }} /> Booked</span><span className="d-flex align-items-center gap-2"><div className="rounded-1 border" style={{ width: 12, height: 12, backgroundColor: "#dcfce7" }} /> Available</span><span className="d-flex align-items-center gap-2"><div className="rounded-1" style={{ width: 12, height: 12, backgroundColor: "#f8faff" }} /> Blocked</span></div>
+                  <Button onClick={saveAvailability} disabled={savingSlots} className="rounded-3 px-4 py-2.5 fw-bold border-0 shadow-sm" style={{ backgroundColor: "#4399E1" }}>{savingSlots ? "Saving..." : "Save Availability"}</Button>
+                </Card>
               )}
 
               {tab === "Patient Requests" && (
-                <div className="flex flex-col gap-4">
-                  {pending.length === 0 ? (
-                    <div className="bg-white dark:bg-[#1a2744] rounded-2xl p-8 border border-border text-center">
-                      <p className="text-2xl mb-2">✅</p>
-                      <p className="text-sm font-semibold text-[#192A51] dark:text-white">No pending requests</p>
-                      <p className="text-xs text-[#6b7a99] mt-1">All requests have been handled</p>
-                    </div>
-                  ) : pending.map(r => (
-                    <div key={r.id} className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border flex items-start gap-4">
-                      <div className="w-12 h-12 bg-[#DDEDFF] dark:bg-[#1e3060] rounded-2xl flex items-center justify-center text-2xl shrink-0">🐾</div>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between gap-2 flex-wrap">
-                          <div>
-                            <p className="font-semibold text-[#192A51] dark:text-white">{r.user.name}</p>
-                            <p className="text-xs text-[#6b7a99] mt-0.5">{r.date}</p>
-                            {r.reason && <p className="text-xs text-[#6b7a99] mt-1">{r.reason}</p>}
-                          </div>
-                        </div>
-                        <div className="flex gap-2 mt-4">
-                          <button
-                            onClick={() => confirmAppointment(r.id)}
-                            disabled={actingId === r.id}
-                            className="flex items-center gap-1.5 bg-[#4399E1] text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-[#2d84d0] transition disabled:opacity-50"
-                          >
-                            <CheckCircle size={13} /> Accept
-                          </button>
-                          <button
-                            onClick={() => declineAppointment(r.id)}
-                            disabled={actingId === r.id}
-                            className="flex items-center gap-1.5 border border-border text-[#6b7a99] text-xs font-semibold px-4 py-2 rounded-xl hover:bg-[#f8faff] dark:hover:bg-[#162035] transition disabled:opacity-50"
-                          >
-                            <XCircle size={13} /> Decline
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                <div className="d-flex flex-column gap-3">
+                  {pending.length === 0 ? <Card className="rounded-4 border-0 shadow-sm p-5 text-center"><div className="fs-1 mb-3">✅</div><p className="small fw-bold mb-1 text-dark">No pending requests</p><p className="extra-small text-muted mb-0">All patient requests have been handled.</p></Card> : pending.map(r => (
+                    <Card key={r.id} className="rounded-4 border-0 shadow-sm p-4"><div className="d-flex align-items-start gap-3"><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 shrink-0" style={{ width: 48, height: 48, backgroundColor: "#DDEDFF" }}>🐾</div><div className="flex-grow-1 min-w-0"><div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3"><div><p className="small fw-bold mb-0 text-dark">{r.user.name}</p><p className="extra-small text-muted mb-1" style={{ fontSize: 10 }}>{r.date}</p>{r.reason && <p className="extra-small text-muted mb-0 lh-sm" style={{ fontSize: 11 }}>Reason: {r.reason}</p>}</div><div className="d-flex gap-2 shrink-0"><Button size="sm" onClick={() => confirmAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border-0 shadow-sm d-flex align-items-center gap-2" style={{ backgroundColor: "#4399E1", fontSize: 11 }}><CheckCircle size={14} /> Accept</Button><Button size="sm" variant="outline-light" onClick={() => declineAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border extra-small d-flex align-items-center gap-2 text-muted" style={{ fontSize: 11 }}><XCircle size={14} /> Decline</Button></div></div></div></div></Card>
                   ))}
                 </div>
               )}
 
               {tab === "Profile Settings" && vet && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border p-6 max-w-xl">
-                  <h3 className="font-semibold text-[#192A51] dark:text-white mb-6">Profile Settings</h3>
-                  <div className="flex flex-col gap-5">
+                <Card className="rounded-4 border-0 shadow-sm p-4" style={{ maxWidth: 600 }}>
+                  <h3 className="h6 fw-bold mb-5 text-dark">Profile Settings</h3>
+                  <Form className="d-flex flex-column gap-4">
                     {(["name", "spec", "clinic", "exp", "price"] as const).map(field => (
-                      <div key={field}>
-                        <label className="text-xs font-semibold text-[#192A51] dark:text-white block mb-1.5 capitalize">
-                          {field === "spec" ? "Specialization" : field === "exp" ? "Experience" : field === "price" ? "Price (sum/visit)" : field}
-                        </label>
-                        <input
-                          value={profileForm[field]}
-                          onChange={e => setProfileForm(f => ({ ...f, [field]: e.target.value }))}
-                          className="w-full bg-[#f8faff] dark:bg-[#162035] border border-border rounded-xl px-4 py-2.5 text-sm text-[#192A51] dark:text-white outline-none focus:border-[#4399E1] transition"
-                        />
-                      </div>
+                      <Form.Group key={field}><Form.Label className="extra-small fw-bold text-dark mb-1 text-uppercase" style={{ fontSize: 10 }}>{field === "spec" ? "Specialization" : field === "exp" ? "Experience" : field === "price" ? "Price (sum/visit)" : field}</Form.Label><Form.Control value={(profileForm as any)[field]} onChange={e => setProfileForm((f: any) => ({ ...f, [field]: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" /></Form.Group>
                     ))}
-                    <div>
-                      <label className="text-xs font-semibold text-[#192A51] dark:text-white block mb-1.5">Email (for login)</label>
-                      <input
-                        value={vet.email ?? ""}
-                        disabled
-                        className="w-full bg-[#f0f0f0] dark:bg-[#1e2a40] border border-border rounded-xl px-4 py-2.5 text-sm text-[#6b7a99] outline-none cursor-not-allowed"
-                      />
-                    </div>
-                    <button
-                      onClick={saveProfile}
-                      disabled={savingProfile}
-                      className="bg-[#4399E1] text-white font-semibold text-sm py-3 rounded-xl hover:bg-[#2d84d0] transition mt-2 disabled:opacity-50"
-                    >
-                      {savingProfile ? "Saving..." : "Save Changes"}
-                    </button>
-                  </div>
-                </div>
+                    <Form.Group><Form.Label className="extra-small fw-bold text-muted mb-1 text-uppercase" style={{ fontSize: 10 }}>Email (Read-only)</Form.Label><Form.Control value={vet.email ?? ""} disabled className="bg-light-subtle border-0 shadow-none small p-2.5 rounded-3 text-muted opacity-50" /></Form.Group>
+                    <Button onClick={saveProfile} disabled={savingProfile} className="rounded-3 py-3 fw-bold border-0 shadow-sm mt-3" style={{ backgroundColor: "#4399E1" }}>{savingProfile ? "Saving..." : "Save Profile Changes"}</Button>
+                  </Form>
+                </Card>
               )}
-            </>
+            </Container>
           )}
         </main>
       </div>

@@ -1,23 +1,13 @@
 "use client";
 import { useState, useEffect, type FormEvent } from "react";
-import { LayoutDashboard, ShoppingBag, Stethoscope, BookOpen, Calendar, BarChart3, Users, Settings, Menu, TrendingUp, TrendingDown } from "lucide-react";
+import { Menu, TrendingUp, TrendingDown, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/components/ThemeProvider";
-import { Sun, Moon } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
-
-const navItems = [
-  { icon: LayoutDashboard, label: "Overview" },
-  { icon: ShoppingBag, label: "Products" },
-  { icon: Stethoscope, label: "Veterinarians" },
-  { icon: BookOpen, label: "Blog Posts" },
-  { icon: Calendar, label: "Appointments" },
-  { icon: Users, label: "Users" },
-  { icon: BarChart3, label: "Analytics" },
-  { icon: Settings, label: "Settings" },
-];
+import { Container, Row, Col, Card, Button, Table, Badge, Form, Offcanvas, Modal } from "react-bootstrap";
+import AdminSidebar from "@/components/AdminSidebar";
 
 interface OverviewStats {
   usersCount: number; ordersCount: number; appointmentsCount: number;
@@ -46,34 +36,14 @@ interface User {
   id: string; name: string; email: string; role: string; createdAt: string;
 }
 
-const productInputClass = "w-full rounded-xl border border-border bg-[#f8faff] dark:bg-[#162035] px-3 py-2.5 text-sm text-[#192A51] dark:text-white outline-none transition focus:border-[#4399E1]";
-const productLabelClass = "text-xs font-semibold text-[#192A51] dark:text-white";
-
 const initialProductForm = {
-  name: "",
-  price: "",
-  oldPrice: "",
-  rating: "4.8",
-  reviews: "0",
-  tag: "",
-  img: "",
-  brand: "",
-  cat: "",
-  stock: "0",
+  name: "", price: "", oldPrice: "", rating: "4.8", reviews: "0",
+  tag: "", img: "", brand: "", cat: "", stock: "0",
 };
 
 const initialVetForm = {
-  name: "",
-  spec: "",
-  clinic: "",
-  district: "",
-  rating: "5",
-  reviews: "0",
-  exp: "",
-  price: "",
-  avail: true,
-  slots: "",
-  email: "",
+  name: "", spec: "", clinic: "", district: "", rating: "5", reviews: "0",
+  exp: "", price: "", avail: true, slots: "", email: "",
 };
 
 function productToForm(product: Product) {
@@ -154,13 +124,13 @@ export default function AdminPage() {
   }, [tab, user]);
 
   async function deleteProduct(id: string) {
-    if (!confirm("Delete this product?")) return;
+    if (!confirm("Delete product?")) return;
     await api.delete(`/api/admin/products/${id}`);
     setProducts(prev => prev.filter(p => p.id !== id));
   }
 
   async function deleteVet(id: string) {
-    if (!confirm("Remove this vet?")) return;
+    if (!confirm("Remove vet?")) return;
     await api.delete(`/api/admin/vets/${id}`);
     setVets(prev => prev.filter(v => v.id !== id));
   }
@@ -188,7 +158,7 @@ export default function AdminPage() {
     setEditingProductId(null);
     setProductForm(initialProductForm);
     setProductError("");
-    setShowProductForm(prev => !prev || editingProductId !== null);
+    setShowProductForm(true);
   }
 
   function startEditProduct(product: Product) {
@@ -202,7 +172,7 @@ export default function AdminPage() {
     setEditingVetId(null);
     setVetForm(initialVetForm);
     setVetError("");
-    setShowVetForm(prev => !prev || editingVetId !== null);
+    setShowVetForm(true);
   }
 
   function startEditVet(vet: Vet) {
@@ -231,18 +201,15 @@ export default function AdminPage() {
     try {
       if (editingProductId) {
         const updated = await api.put<Product>(`/api/admin/products/${editingProductId}`, payload);
-        setProducts(prev => prev.map(product => product.id === editingProductId ? updated : product));
+        setProducts(prev => prev.map(p => p.id === editingProductId ? updated : p));
       } else {
         const created = await api.post<Product>("/api/admin/products", payload);
         setProducts(prev => [created, ...prev]);
-        setStats(prev => prev ? { ...prev, productsCount: prev.productsCount + 1 } : prev);
+        if (stats) setStats({ ...stats, productsCount: stats.productsCount + 1 });
       }
       resetProductForm();
-    } catch (err: any) {
-      setProductError(err.message);
-    } finally {
-      setSubmittingProduct(false);
-    }
+    } catch (err: any) { setProductError(err.message); }
+    finally { setSubmittingProduct(false); }
   }
 
   async function submitVet(e: FormEvent) {
@@ -259,449 +226,270 @@ export default function AdminPage() {
       exp: vetForm.exp.trim(),
       price: vetForm.price.trim(),
       avail: vetForm.avail,
-      slots: vetForm.slots
-        .split(",")
-        .map(slot => slot.trim())
-        .filter(Boolean),
+      slots: vetForm.slots.split(",").map(s => s.trim()).filter(Boolean),
       email: vetForm.email.trim() || null,
     };
     try {
       if (editingVetId) {
         const updated = await api.put<Vet>(`/api/admin/vets/${editingVetId}`, payload);
-        setVets(prev => prev.map(vet => vet.id === editingVetId ? updated : vet));
+        setVets(prev => prev.map(v => v.id === editingVetId ? updated : v));
       } else {
         const created = await api.post<Vet>("/api/admin/vets", payload);
         setVets(prev => [created, ...prev]);
-        setStats(prev => prev ? { ...prev, vetsCount: prev.vetsCount + 1 } : prev);
+        if (stats) setStats({ ...stats, vetsCount: stats.vetsCount + 1 });
       }
       resetVetForm();
-    } catch (err: any) {
-      setVetError(err.message);
-    } finally {
-      setSubmittingVet(false);
-    }
+    } catch (err: any) { setVetError(err.message); }
+    finally { setSubmittingVet(false); }
   }
 
   if (authLoading || !user) return null;
 
   return (
-    <div className="min-h-screen flex bg-[#f8faff] dark:bg-[#0a1220]">
-      <aside className={`fixed lg:static inset-y-0 left-0 z-50 flex flex-col w-60 bg-[#192A51] dark:bg-[#0f1825] text-white transition-transform lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
-        <div className="p-5 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-[#4399E1] rounded-full flex items-center justify-center text-sm">🐾</div>
-            <span className="font-bold">Pet<span className="text-[#4399E1]">Care</span> Admin</span>
-          </div>
-        </div>
-        <nav className="flex-1 p-3 overflow-y-auto">
-          {navItems.map(n => (
-            <button
-              key={n.label}
-              onClick={() => { setTab(n.label); setSidebarOpen(false); }}
-              className={`w-full flex items-center gap-3 text-sm font-medium px-3 py-2.5 rounded-xl mb-1 transition text-left ${tab === n.label ? "bg-[#4399E1] text-white" : "text-white/60 hover:bg-white/10 hover:text-white"}`}
-            >
-              <n.icon size={16} />
-              {n.label}
-            </button>
-          ))}
-        </nav>
-        <div className="p-4 border-t border-white/10">
-          <Link href="/" className="text-xs text-white/50 hover:text-white transition flex items-center gap-1">← Back to Site</Link>
-        </div>
+    <div className="min-vh-100 d-flex bg-light">
+      <aside className="d-none d-lg-block shrink-0" style={{ width: 240 }}>
+        <AdminSidebar tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} />
       </aside>
-      {sidebarOpen && <div className="fixed inset-0 bg-black/40 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />}
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="bg-white dark:bg-[#1a2744] border-b border-border px-6 py-4 flex items-center justify-between sticky top-0 z-30">
-          <div className="flex items-center gap-3">
-            <button className="lg:hidden" onClick={() => setSidebarOpen(true)}><Menu size={20} className="text-[#192A51] dark:text-white" /></button>
+      <Offcanvas show={sidebarOpen} onHide={() => setSidebarOpen(false)} style={{ width: 240, backgroundColor: "#192A51" }}>
+        <AdminSidebar tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} />
+      </Offcanvas>
+
+      <div className="flex-grow-1 d-flex flex-column min-w-0">
+        <header className="bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3">
+          <div className="d-flex align-items-center gap-3">
+            <Button variant="link" className="d-lg-none p-0 text-dark" onClick={() => setSidebarOpen(true)}>
+              <Menu size={20} />
+            </Button>
             <div>
-              <h1 className="font-bold text-[#192A51] dark:text-white">{tab}</h1>
-              <p className="text-xs text-[#6b7a99]">Admin Dashboard · PetCare.uz</p>
+              <h1 className="h6 fw-bold mb-0 text-dark">{tab}</h1>
+              <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Admin Dashboard · PetCare.uz</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <button onClick={toggle} className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#f8faff] dark:hover:bg-[#1e3060] text-[#6b7a99]">
+          <div className="d-flex align-items-center gap-3">
+            <Button variant="link" onClick={toggle} className="p-0 rounded-circle text-muted transition hover-bg-light" style={{ width: 32, height: 32 }}>
               {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
-            </button>
-            <div className="w-8 h-8 bg-[#4399E1] rounded-full flex items-center justify-center text-sm text-white font-bold">
+            </Button>
+            <div className="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white small shadow-sm" style={{ width: 32, height: 32, backgroundColor: "#4399E1" }}>
               {user.name[0].toUpperCase()}
             </div>
           </div>
         </header>
 
-        <main className="p-6 overflow-auto">
+        <main className="p-4">
           {loading ? (
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {[1,2,3,4].map(i => <div key={i} className="h-28 bg-white dark:bg-[#1a2744] rounded-2xl border border-border animate-pulse" />)}
-            </div>
+            <Row className="g-4">
+              {[1, 2, 3, 4].map(i => (
+                <Col xs={6} lg={3} key={i}>
+                  <Card className="rounded-4 border-0 shadow-sm animate-pulse" style={{ height: 100 }} />
+                </Col>
+              ))}
+            </Row>
           ) : (
-            <>
+            <Container fluid className="px-0">
               {tab === "Overview" && stats && (
-                <div className="flex flex-col gap-6">
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="d-flex flex-column gap-4">
+                  <Row className="g-4">
                     {[
                       { label: "Total Revenue", value: `${stats.totalRevenue.toLocaleString()} sum`, change: "+18%", up: true, icon: "💰" },
                       { label: "Total Orders", value: stats.ordersCount.toString(), change: "+12%", up: true, icon: "📦" },
                       { label: "Active Users", value: stats.usersCount.toString(), change: "+8%", up: true, icon: "👤" },
                       { label: "Vet Appointments", value: stats.appointmentsCount.toString(), change: "", up: true, icon: "🩺" },
                     ].map(s => (
-                      <div key={s.label} className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border">
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-2xl">{s.icon}</span>
-                          {s.change && (
-                            <span className={`flex items-center gap-0.5 text-xs font-semibold ${s.up ? "text-green-600" : "text-red-500"}`}>
-                              {s.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />} {s.change}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-lg font-bold text-[#192A51] dark:text-white">{s.value}</p>
-                        <p className="text-xs text-[#6b7a99] mt-0.5">{s.label}</p>
-                      </div>
+                      <Col xs={6} lg={3} key={s.label}>
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100">
+                          <div className="d-flex align-items-center justify-content-between mb-3">
+                            <span className="fs-3">{s.icon}</span>
+                            {s.change && (
+                              <Badge pill className={`d-flex align-items-center gap-1 extra-small fw-bold ${s.up ? "bg-success-subtle text-success" : "bg-danger-subtle text-danger"}`}>
+                                {s.up ? <TrendingUp size={12} /> : <TrendingDown size={12} />} {s.change}
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="h5 fw-bold mb-1 text-dark">{s.value}</p>
+                          <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p>
+                        </Card>
+                      </Col>
                     ))}
-                  </div>
+                  </Row>
 
-                  <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                    <div className="p-4 border-b border-border flex items-center justify-between">
-                      <p className="font-semibold text-[#192A51] dark:text-white text-sm">Recent Appointments</p>
-                      <button onClick={() => setTab("Appointments")} className="text-xs text-[#4399E1] hover:underline">View all</button>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-[#f8faff] dark:bg-[#162035]">
-                          <tr>{["User", "Vet", "Date", "Status"].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99]">{h}</th>)}</tr>
+                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                    <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
+                      <p className="small fw-bold mb-0 text-dark">Recent Appointments</p>
+                      <Button variant="link" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ fontSize: 11, color: "#4399E1" }}>View all</Button>
+                    </Card.Header>
+                    <div className="table-responsive">
+                      <Table hover className="mb-0 small align-middle">
+                        <thead className="bg-light">
+                          <tr className="border-top">
+                            {["User", "Vet", "Date", "Status"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}
+                          </tr>
                         </thead>
                         <tbody>
                           {appointments.slice(0, 5).map(a => (
-                            <tr key={a.id} className="border-t border-border hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                              <td className="px-4 py-3 font-medium text-[#192A51] dark:text-white">{a.user.name}</td>
-                              <td className="px-4 py-3 text-[#6b7a99]">{a.vet.name}</td>
-                              <td className="px-4 py-3 text-[#6b7a99]">{a.date}</td>
+                            <tr key={a.id}>
+                              <td className="px-4 py-3 fw-bold text-dark">{a.user.name}</td>
+                              <td className="px-4 py-3 text-muted">{a.vet.name}</td>
+                              <td className="px-4 py-3 text-muted">{a.date}</td>
                               <td className="px-4 py-3">
-                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                  a.status === "Confirmed" ? "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                                  a.status === "Completed" ? "bg-[#DDEDFF] text-[#4399E1]" :
-                                  a.status === "Cancelled" || a.status === "Declined" ? "bg-[#fee2e2] text-red-600" :
-                                  "bg-[#fff7ed] text-amber-700"
-                                }`}>{a.status}</span>
+                                <Badge pill className={`extra-small fw-bold ${
+                                  a.status === "Confirmed" ? "bg-success-subtle text-success" :
+                                  a.status === "Completed" ? "bg-primary-subtle text-primary" :
+                                  a.status === "Cancelled" || a.status === "Declined" ? "bg-danger-subtle text-danger" :
+                                  "bg-warning-subtle text-warning"
+                                }`}>{a.status}</Badge>
                               </td>
                             </tr>
                           ))}
                         </tbody>
-                      </table>
+                      </Table>
                     </div>
-                  </div>
+                  </Card>
                 </div>
               )}
 
               {tab === "Products" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-4 border-b border-border flex items-center justify-between">
-                    <p className="font-semibold text-[#192A51] dark:text-white text-sm">Manage Products ({products.length})</p>
-                    <button
-                      onClick={startCreateProduct}
-                      className="bg-[#4399E1] text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-[#2d84d0] transition"
-                    >
-                      {showProductForm && !editingProductId ? "Close Form" : "+ Add Product"}
-                    </button>
-                  </div>
-                  {showProductForm && (
-                    <form onSubmit={submitProduct} className="border-b border-border p-4 sm:p-5 bg-[#f8faff] dark:bg-[#162035]">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-[#192A51] dark:text-white">
-                            {editingProductId ? "Edit Product" : "New Product"}
-                          </p>
-                          <p className="text-xs text-[#6b7a99]">
-                            {editingProductId ? "Update the selected product and save changes." : "Create a new catalog item for the store."}
-                          </p>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                  <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
+                    <p className="small fw-bold mb-0 text-dark">Manage Products ({products.length})</p>
+                    <Button onClick={startCreateProduct} size="sm" className="rounded-3 px-3 fw-bold border-0 shadow-sm" style={{ backgroundColor: "#4399E1", fontSize: 11 }}>+ Add Product</Button>
+                  </Card.Header>
+
+                  <Modal show={showProductForm} onHide={resetProductForm} centered size="lg" className="rounded-4">
+                    <Modal.Header closeButton className="border-0 pb-0">
+                      <Modal.Title className="small fw-bold">{editingProductId ? "Edit Product" : "New Product"}</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="p-4">
+                      <Form onSubmit={submitProduct} className="d-flex flex-column gap-3">
+                        <Row className="g-3">
+                          <Col lg={8}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Name</Form.Label><Form.Control value={productForm.name} onChange={e => setProductForm(p => ({ ...p, name: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={4}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Brand</Form.Label><Form.Control value={productForm.brand} onChange={e => setProductForm(p => ({ ...p, brand: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Category</Form.Label><Form.Control value={productForm.cat} onChange={e => setProductForm(p => ({ ...p, cat: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Image URL</Form.Label><Form.Control value={productForm.img} onChange={e => setProductForm(p => ({ ...p, img: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col xs={6} lg={3}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Price</Form.Label><Form.Control value={productForm.price} onChange={e => setProductForm(p => ({ ...p, price: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" type="number" required /></Form.Group></Col>
+                          <Col xs={6} lg={3}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Stock</Form.Label><Form.Control value={productForm.stock} onChange={e => setProductForm(p => ({ ...p, stock: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" type="number" required /></Form.Group></Col>
+                        </Row>
+                        {productError && <p className="small text-danger mt-1">{productError}</p>}
+                        <div className="d-flex gap-2 mt-2">
+                          <Button type="submit" disabled={submittingProduct} className="rounded-3 px-4 py-2 border-0 small fw-bold" style={{ backgroundColor: "#4399E1" }}>{submittingProduct ? "Saving..." : editingProductId ? "Save" : "Create"}</Button>
+                          <Button variant="link" onClick={resetProductForm} className="text-decoration-none small text-muted fw-bold">Cancel</Button>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <label className="flex flex-col gap-1.5 xl:col-span-2">
-                          <span className={productLabelClass}>Product Name</span>
-                          <input value={productForm.name} onChange={e => setProductForm(prev => ({ ...prev, name: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Brand</span>
-                          <input value={productForm.brand} onChange={e => setProductForm(prev => ({ ...prev, brand: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Category</span>
-                          <input value={productForm.cat} onChange={e => setProductForm(prev => ({ ...prev, cat: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5 xl:col-span-2">
-                          <span className={productLabelClass}>Image URL or Path</span>
-                          <input value={productForm.img} onChange={e => setProductForm(prev => ({ ...prev, img: e.target.value }))} className={productInputClass} placeholder="/prod-4.jpg" required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Price</span>
-                          <input value={productForm.price} onChange={e => setProductForm(prev => ({ ...prev, price: e.target.value }))} className={productInputClass} type="number" min="0" required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Old Price</span>
-                          <input value={productForm.oldPrice} onChange={e => setProductForm(prev => ({ ...prev, oldPrice: e.target.value }))} className={productInputClass} type="number" min="0" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Rating</span>
-                          <input value={productForm.rating} onChange={e => setProductForm(prev => ({ ...prev, rating: e.target.value }))} className={productInputClass} type="number" min="0" max="5" step="0.1" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Reviews</span>
-                          <input value={productForm.reviews} onChange={e => setProductForm(prev => ({ ...prev, reviews: e.target.value }))} className={productInputClass} type="number" min="0" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Stock</span>
-                          <input value={productForm.stock} onChange={e => setProductForm(prev => ({ ...prev, stock: e.target.value }))} className={productInputClass} type="number" min="0" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Tag</span>
-                          <input value={productForm.tag} onChange={e => setProductForm(prev => ({ ...prev, tag: e.target.value }))} className={productInputClass} placeholder="New, Sale, Bestseller" />
-                        </label>
-                      </div>
-                      {productError && <p className="mt-4 text-sm text-red-500">{productError}</p>}
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button type="submit" disabled={submittingProduct} className="bg-[#4399E1] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#2d84d0] disabled:opacity-60 transition">
-                          {submittingProduct ? "Saving..." : editingProductId ? "Save Product" : "Create Product"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={resetProductForm}
-                          className="text-sm font-semibold px-4 py-2.5 rounded-xl border border-border text-[#6b7a99] hover:bg-white dark:hover:bg-[#1a2744] transition"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-[#f8faff] dark:bg-[#162035]">
-                        <tr>{["Product", "Category", "Stock", "Price", "Rating", "Actions"].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99]">{h}</th>)}</tr>
-                      </thead>
+                      </Form>
+                    </Modal.Body>
+                  </Modal>
+
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 small align-middle">
+                      <thead className="bg-light"><tr className="border-top">{["Product", "Category", "Stock", "Price", "Rating", "Actions"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
                       <tbody>
                         {products.map(p => (
-                          <tr key={p.id} className="border-t border-border hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                            <td className="px-4 py-3 font-medium text-[#192A51] dark:text-white max-w-[200px] truncate">{p.name}</td>
-                            <td className="px-4 py-3 text-[#6b7a99]">{p.cat}</td>
-                            <td className="px-4 py-3">
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                (p.stock ?? 0) === 0 ? "bg-[#fee2e2] text-red-600" :
-                                (p.stock ?? 0) < 10 ? "bg-[#fff7ed] text-amber-700" :
-                                "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                              }`}>{(p.stock ?? 0) === 0 ? "Out of Stock" : (p.stock ?? 0) < 10 ? `Low (${p.stock})` : p.stock}</span>
-                            </td>
-                            <td className="px-4 py-3 text-[#6b7a99]">{p.price.toLocaleString()} sum</td>
-                            <td className="px-4 py-3 text-amber-500 font-semibold">⭐ {p.rating}</td>
-                            <td className="px-4 py-3 flex gap-2">
-                              <button onClick={() => startEditProduct(p)} className="text-xs text-[#4399E1] hover:underline">Edit</button>
-                              <button onClick={() => deleteProduct(p.id)} className="text-xs text-red-500 hover:underline">Delete</button>
-                            </td>
+                          <tr key={p.id}>
+                            <td className="px-4 py-3 fw-bold text-dark truncate" style={{ maxWidth: 200 }}>{p.name}</td>
+                            <td className="px-4 py-3 text-muted">{p.cat}</td>
+                            <td className="px-4 py-3"><Badge pill className={`extra-small fw-bold ${p.stock < 10 ? "bg-warning-subtle text-warning" : "bg-success-subtle text-success"}`}>{p.stock}</Badge></td>
+                            <td className="px-4 py-3 text-muted">{p.price.toLocaleString()} sum</td>
+                            <td className="px-4 py-3 text-warning">⭐ {p.rating}</td>
+                            <td className="px-4 py-3"><div className="d-flex gap-2"><Button variant="link" size="sm" onClick={() => startEditProduct(p)} className="p-0 extra-small fw-bold text-decoration-none" style={{ color: "#4399E1" }}>Edit</Button><Button variant="link" size="sm" onClick={() => deleteProduct(p.id)} className="p-0 extra-small fw-bold text-decoration-none text-danger">Delete</Button></div></td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
-                </div>
+                </Card>
               )}
 
               {tab === "Veterinarians" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-4 border-b border-border flex items-center justify-between">
-                    <p className="font-semibold text-[#192A51] dark:text-white text-sm">Manage Veterinarians ({vets.length})</p>
-                    <button
-                      onClick={startCreateVet}
-                      className="bg-[#4399E1] text-white text-xs font-semibold px-4 py-2 rounded-xl hover:bg-[#2d84d0] transition"
-                    >
-                      {showVetForm && !editingVetId ? "Close Form" : "+ Add Vet"}
-                    </button>
-                  </div>
-                  {showVetForm && (
-                    <form onSubmit={submitVet} className="border-b border-border p-4 sm:p-5 bg-[#f8faff] dark:bg-[#162035]">
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <div>
-                          <p className="text-sm font-semibold text-[#192A51] dark:text-white">
-                            {editingVetId ? "Edit Veterinarian" : "New Veterinarian"}
-                          </p>
-                          <p className="text-xs text-[#6b7a99]">
-                            {editingVetId ? "Update profile details, availability, and vet email link." : "Create a new vet profile available in booking and discovery."}
-                          </p>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                  <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
+                    <p className="small fw-bold mb-0 text-dark">Manage Veterinarians ({vets.length})</p>
+                    <Button onClick={startCreateVet} size="sm" className="rounded-3 px-3 fw-bold border-0 shadow-sm" style={{ backgroundColor: "#4399E1", fontSize: 11 }}>+ Add Vet</Button>
+                  </Card.Header>
+
+                  <Modal show={showVetForm} onHide={resetVetForm} centered size="lg" className="rounded-4">
+                    <Modal.Header closeButton className="border-0 pb-0"><Modal.Title className="small fw-bold">{editingVetId ? "Edit" : "New"} Veterinarian</Modal.Title></Modal.Header>
+                    <Modal.Body className="p-4">
+                      <Form onSubmit={submitVet} className="d-flex flex-column gap-3">
+                        <Row className="g-3">
+                          <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Full Name</Form.Label><Form.Control value={vetForm.name} onChange={e => setVetForm(v => ({ ...v, name: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Specialization</Form.Label><Form.Control value={vetForm.spec} onChange={e => setVetForm(v => ({ ...v, spec: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={12}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Clinic</Form.Label><Form.Control value={vetForm.clinic} onChange={e => setVetForm(v => ({ ...v, clinic: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                        </Row>
+                        {vetError && <p className="small text-danger mt-1">{vetError}</p>}
+                        <div className="d-flex gap-2 mt-2">
+                          <Button type="submit" disabled={submittingVet} className="rounded-3 px-4 py-2 border-0 small fw-bold shadow-sm" style={{ backgroundColor: "#4399E1" }}>{submittingVet ? "Saving..." : "Save"}</Button>
+                          <Button variant="link" onClick={resetVetForm} className="text-decoration-none small text-muted fw-bold">Cancel</Button>
                         </div>
-                      </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Full Name</span>
-                          <input value={vetForm.name} onChange={e => setVetForm(prev => ({ ...prev, name: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Specialization</span>
-                          <input value={vetForm.spec} onChange={e => setVetForm(prev => ({ ...prev, spec: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5 xl:col-span-2">
-                          <span className={productLabelClass}>Clinic</span>
-                          <input value={vetForm.clinic} onChange={e => setVetForm(prev => ({ ...prev, clinic: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>District</span>
-                          <input value={vetForm.district} onChange={e => setVetForm(prev => ({ ...prev, district: e.target.value }))} className={productInputClass} required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Experience</span>
-                          <input value={vetForm.exp} onChange={e => setVetForm(prev => ({ ...prev, exp: e.target.value }))} className={productInputClass} placeholder="5 years" required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Price</span>
-                          <input value={vetForm.price} onChange={e => setVetForm(prev => ({ ...prev, price: e.target.value }))} className={productInputClass} placeholder="50,000 UZS" required />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Email</span>
-                          <input value={vetForm.email} onChange={e => setVetForm(prev => ({ ...prev, email: e.target.value }))} className={productInputClass} type="email" placeholder="vet@email.com" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Rating</span>
-                          <input value={vetForm.rating} onChange={e => setVetForm(prev => ({ ...prev, rating: e.target.value }))} className={productInputClass} type="number" min="0" max="5" step="0.1" />
-                        </label>
-                        <label className="flex flex-col gap-1.5">
-                          <span className={productLabelClass}>Reviews</span>
-                          <input value={vetForm.reviews} onChange={e => setVetForm(prev => ({ ...prev, reviews: e.target.value }))} className={productInputClass} type="number" min="0" />
-                        </label>
-                        <label className="flex flex-col gap-1.5 xl:col-span-2">
-                          <span className={productLabelClass}>Available Slots</span>
-                          <input value={vetForm.slots} onChange={e => setVetForm(prev => ({ ...prev, slots: e.target.value }))} className={productInputClass} placeholder="09:00, 10:00, 14:30" />
-                        </label>
-                        <label className="flex items-center gap-2 self-end rounded-xl border border-border bg-white dark:bg-[#1a2744] px-3 py-2.5">
-                          <input checked={vetForm.avail} onChange={e => setVetForm(prev => ({ ...prev, avail: e.target.checked }))} type="checkbox" className="accent-[#4399E1]" />
-                          <span className="text-sm text-[#192A51] dark:text-white">Available for booking</span>
-                        </label>
-                      </div>
-                      {vetError && <p className="mt-4 text-sm text-red-500">{vetError}</p>}
-                      <div className="mt-4 flex flex-wrap gap-3">
-                        <button type="submit" disabled={submittingVet} className="bg-[#4399E1] text-white text-sm font-semibold px-4 py-2.5 rounded-xl hover:bg-[#2d84d0] disabled:opacity-60 transition">
-                          {submittingVet ? "Saving..." : editingVetId ? "Save Vet" : "Create Vet"}
-                        </button>
-                        <button
-                          type="button"
-                          onClick={resetVetForm}
-                          className="text-sm font-semibold px-4 py-2.5 rounded-xl border border-border text-[#6b7a99] hover:bg-white dark:hover:bg-[#1a2744] transition"
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    </form>
-                  )}
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-[#f8faff] dark:bg-[#162035]">
-                        <tr>{["Vet", "Specialization", "Clinic", "Rating", "Status", "Actions"].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99]">{h}</th>)}</tr>
-                      </thead>
+                      </Form>
+                    </Modal.Body>
+                  </Modal>
+
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 small align-middle">
+                      <thead className="bg-light"><tr className="border-top">{["Vet", "Specialization", "Clinic", "Rating", "Status", "Actions"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
                       <tbody>
                         {vets.map(v => (
-                          <tr key={v.id} className="border-t border-border hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                            <td className="px-4 py-3 font-medium text-[#192A51] dark:text-white">{v.name}</td>
-                            <td className="px-4 py-3 text-[#6b7a99]">{v.spec}</td>
-                            <td className="px-4 py-3 text-[#6b7a99] max-w-[140px] truncate">{v.clinic}</td>
-                            <td className="px-4 py-3 text-amber-500 font-semibold">⭐ {v.rating}</td>
-                            <td className="px-4 py-3">
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${v.avail ? "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-[#fff7ed] text-amber-700"}`}>
-                                {v.avail ? "Available" : "Unavailable"}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 flex gap-2">
-                              <button onClick={() => startEditVet(v)} className="text-xs text-[#4399E1] hover:underline">Edit</button>
-                              <button onClick={() => deleteVet(v.id)} className="text-xs text-red-500 hover:underline">Remove</button>
-                            </td>
+                          <tr key={v.id}>
+                            <td className="px-4 py-3 fw-bold text-dark">{v.name}</td>
+                            <td className="px-4 py-3 text-muted">{v.spec}</td>
+                            <td className="px-4 py-3 text-muted">{v.clinic}</td>
+                            <td className="px-4 py-3 text-warning">⭐ {v.rating}</td>
+                            <td className="px-4 py-3"><Badge pill className={`extra-small fw-bold ${v.avail ? "bg-success-subtle text-success" : "bg-warning-subtle text-warning"}`}>{v.avail ? "Active" : "Away"}</Badge></td>
+                            <td className="px-4 py-3"><div className="d-flex gap-2"><Button variant="link" size="sm" onClick={() => startEditVet(v)} className="p-0 extra-small fw-bold text-decoration-none" style={{ color: "#4399E1" }}>Edit</Button><Button variant="link" size="sm" onClick={() => deleteVet(v.id)} className="p-0 extra-small fw-bold text-decoration-none text-danger">Remove</Button></div></td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
-                </div>
+                </Card>
               )}
 
               {tab === "Appointments" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-4 border-b border-border">
-                    <p className="font-semibold text-[#192A51] dark:text-white text-sm">All Appointments ({appointments.length})</p>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-[#f8faff] dark:bg-[#162035]">
-                        <tr>{["User", "Vet", "Date", "Reason", "Status"].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99]">{h}</th>)}</tr>
-                      </thead>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Appointments ({appointments.length})</p></Card.Header>
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 small align-middle">
+                      <thead className="bg-light"><tr className="border-top">{["User", "Vet", "Date", "Status"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
                       <tbody>
                         {appointments.map(a => (
-                          <tr key={a.id} className="border-t border-border hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                            <td className="px-4 py-3 font-medium text-[#192A51] dark:text-white">{a.user.name}</td>
-                            <td className="px-4 py-3 text-[#6b7a99]">{a.vet.name}</td>
-                            <td className="px-4 py-3 text-[#6b7a99] whitespace-nowrap">{a.date}</td>
-                            <td className="px-4 py-3 text-[#6b7a99] max-w-[160px] truncate">{a.reason || "—"}</td>
-                            <td className="px-4 py-3">
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                a.status === "Confirmed" ? "bg-[#dcfce7] text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                                a.status === "Completed" ? "bg-[#DDEDFF] text-[#4399E1]" :
-                                a.status === "Cancelled" || a.status === "Declined" ? "bg-[#fee2e2] text-red-600" :
-                                "bg-[#fff7ed] text-amber-700"
-                              }`}>{a.status}</span>
-                            </td>
+                          <tr key={a.id}>
+                            <td className="px-4 py-3 fw-bold text-dark">{a.user.name}</td>
+                            <td className="px-4 py-3 text-muted">{a.vet.name}</td>
+                            <td className="px-4 py-3 text-muted">{a.date}</td>
+                            <td className="px-4 py-3"><Badge pill className="extra-small fw-bold bg-primary-subtle text-primary">{a.status}</Badge></td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
-                </div>
+                </Card>
               )}
 
               {tab === "Users" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-4 border-b border-border">
-                    <p className="font-semibold text-[#192A51] dark:text-white text-sm">All Users ({users.length})</p>
-                  </div>
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="bg-[#f8faff] dark:bg-[#162035]">
-                        <tr>{["Name", "Email", "Role", "Joined", "Actions"].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#6b7a99]">{h}</th>)}</tr>
-                      </thead>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
+                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Users ({users.length})</p></Card.Header>
+                  <div className="table-responsive">
+                    <Table hover className="mb-0 small align-middle">
+                      <thead className="bg-light"><tr className="border-top">{["Name", "Email", "Role", "Joined", "Actions"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
                       <tbody>
                         {users.map(u => (
-                          <tr key={u.id} className="border-t border-border hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                            <td className="px-4 py-3 font-medium text-[#192A51] dark:text-white">{u.name}</td>
-                            <td className="px-4 py-3 text-[#6b7a99]">{u.email}</td>
-                            <td className="px-4 py-3">
-                              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                                u.role === "admin" ? "bg-[#DDEDFF] text-[#4399E1]" :
-                                u.role === "vet" ? "bg-[#faf5ff] text-purple-600" :
-                                "bg-[#f0f0f0] dark:bg-[#1e3060] text-[#6b7a99]"
-                              }`}>{u.role}</span>
-                            </td>
-                            <td className="px-4 py-3 text-[#6b7a99] text-xs">{new Date(u.createdAt).toLocaleDateString()}</td>
-                            <td className="px-4 py-3 flex gap-2">
-                              {u.id !== user.id && (
-                                <>
-                                  <button onClick={() => changeRole(u.id, u.role === "admin" ? "user" : "admin")} className="text-xs text-[#4399E1] hover:underline">
-                                    {u.role === "admin" ? "Demote" : "Make Admin"}
-                                  </button>
-                                  <button onClick={() => changeRole(u.id, u.role === "vet" ? "user" : "vet")} className="text-xs text-purple-500 hover:underline">
-                                    {u.role === "vet" ? "Unvet" : "Make Vet"}
-                                  </button>
-                                </>
-                              )}
-                            </td>
+                          <tr key={u.id}>
+                            <td className="px-4 py-3 fw-bold text-dark">{u.name}</td>
+                            <td className="px-4 py-3 text-muted">{u.email}</td>
+                            <td className="px-4 py-3"><Badge pill className="extra-small fw-bold bg-secondary-subtle text-secondary">{u.role}</Badge></td>
+                            <td className="px-4 py-3 text-muted extra-small">{new Date(u.createdAt).toLocaleDateString()}</td>
+                            <td className="px-4 py-3"><Button variant="link" size="sm" onClick={() => changeRole(u.id, u.role === "admin" ? "user" : "admin")} className="p-0 extra-small fw-bold text-decoration-none" style={{ color: "#4399E1" }}>{u.role === "admin" ? "Demote" : "Make Admin"}</Button></td>
                           </tr>
                         ))}
                       </tbody>
-                    </table>
+                    </Table>
                   </div>
-                </div>
+                </Card>
               )}
 
               {(tab === "Blog Posts" || tab === "Analytics" || tab === "Settings") && (
-                <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="text-6xl mb-4">🚧</div>
-                  <p className="text-lg font-bold text-[#192A51] dark:text-white">{tab} Module</p>
-                  <p className="text-sm text-[#6b7a99] mt-2">This section is under construction.</p>
-                </div>
+                <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🚧</div><h2 className="h4 fw-bold text-dark">{tab} Module</h2><p className="text-muted">Under construction.</p></div>
               )}
-            </>
+            </Container>
           )}
         </main>
       </div>

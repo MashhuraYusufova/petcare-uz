@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { Container, Row, Col, Card, Nav, Button, Badge, Modal, Form } from "react-bootstrap";
 
 const tabs = ["Overview", "Orders", "Favorites", "Appointments", "My Pets"];
 
@@ -53,9 +54,9 @@ interface DashboardData {
 }
 
 function PetIcon({ species }: { species: string }) {
-  if (species === "Dog") return <Dog size={32} className="text-[#4399E1]" />;
-  if (species === "Cat") return <Cat size={32} className="text-[#4399E1]" />;
-  return <Bone size={32} className="text-[#4399E1]" />;
+  if (species === "Dog") return <Dog size={32} style={{ color: "#4399E1" }} />;
+  if (species === "Cat") return <Cat size={32} style={{ color: "#4399E1" }} />;
+  return <Bone size={32} style={{ color: "#4399E1" }} />;
 }
 
 export default function DashboardPage() {
@@ -157,287 +158,337 @@ export default function DashboardPage() {
   }
 
   if (authLoading || (!user && !authLoading)) {
-    return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-8 h-8 border-4 border-[#4399E1] border-t-transparent rounded-full animate-spin" /></div>;
+    return <div className="min-vh-100 d-flex align-items-center justify-content-center bg-white"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>;
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-vh-100 d-flex flex-column bg-white">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto px-6 py-8 w-full flex flex-col lg:flex-row gap-8">
-        <aside className="w-full lg:w-64 shrink-0">
-          <div className="bg-gradient-to-br from-[#4399E1] to-[#192A51] rounded-2xl p-5 text-white mb-5 text-center">
-            <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-3">
-              <UserRound size={32} className="text-white" />
-            </div>
-            <p className="font-bold text-base">{user?.name}</p>
-            <p className="text-xs text-white/70 mt-0.5">{user?.email}</p>
-            <div className="mt-3 flex items-center justify-center gap-1.5 text-xs bg-[#FFA9AC]/30 text-white rounded-full px-3 py-1 w-fit mx-auto">
-              <Star size={11} className="fill-[#FFA9AC] text-[#FFA9AC]" /> {user?.role === "admin" ? "Admin" : "Premium Member"}
-            </div>
-          </div>
-
-          <nav className="flex flex-col gap-1 bg-white dark:bg-[#1a2744] rounded-2xl p-3 border border-border">
-            {tabs.map(t => (
-              <button
-                key={t}
-                onClick={() => setTab(t)}
-                className={`flex items-center gap-2.5 text-sm font-medium px-3 py-2.5 rounded-xl transition text-left ${tab === t ? "bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1]" : "text-[#6b7a99] dark:text-[#8fa4c8] hover:bg-[#f8faff] dark:hover:bg-[#162035]"}`}
-              >
-                {t === "Overview" && <UserRound size={15} />}
-                {t === "Orders" && <Package size={15} />}
-                {t === "Favorites" && <Heart size={15} />}
-                {t === "Appointments" && <Calendar size={15} />}
-                {t === "My Pets" && <PawPrint size={15} />}
-                {t}
-              </button>
-            ))}
-            <button
-              onClick={() => { logout(); router.push("/"); }}
-              className="flex items-center gap-2.5 text-sm font-medium px-3 py-2.5 rounded-xl transition text-left text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 mt-1"
-            >
-              Sign Out
-            </button>
-          </nav>
-        </aside>
-
-        <main className="flex-1 min-w-0">
-          {loading ? (
-            <div className="flex flex-col gap-4">
-              {[1,2,3].map(i => <div key={i} className="h-24 bg-white dark:bg-[#1a2744] rounded-2xl border border-border animate-pulse" />)}
-            </div>
-          ) : (
-            <>
-              {tab === "Overview" && data && (
-                <div className="flex flex-col gap-6">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                      { icon: <ShoppingBag size={20} className="text-[#4399E1]" />, label: "Orders", value: data.stats.ordersCount, bg: "bg-[#DDEDFF] dark:bg-[#1e3060]" },
-                      { icon: <Calendar size={20} className="text-[#FFA9AC]" />, label: "Appointments", value: data.stats.appointmentsCount, bg: "bg-[#ffeef0] dark:bg-[#FFA9AC]/10" },
-                      { icon: <Heart size={20} className="text-[#FFA9AC]" />, label: "Wishlist", value: data.stats.wishlistCount, bg: "bg-[#ffeef0] dark:bg-[#FFA9AC]/10" },
-                      { icon: <PawPrint size={20} className="text-[#4399E1]" />, label: "My Pets", value: data.stats.petsCount, bg: "bg-[#DDEDFF] dark:bg-[#1e3060]" },
-                    ].map(s => (
-                      <div key={s.label} className="bg-white dark:bg-[#1a2744] rounded-2xl p-4 border border-border flex items-center gap-3 cursor-pointer hover:shadow-sm transition" onClick={() => s.label === "Wishlist" ? setTab("Favorites") : setTab(s.label)}>
-                        <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center shrink-0`}>{s.icon}</div>
-                        <div>
-                          <p className="text-xl font-bold text-[#192A51] dark:text-white">{s.value}</p>
-                          <p className="text-xs text-[#6b7a99]">{s.label}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="grid sm:grid-cols-2 gap-5">
-                    <div className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border">
-                      <div className="flex items-center justify-between mb-4">
-                        <p className="font-semibold text-[#192A51] dark:text-white text-sm">Recent Order</p>
-                        <button onClick={() => setTab("Orders")} className="text-xs text-[#4399E1] font-medium hover:underline">View all</button>
-                      </div>
-                      {data.recentOrders[0] ? (
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                            <img src={data.recentOrders[0].img} alt={data.recentOrders[0].item} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#192A51] dark:text-white truncate">{data.recentOrders[0].item}</p>
-                            <p className="text-xs text-[#6b7a99]">{data.recentOrders[0].date}</p>
-                          </div>
-                          <span className="text-xs font-semibold bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1] px-2 py-0.5 rounded-full">{data.recentOrders[0].status}</span>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-[#6b7a99]">No orders yet</p>
-                      )}
-                    </div>
-                    <div className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border">
-                      <div className="flex items-center justify-between mb-4">
-                        <p className="font-semibold text-[#192A51] dark:text-white text-sm">Upcoming Appointment</p>
-                        <button onClick={() => setTab("Appointments")} className="text-xs text-[#4399E1] font-medium hover:underline">View all</button>
-                      </div>
-                      {data.upcomingAppointments[0] ? (
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 bg-[#ffeef0] dark:bg-[#FFA9AC]/10 rounded-xl flex items-center justify-center">
-                            <UserRound size={24} className="text-[#FFA9AC]" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-[#192A51] dark:text-white">{data.upcomingAppointments[0].vet.name}</p>
-                            <p className="text-xs text-[#FFA9AC] font-medium">{data.upcomingAppointments[0].date}</p>
-                            <p className="text-xs text-[#6b7a99] truncate">{data.upcomingAppointments[0].vet.clinic}</p>
-                          </div>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-[#6b7a99]">No upcoming appointments</p>
-                      )}
-                    </div>
-                  </div>
+      <Container className="py-5">
+        <Row className="g-5">
+          <Col lg={3}>
+            <aside className="d-flex flex-column gap-4 sticky-top" style={{ top: '6rem' }}>
+              <Card className="rounded-4 p-4 text-white border-0 shadow-sm" style={{ background: "linear-gradient(135deg, #4399E1 0%, #192A51 100%)" }}>
+                <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "rgba(255, 255, 255, 0.2)" }}>
+                  <UserRound size={32} style={{ color: "#ffffff" }} />
                 </div>
-              )}
+                <div className="text-center">
+                  <p className="fw-bold mb-0 text-white">{user?.name}</p>
+                  <p className="extra-small opacity-75 mb-3" style={{ fontSize: 11 }}>{user?.email}</p>
+                  <Badge pill className="fw-semibold px-3 py-1 mx-auto d-flex align-items-center gap-2 justify-content-center w-fit" style={{ backgroundColor: "rgba(255, 169, 172, 0.3)", fontSize: 10 }}>
+                    <Star size={11} style={{ fill: "#FFA9AC", color: "#FFA9AC" }} /> {user?.role === "admin" ? "Admin" : "Premium Member"}
+                  </Badge>
+                </div>
+              </Card>
 
-              {tab === "Orders" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-5 border-b border-border">
-                    <h2 className="font-bold text-[#192A51] dark:text-white">Order History</h2>
-                  </div>
-                  {orders.length === 0 ? (
-                    <p className="p-8 text-center text-sm text-[#6b7a99]">No orders yet</p>
-                  ) : (
-                    <div className="divide-y divide-border">
-                      {orders.map(o => (
-                        <div key={o.id} className="p-5 flex items-center gap-4 hover:bg-[#f8faff] dark:hover:bg-[#162035] transition">
-                          <div className="w-12 h-12 rounded-xl overflow-hidden shrink-0">
-                            <img src={o.img} alt={o.item} className="w-full h-full object-cover" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-[#192A51] dark:text-white">{o.item}</p>
-                            <p className="text-xs text-[#6b7a99]">{o.date}</p>
-                          </div>
-                          <div className="text-right shrink-0">
-                            <p className="text-sm font-bold text-[#192A51] dark:text-white">{o.price} sum</p>
-                            <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${o.status === "Delivered" ? "bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1]" : "bg-[#ffeef0] dark:bg-[#FFA9AC]/10 text-[#FFA9AC]"}`}>{o.status}</span>
-                          </div>
-                        </div>
+              <Nav className="flex-column gap-1 bg-light rounded-4 p-2 border border-light">
+                {tabs.map(t => (
+                  <Nav.Link
+                    key={t}
+                    onClick={() => setTab(t)}
+                    active={tab === t}
+                    className={`d-flex align-items-center gap-2.5 small fw-bold py-2.5 px-3 rounded-3 transition ${tab === t ? "bg-white text-primary shadow-sm" : "text-muted"}`}
+                    style={{ color: tab === t ? "#4399E1" : "" }}
+                  >
+                    {t === "Overview" && <UserRound size={15} />}
+                    {t === "Orders" && <Package size={15} />}
+                    {t === "Favorites" && <Heart size={15} />}
+                    {t === "Appointments" && <Calendar size={15} />}
+                    {t === "My Pets" && <PawPrint size={15} />}
+                    {t}
+                  </Nav.Link>
+                ))}
+                <Button
+                  variant="link"
+                  onClick={() => { logout(); router.push("/"); }}
+                  className="d-flex align-items-center gap-2.5 small fw-bold py-2.5 px-3 rounded-3 text-decoration-none text-danger mt-1 text-start"
+                >
+                  Sign Out
+                </Button>
+              </Nav>
+            </aside>
+          </Col>
+
+          <Col lg={9}>
+            {loading ? (
+              <div className="d-flex flex-column gap-3">
+                {[1, 2, 3].map(i => <div key={i} className="bg-light rounded-4 border animate-pulse" style={{ height: 100 }} />)}
+              </div>
+            ) : (
+              <main>
+                {tab === "Overview" && data && (
+                  <div className="d-flex flex-column gap-5">
+                    <Row className="g-4">
+                      {[
+                        { icon: <ShoppingBag size={20} style={{ color: "#4399E1" }} />, label: "Orders", value: data.stats.ordersCount, bg: "#DDEDFF", tab: "Orders" },
+                        { icon: <Calendar size={20} style={{ color: "#FFA9AC" }} />, label: "Appointments", value: data.stats.appointmentsCount, bg: "#ffeef0", tab: "Appointments" },
+                        { icon: <Heart size={20} style={{ color: "#FFA9AC" }} />, label: "Wishlist", value: data.stats.wishlistCount, bg: "#ffeef0", tab: "Favorites" },
+                        { icon: <PawPrint size={20} style={{ color: "#4399E1" }} />, label: "My Pets", value: data.stats.petsCount, bg: "#DDEDFF", tab: "My Pets" },
+                      ].map(s => (
+                        <Col xs={6} md={3} key={s.label}>
+                          <Card className="rounded-4 p-3 border-light h-100 shadow-none cursor-pointer transition hover-shadow-sm" onClick={() => setTab(s.tab)}>
+                            <div className="d-flex align-items-center gap-3">
+                              <div className="rounded-3 d-flex align-items-center justify-content-center shrink-0" style={{ width: 44, height: 44, backgroundColor: s.bg }}>{s.icon}</div>
+                              <div>
+                                <p className="h5 fw-bold mb-0 text-dark">{s.value}</p>
+                                <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p>
+                              </div>
+                            </div>
+                          </Card>
+                        </Col>
                       ))}
-                    </div>
-                  )}
-                </div>
-              )}
+                    </Row>
 
-              {tab === "Favorites" && (
-                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
-                  <div className="p-5 border-b border-border flex items-center justify-between">
-                    <h2 className="font-bold text-[#192A51] dark:text-white">Favorite Products</h2>
-                    <Link href="/shop" className="text-xs text-[#4399E1] font-bold hover:underline">Go to Shop</Link>
-                  </div>
-                  {wishlist.length === 0 ? (
-                    <div className="p-12 text-center">
-                      <Heart size={40} className="text-[#6b7a99]/20 mx-auto mb-4" />
-                      <p className="text-sm text-[#6b7a99]">You haven't saved any products yet.</p>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border">
-                      {wishlist.map(p => (
-                        <div key={p.id} className="p-5 bg-white dark:bg-[#1a2744] flex items-center gap-4 group">
-                          <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border">
-                            <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                    <Row className="g-4">
+                      <Col md={6}>
+                        <Card className="rounded-4 p-4 border-light h-100 shadow-none">
+                          <div className="d-flex align-items-center justify-content-between mb-4">
+                            <h3 className="small fw-bold mb-0 text-dark">Recent Order</h3>
+                            <Button variant="link" size="sm" onClick={() => setTab("Orders")} className="extra-small p-0 text-decoration-none fw-bold" style={{ color: "#4399E1", fontSize: 11 }}>View all</Button>
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[10px] text-[#4399E1] font-bold uppercase tracking-wider">{p.brand}</p>
-                            <h3 className="text-sm font-bold text-[#192A51] dark:text-white truncate">{p.name}</h3>
-                            <p className="text-sm font-bold text-[#4399E1] mt-0.5">{p.price.toLocaleString()} sum</p>
-                          </div>
-                          <button
-                            onClick={() => removeFromWishlist(p.id)}
-                            className="p-2.5 text-[#FFA9AC] hover:bg-[#FFF5F5] dark:hover:bg-[#2d1a1a] rounded-xl transition"
-                            title="Remove from favorites"
-                          >
-                            <Trash2 size={18} />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {tab === "Appointments" && (
-                <div className="flex flex-col gap-4">
-                  {appointments.length === 0 ? (
-                    <p className="text-sm text-[#6b7a99] p-4">No appointments yet</p>
-                  ) : (
-                    appointments.map(a => (
-                      <div key={a.id} className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border flex items-center gap-4">
-                        <div className="w-14 h-14 bg-[#ffeef0] dark:bg-[#FFA9AC]/10 rounded-2xl flex items-center justify-center shrink-0">
-                          <UserRound size={28} className="text-[#FFA9AC]" />
-                        </div>
-                        <div className="flex-1">
-                          <p className="font-semibold text-[#192A51] dark:text-white">{a.vet.name}</p>
-                          <p className="text-xs text-[#4399E1] font-medium">{a.vet.spec}</p>
-                          <p className="text-xs text-[#6b7a99] mt-0.5">{a.vet.clinic} · {a.date}</p>
-                        </div>
-                        <div className="flex flex-col items-end gap-2">
-                          <span className={`text-xs font-semibold px-3 py-1 rounded-full ${a.status === "Upcoming" ? "bg-[#ffeef0] dark:bg-[#FFA9AC]/10 text-[#FFA9AC]" : a.status === "Cancelled" ? "bg-red-50 text-red-400" : "bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1]"}`}>{a.status}</span>
-                          {a.status === "Upcoming" && (
-                            <button
-                              onClick={() => cancelAppointment(a.id)}
-                              disabled={cancellingId === a.id}
-                              className="text-xs text-red-400 hover:underline disabled:opacity-50"
-                            >
-                              {cancellingId === a.id ? "Cancelling..." : "Cancel"}
-                            </button>
+                          {data.recentOrders[0] ? (
+                            <div className="d-flex align-items-center gap-3">
+                              <div className="rounded-3 overflow-hidden border shrink-0" style={{ width: 48, height: 48 }}>
+                                <img src={data.recentOrders[0].img} alt={data.recentOrders[0].item} className="w-100 h-100 object-fit-cover" />
+                              </div>
+                              <div className="min-w-0 flex-grow-1">
+                                <p className="small fw-bold mb-0 text-dark truncate">{data.recentOrders[0].item}</p>
+                                <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{data.recentOrders[0].date}</p>
+                              </div>
+                              <Badge pill style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 10 }}>{data.recentOrders[0].status}</Badge>
+                            </div>
+                          ) : (
+                            <p className="small text-muted mb-0">No orders yet</p>
                           )}
-                        </div>
-                      </div>
-                    ))
-                  )}
-                  <Link href="/vets" className="flex items-center justify-center gap-2 border-2 border-dashed border-border text-[#4399E1] font-medium text-sm py-4 rounded-2xl hover:border-[#4399E1] transition">
-                    + Book a New Appointment
-                  </Link>
-                </div>
-              )}
+                        </Card>
+                      </Col>
+                      <Col md={6}>
+                        <Card className="rounded-4 p-4 border-light h-100 shadow-none">
+                          <div className="d-flex align-items-center justify-content-between mb-4">
+                            <h3 className="small fw-bold mb-0 text-dark">Upcoming Appointment</h3>
+                            <Button variant="link" size="sm" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ color: "#4399E1", fontSize: 11 }}>View all</Button>
+                          </div>
+                          {data.upcomingAppointments[0] ? (
+                            <div className="d-flex align-items-center gap-3">
+                              <div className="rounded-3 d-flex align-items-center justify-content-center shrink-0" style={{ width: 48, height: 48, backgroundColor: "#ffeef0" }}>
+                                <UserRound size={24} style={{ color: "#FFA9AC" }} />
+                              </div>
+                              <div className="min-w-0 flex-grow-1">
+                                <p className="small fw-bold mb-0 text-dark">{data.upcomingAppointments[0].vet.name}</p>
+                                <p className="extra-small fw-bold mb-0" style={{ color: "#FFA9AC", fontSize: 11 }}>{data.upcomingAppointments[0].date}</p>
+                                <p className="extra-small text-muted mb-0 truncate" style={{ fontSize: 10 }}>{data.upcomingAppointments[0].vet.clinic}</p>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="small text-muted mb-0">No upcoming appointments</p>
+                          )}
+                        </Card>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
 
-              {tab === "My Pets" && (
-                <div className="flex flex-col gap-5">
-                  {pets.map(p => (
-                    <div key={p.id} className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-border flex items-center gap-5">
-                      <div className="w-16 h-16 bg-[#DDEDFF] dark:bg-[#1e3060] rounded-2xl flex items-center justify-center shrink-0">
-                        <PetIcon species={p.species} />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-bold text-[#192A51] dark:text-white text-base">{p.name}</p>
-                        <p className="text-xs text-[#4399E1] font-medium">{p.species} · {p.breed}</p>
-                        <div className="flex gap-4 mt-2">
-                          <span className="text-xs text-[#6b7a99]">Age: <b className="text-[#192A51] dark:text-white">{p.age}</b></span>
-                          <span className="text-xs text-[#6b7a99]">Weight: <b className="text-[#192A51] dark:text-white">{p.weight}</b></span>
-                        </div>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <Link href="/vets" className="flex items-center gap-1.5 text-xs font-semibold text-[#FFA9AC] hover:underline">
-                          Book Vet <ChevronRight size={13} />
-                        </Link>
-                        <button onClick={() => deletePet(p.id)} className="text-xs text-red-400 hover:underline">Remove</button>
-                      </div>
-                    </div>
-                  ))}
-
-                  {showAddPet ? (
-                    <div className="bg-white dark:bg-[#1a2744] rounded-2xl p-5 border border-[#4399E1] flex flex-col gap-3">
-                      <h3 className="font-semibold text-[#192A51] dark:text-white text-sm">Add a Pet</h3>
-                      <div className="grid grid-cols-2 gap-3">
-                        {(["name", "breed", "age", "weight"] as const).map(field => (
-                          <div key={field}>
-                            <label className="text-xs font-semibold text-[#192A51] dark:text-white capitalize block mb-1">{field}</label>
-                            <input
-                              value={newPet[field]}
-                              onChange={e => setNewPet(p => ({ ...p, [field]: e.target.value }))}
-                              className="w-full text-sm bg-[#f8faff] dark:bg-[#162035] border border-border rounded-xl px-3 py-2 outline-none focus:border-[#4399E1] text-[#192A51] dark:text-white"
-                              placeholder={field === "age" ? "e.g. 2 yrs" : field === "weight" ? "e.g. 8 kg" : ""}
-                            />
+                {tab === "Orders" && (
+                  <Card className="rounded-4 border-light overflow-hidden shadow-none">
+                    <Card.Header className="bg-white p-4 border-bottom-0">
+                      <h2 className="h6 fw-bold mb-0 text-dark">Order History</h2>
+                    </Card.Header>
+                    {orders.length === 0 ? (
+                      <Card.Body className="text-center py-5">
+                        <p className="small text-muted mb-0">No orders yet</p>
+                      </Card.Body>
+                    ) : (
+                      <div className="list-group list-group-flush">
+                        {orders.map(o => (
+                          <div key={o.id} className="list-group-item p-4 border-light d-flex align-items-center gap-4 transition hover-bg-light">
+                            <div className="rounded-3 overflow-hidden border shrink-0" style={{ width: 56, height: 56 }}>
+                              <img src={o.img} alt={o.item} className="w-100 h-100 object-fit-cover" />
+                            </div>
+                            <div className="flex-grow-1 min-w-0">
+                              <p className="small fw-bold mb-0 text-dark">{o.item}</p>
+                              <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{o.date}</p>
+                            </div>
+                            <div className="text-end">
+                              <p className="small fw-bold mb-1 text-dark">{o.price} sum</p>
+                              <Badge pill style={{ backgroundColor: o.status === "Delivered" ? "#DDEDFF" : "#ffeef0", color: o.status === "Delivered" ? "#4399E1" : "#FFA9AC", fontSize: 10 }}>{o.status}</Badge>
+                            </div>
                           </div>
                         ))}
-                        <div>
-                          <label className="text-xs font-semibold text-[#192A51] dark:text-white block mb-1">Species</label>
-                          <select value={newPet.species} onChange={e => setNewPet(p => ({ ...p, species: e.target.value }))} className="w-full text-sm bg-[#f8faff] dark:bg-[#162035] border border-border rounded-xl px-3 py-2 outline-none text-[#192A51] dark:text-white">
-                            <option>Dog</option><option>Cat</option><option>Bird</option><option>Rabbit</option><option>Other</option>
-                          </select>
+                      </div>
+                    )}
+                  </Card>
+                )}
+
+                {tab === "Favorites" && (
+                  <Card className="rounded-4 border-light overflow-hidden shadow-none">
+                    <Card.Header className="bg-white p-4 border-bottom-0 d-flex align-items-center justify-content-between">
+                      <h2 className="h6 fw-bold mb-0 text-dark">Favorite Products</h2>
+                      <Link href="/shop" className="extra-small fw-bold text-decoration-none" style={{ color: "#4399E1", fontSize: 11 }}>Go to Shop</Link>
+                    </Card.Header>
+                    {wishlist.length === 0 ? (
+                      <Card.Body className="text-center py-5">
+                        <Heart size={40} className="opacity-10 mb-3" />
+                        <p className="small text-muted mb-0">You haven't saved any products yet.</p>
+                      </Card.Body>
+                    ) : (
+                      <Row className="g-0 border-top">
+                        {wishlist.map(p => (
+                          <Col sm={6} key={p.id} className="border-end border-bottom border-light">
+                            <div className="p-4 d-flex align-items-center gap-3 group transition hover-bg-light h-100">
+                              <div className="rounded-3 overflow-hidden border shrink-0" style={{ width: 64, height: 64 }}>
+                                <img src={p.img} alt={p.name} className="w-100 h-100 object-fit-cover transition duration-300 group-hover-scale-110" />
+                              </div>
+                              <div className="flex-grow-1 min-w-0">
+                                <p className="extra-small fw-bold text-uppercase mb-0" style={{ color: "#4399E1", fontSize: 9 }}>{p.brand}</p>
+                                <h3 className="small fw-bold mb-1 text-dark truncate">{p.name}</h3>
+                                <p className="small fw-bold mb-0" style={{ color: "#4399E1" }}>{p.price.toLocaleString()} sum</p>
+                              </div>
+                              <Button
+                                variant="link"
+                                onClick={() => removeFromWishlist(p.id)}
+                                className="p-2 text-decoration-none rounded-3 transition"
+                                style={{ color: "#FFA9AC" }}
+                              >
+                                <Trash2 size={18} />
+                              </Button>
+                            </div>
+                          </Col>
+                        ))}
+                      </Row>
+                    )}
+                  </Card>
+                )}
+
+                {tab === "Appointments" && (
+                  <div className="d-flex flex-column gap-3">
+                    {appointments.length === 0 ? (
+                      <p className="small text-muted p-4 bg-light rounded-4">No appointments yet</p>
+                    ) : (
+                      appointments.map(a => (
+                        <Card key={a.id} className="rounded-4 p-4 border-light shadow-none">
+                          <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                            <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 56, height: 56, backgroundColor: "#ffeef0" }}>
+                              <UserRound size={28} style={{ color: "#FFA9AC" }} />
+                            </div>
+                            <div className="flex-grow-1">
+                              <p className="small fw-bold mb-0 text-dark">{a.vet.name}</p>
+                              <p className="extra-small fw-medium mb-1" style={{ color: "#4399E1" }}>{a.vet.spec}</p>
+                              <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{a.vet.clinic} · {a.date}</p>
+                            </div>
+                            <div className="d-flex flex-column align-items-end gap-2 ms-sm-auto">
+                              <Badge pill style={{ backgroundColor: a.status === "Upcoming" ? "#ffeef0" : a.status === "Cancelled" ? "#fee2e2" : "#DDEDFF", color: a.status === "Upcoming" ? "#FFA9AC" : a.status === "Cancelled" ? "#dc2626" : "#4399E1", fontSize: 10 }}>{a.status}</Badge>
+                              {a.status === "Upcoming" && (
+                                <Button
+                                  variant="link"
+                                  size="sm"
+                                  onClick={() => cancelAppointment(a.id)}
+                                  disabled={cancellingId === a.id}
+                                  className="p-0 extra-small fw-bold text-decoration-none text-danger"
+                                  style={{ fontSize: 11 }}
+                                >
+                                  {cancellingId === a.id ? "Cancelling..." : "Cancel"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </Card>
+                      ))
+                    )}
+                    <Link href="/vets" className="btn d-flex align-items-center justify-content-center gap-2 border-2 border-dashed rounded-4 py-4 text-primary fw-bold transition hover-border-primary" style={{ borderStyle: 'dashed', borderColor: '#e8eef7' }}>
+                      + Book a New Appointment
+                    </Link>
+                  </div>
+                )}
+
+                {tab === "My Pets" && (
+                  <div className="d-flex flex-column gap-4">
+                    {pets.map(p => (
+                      <Card key={p.id} className="rounded-4 p-4 border-light shadow-none">
+                        <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
+                          <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
+                            <PetIcon species={p.species} />
+                          </div>
+                          <div className="flex-grow-1">
+                            <p className="h6 fw-bold mb-0 text-dark">{p.name}</p>
+                            <p className="extra-small fw-medium mb-2" style={{ color: "#4399E1" }}>{p.species} · {p.breed}</p>
+                            <div className="d-flex gap-4">
+                              <span className="extra-small text-muted">Age: <b className="text-dark">{p.age}</b></span>
+                              <span className="extra-small text-muted">Weight: <b className="text-dark">{p.weight}</b></span>
+                            </div>
+                          </div>
+                          <div className="d-flex flex-column align-items-end gap-2 ms-sm-auto">
+                            <Link href="/vets" className="d-flex align-items-center gap-1 extra-small fw-bold text-decoration-none" style={{ color: "#FFA9AC" }}>
+                              Book Vet <ChevronRight size={14} />
+                            </Link>
+                            <Button variant="link" size="sm" onClick={() => deletePet(p.id)} className="p-0 extra-small text-decoration-none text-danger">Remove</Button>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex gap-3">
-                        <button onClick={addPet} disabled={addingPet || !newPet.name || !newPet.breed} className="bg-[#4399E1] text-white text-sm font-semibold px-5 py-2 rounded-xl disabled:opacity-50 hover:bg-[#2d84d0] transition">
+                      </Card>
+                    ))}
+
+                    <Modal show={showAddPet} onHide={() => setShowAddPet(false)} centered rounded-4>
+                      <Modal.Header closeButton className="border-0 pb-0">
+                        <Modal.Title className="h5 fw-bold">Add a Pet</Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body className="p-4">
+                        <Form className="d-flex flex-column gap-3">
+                          <Row className="g-3">
+                            <Col xs={6}>
+                              <Form.Group>
+                                <Form.Label className="extra-small fw-bold text-dark mb-1">Name</Form.Label>
+                                <Form.Control value={newPet.name} onChange={e => setNewPet(p => ({ ...p, name: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="Pet's name" />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={6}>
+                              <Form.Group>
+                                <Form.Label className="extra-small fw-bold text-dark mb-1">Breed</Form.Label>
+                                <Form.Control value={newPet.breed} onChange={e => setNewPet(p => ({ ...p, breed: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. Golden Retriever" />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={6}>
+                              <Form.Group>
+                                <Form.Label className="extra-small fw-bold text-dark mb-1">Age</Form.Label>
+                                <Form.Control value={newPet.age} onChange={e => setNewPet(p => ({ ...p, age: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. 2 yrs" />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={6}>
+                              <Form.Group>
+                                <Form.Label className="extra-small fw-bold text-dark mb-1">Weight</Form.Label>
+                                <Form.Control value={newPet.weight} onChange={e => setNewPet(p => ({ ...p, weight: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. 10 kg" />
+                              </Form.Group>
+                            </Col>
+                            <Col xs={12}>
+                              <Form.Group>
+                                <Form.Label className="extra-small fw-bold text-dark mb-1">Species</Form.Label>
+                                <Form.Select value={newPet.species} onChange={e => setNewPet(p => ({ ...p, species: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0">
+                                  <option>Dog</option><option>Cat</option><option>Bird</option><option>Rabbit</option><option>Other</option>
+                                </Form.Select>
+                              </Form.Group>
+                            </Col>
+                          </Row>
+                        </Form>
+                      </Modal.Body>
+                      <Modal.Footer className="border-0 pt-0 p-4">
+                        <Button variant="link" onClick={() => setShowAddPet(false)} className="text-decoration-none text-muted small me-auto p-0">Cancel</Button>
+                        <Button onClick={addPet} disabled={addingPet || !newPet.name || !newPet.breed} className="rounded-3 px-4 py-2 border-0 small fw-bold" style={{ backgroundColor: "#4399E1" }}>
                           {addingPet ? "Saving..." : "Save Pet"}
-                        </button>
-                        <button onClick={() => setShowAddPet(false)} className="text-sm text-[#6b7a99] hover:text-[#192A51] dark:hover:text-white transition">Cancel</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <button onClick={() => setShowAddPet(true)} className="flex items-center justify-center gap-2 border-2 border-dashed border-border text-[#4399E1] font-medium text-sm py-4 rounded-2xl hover:border-[#4399E1] transition">
-                      + Add a Pet
-                    </button>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </main>
-      </div>
+                        </Button>
+                      </Modal.Footer>
+                    </Modal>
+
+                    {!showAddPet && (
+                      <Button onClick={() => setShowAddPet(true)} variant="link" className="d-flex align-items-center justify-content-center gap-2 border-2 border-dashed rounded-4 py-4 text-primary fw-bold transition text-decoration-none hover-border-primary" style={{ borderStyle: 'dashed', borderColor: '#e8eef7' }}>
+                        + Add a Pet
+                      </Button>
+                    )}
+                  </div>
+                )}
+              </main>
+            )}
+          </Col>
+        </Row>
+      </Container>
 
       <Footer />
     </div>
