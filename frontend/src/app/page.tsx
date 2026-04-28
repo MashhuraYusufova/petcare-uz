@@ -6,8 +6,11 @@ import {
   Search, Star, ArrowRight, ShoppingBag, Stethoscope, BookOpen, Heart, Award,
   ChevronRight, Bone, Gamepad2, Scissors, Pill, Home, GraduationCap,
   Fish, Cat, Bath, PawPrint, UserRound, Truck, RefreshCw, ShieldCheck,
-  MessageCircle, Salad, Hospital, Dog
+  MessageCircle, Salad, Hospital, Dog, ShoppingCart
 } from "lucide-react";
+import { useState } from "react";
+import { api } from "@/lib/api";
+import { toast } from "sonner";
 
 const categories = [
   { icon: Bone, label: "Food & Treats", color: "bg-[#DDEDFF]", count: "240+ items" },
@@ -18,11 +21,11 @@ const categories = [
   { icon: GraduationCap, label: "Training", color: "bg-[#ecfdf5]", count: "45+ items" },
 ];
 
-const products = [
-  { id: 1, name: "Royal Canin Adult — Salmon Recipe", price: "89,000", oldPrice: "120,000", rating: 4.8, reviews: 234, tag: "Bestseller", img: "/prod-1.jpg", brand: "Royal Canin" },
-  { id: 2, name: "Cat Interactive Feather Toy Set", price: "45,000", oldPrice: null, rating: 4.6, reviews: 89, tag: "New", img: "/prod-2.jpg", brand: "Zooplus" },
-  { id: 3, name: "Beaphar Dog Shampoo Sensitive", price: "32,000", oldPrice: "40,000", rating: 4.7, reviews: 156, tag: "Sale", img: "/prod-3.jpg", brand: "Beaphar" },
-  { id: 4, name: "Hills Science Kitten Starter Kit", price: "120,000", oldPrice: null, rating: 4.9, reviews: 78, tag: "Popular", img: "/prod-4.jpg", brand: "Hills" },
+const productsData = [
+  { id: "p1", name: "Royal Canin Adult — Salmon Recipe", price: 89000, oldPrice: 120000, rating: 4.8, reviews: 234, tag: "Bestseller", img: "/prod-1.jpg", brand: "Royal Canin" },
+  { id: "p2", name: "Cat Interactive Feather Toy Set", price: 45000, oldPrice: null, rating: 4.6, reviews: 89, tag: "New", img: "/prod-2.jpg", brand: "Zooplus" },
+  { id: "p3", name: "Beaphar Dog Shampoo Sensitive", price: 32000, oldPrice: 40000, rating: 4.7, reviews: 156, tag: "Sale", img: "/prod-3.jpg", brand: "Beaphar" },
+  { id: "p4", name: "Hills Science Kitten Starter Kit", price: 120000, oldPrice: null, rating: 4.9, reviews: 78, tag: "Popular", img: "/prod-4.jpg", brand: "Hills" },
 ];
 
 const vets = [
@@ -45,6 +48,20 @@ const features = [
 ];
 
 export default function HomePage() {
+  const [addingToCart, setAddingToCart] = useState<string | null>(null);
+
+  const addToCart = async (productId: string) => {
+    setAddingToCart(productId);
+    try {
+      await api.post("/api/cart", { productId, quantity: 1 });
+      toast.success("Added to cart");
+    } catch (err: any) {
+      toast.error(err.message || "Failed to add to cart");
+    } finally {
+      setAddingToCart(null);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Navbar />
@@ -155,7 +172,7 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map(p => (
+            {productsData.map(p => (
               <div key={p.id} className="bg-white dark:bg-[#1a2744] rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition-shadow border border-border group">
                 <div className="relative h-44 overflow-hidden">
                   <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -179,11 +196,15 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center justify-between mt-1">
                     <div>
-                      <span className="text-base font-bold text-[#192A51] dark:text-white">{p.price} sum</span>
-                      {p.oldPrice && <span className="ml-2 text-xs line-through text-[#6b7a99]">{p.oldPrice}</span>}
+                      <span className="text-base font-bold text-[#192A51] dark:text-white">{p.price.toLocaleString()} sum</span>
+                      {p.oldPrice && <span className="ml-2 text-xs line-through text-[#6b7a99]">{p.oldPrice.toLocaleString()}</span>}
                     </div>
-                    <button className="bg-[#4399E1] hover:bg-[#2d84d0] text-white text-xs font-semibold px-3 py-1.5 rounded-xl transition">
-                      + Cart
+                    <button
+                      onClick={() => addToCart(p.id)}
+                      disabled={addingToCart === p.id}
+                      className="bg-[#4399E1] hover:bg-[#2d84d0] text-white p-2 rounded-xl transition disabled:opacity-50"
+                    >
+                      <ShoppingCart size={14} className={addingToCart === p.id ? "animate-pulse" : ""} />
                     </button>
                   </div>
                 </div>
