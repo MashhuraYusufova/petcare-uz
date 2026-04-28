@@ -149,6 +149,10 @@ nextjs-portal {
 .dark .table {
   color: var(--foreground) !important;
   border-color: var(--card-border) !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-color: var(--foreground) !important;
+  --bs-table-hover-bg: var(--section-bg) !important;
+  --bs-table-hover-color: var(--foreground) !important;
 }
 
 .dark .table thead th,
@@ -159,9 +163,11 @@ nextjs-portal {
 }
 
 .dark .table td,
-.dark .table tr {
+.dark .table tr,
+.dark .table > * > * {
   border-color: var(--card-border) !important;
   color: var(--foreground) !important;
+  background-color: transparent !important;
 }
 
 .dark .table-hover tbody tr:hover {
@@ -185,7 +191,7 @@ nextjs-portal {
   background-color: rgba(67, 153, 225, 0.15) !important;
 }
 .dark .text-primary {
-  color: #60aff0 !important;
+  color: #60a5fa !important;
 }
 .dark .bg-danger-subtle {
   background-color: rgba(239, 68, 68, 0.15) !important;
