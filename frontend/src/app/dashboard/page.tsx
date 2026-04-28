@@ -1,14 +1,15 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Package, Calendar, Heart, Star, PawPrint, ShoppingBag, ChevronRight, UserRound, Dog, Cat, Bone } from "lucide-react";
+import { Package, Calendar, Heart, Star, PawPrint, ShoppingBag, ChevronRight, UserRound, Dog, Cat, Bone, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/lib/auth-context";
 import { api } from "@/lib/api";
+import { toast } from "sonner";
 
-const tabs = ["Overview", "Orders", "Appointments", "My Pets"];
+const tabs = ["Overview", "Orders", "Favorites", "Appointments", "My Pets"];
 
 interface Order {
   id: string;
@@ -17,6 +18,14 @@ interface Order {
   status: string;
   price: string;
   img: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  img: string;
+  brand: string;
 }
 
 interface Appointment {
@@ -55,6 +64,7 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [pets, setPets] = useState<Pet[]>([]);
+  const [wishlist, setWishlist] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [showAddPet, setShowAddPet] = useState(false);
@@ -92,6 +102,8 @@ export default function DashboardPage() {
       api.get<Appointment[]>("/api/dashboard/appointments").then(setAppointments).catch(console.error);
     } else if (tab === "My Pets") {
       api.get<Pet[]>("/api/dashboard/pets").then(setPets).catch(console.error);
+    } else if (tab === "Favorites") {
+      api.get<Product[]>("/api/dashboard/wishlist").then(setWishlist).catch(console.error);
     }
   }, [tab, user]);
 
@@ -133,6 +145,17 @@ export default function DashboardPage() {
     }
   }
 
+  async function removeFromWishlist(productId: string) {
+    try {
+      await api.delete(`/api/wishlist/${productId}`);
+      setWishlist(prev => prev.filter(p => p.id !== productId));
+      toast.success("Removed from favorites");
+      if (data) setData({ ...data, stats: { ...data.stats, wishlistCount: data.stats.wishlistCount - 1 } });
+    } catch (err: any) {
+      toast.error("Failed to remove from favorites");
+    }
+  }
+
   if (authLoading || (!user && !authLoading)) {
     return <div className="min-h-screen flex items-center justify-center bg-background"><div className="w-8 h-8 border-4 border-[#4399E1] border-t-transparent rounded-full animate-spin" /></div>;
   }
@@ -163,6 +186,7 @@ export default function DashboardPage() {
               >
                 {t === "Overview" && <UserRound size={15} />}
                 {t === "Orders" && <Package size={15} />}
+                {t === "Favorites" && <Heart size={15} />}
                 {t === "Appointments" && <Calendar size={15} />}
                 {t === "My Pets" && <PawPrint size={15} />}
                 {t}
@@ -193,7 +217,7 @@ export default function DashboardPage() {
                       { icon: <Heart size={20} className="text-[#FFA9AC]" />, label: "Wishlist", value: data.stats.wishlistCount, bg: "bg-[#ffeef0] dark:bg-[#FFA9AC]/10" },
                       { icon: <PawPrint size={20} className="text-[#4399E1]" />, label: "My Pets", value: data.stats.petsCount, bg: "bg-[#DDEDFF] dark:bg-[#1e3060]" },
                     ].map(s => (
-                      <div key={s.label} className="bg-white dark:bg-[#1a2744] rounded-2xl p-4 border border-border flex items-center gap-3">
+                      <div key={s.label} className="bg-white dark:bg-[#1a2744] rounded-2xl p-4 border border-border flex items-center gap-3 cursor-pointer hover:shadow-sm transition" onClick={() => s.label === "Wishlist" ? setTab("Favorites") : setTab(s.label)}>
                         <div className={`w-10 h-10 ${s.bg} rounded-xl flex items-center justify-center shrink-0`}>{s.icon}</div>
                         <div>
                           <p className="text-xl font-bold text-[#192A51] dark:text-white">{s.value}</p>
@@ -270,6 +294,43 @@ export default function DashboardPage() {
                             <p className="text-sm font-bold text-[#192A51] dark:text-white">{o.price} sum</p>
                             <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${o.status === "Delivered" ? "bg-[#DDEDFF] dark:bg-[#1e3060] text-[#4399E1]" : "bg-[#ffeef0] dark:bg-[#FFA9AC]/10 text-[#FFA9AC]"}`}>{o.status}</span>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {tab === "Favorites" && (
+                <div className="bg-white dark:bg-[#1a2744] rounded-2xl border border-border overflow-hidden">
+                  <div className="p-5 border-b border-border flex items-center justify-between">
+                    <h2 className="font-bold text-[#192A51] dark:text-white">Favorite Products</h2>
+                    <Link href="/shop" className="text-xs text-[#4399E1] font-bold hover:underline">Go to Shop</Link>
+                  </div>
+                  {wishlist.length === 0 ? (
+                    <div className="p-12 text-center">
+                      <Heart size={40} className="text-[#6b7a99]/20 mx-auto mb-4" />
+                      <p className="text-sm text-[#6b7a99]">You haven't saved any products yet.</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-border">
+                      {wishlist.map(p => (
+                        <div key={p.id} className="p-5 bg-white dark:bg-[#1a2744] flex items-center gap-4 group">
+                          <div className="w-16 h-16 rounded-xl overflow-hidden shrink-0 border border-border">
+                            <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-110 transition duration-500" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[10px] text-[#4399E1] font-bold uppercase tracking-wider">{p.brand}</p>
+                            <h3 className="text-sm font-bold text-[#192A51] dark:text-white truncate">{p.name}</h3>
+                            <p className="text-sm font-bold text-[#4399E1] mt-0.5">{p.price.toLocaleString()} sum</p>
+                          </div>
+                          <button
+                            onClick={() => removeFromWishlist(p.id)}
+                            className="p-2.5 text-[#FFA9AC] hover:bg-[#FFF5F5] dark:hover:bg-[#2d1a1a] rounded-xl transition"
+                            title="Remove from favorites"
+                          >
+                            <Trash2 size={18} />
+                          </button>
                         </div>
                       ))}
                     </div>

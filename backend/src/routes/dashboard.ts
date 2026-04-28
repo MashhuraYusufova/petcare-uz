@@ -13,5 +13,6 @@ router.get("/summary", wrap(dashboardController.getSummary));
 router.get("/orders", wrap(dashboardController.getOrders));
 router.get("/appointments", wrap(dashboardController.getAppointments));
 router.get("/pets", wrap(dashboardController.getPets));
+router.get("/wishlist", wrap(dashboardController.getWishlist));
 
 export default router;

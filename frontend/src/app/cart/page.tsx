@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Product {
   id: string;
@@ -25,6 +26,8 @@ interface CartItem {
 export default function CartPage() {
   const [items, setItems] = useState<CartItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingOut, setCheckingOut] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!api.getToken()) {
@@ -66,6 +69,19 @@ export default function CartPage() {
       toast.success("Removed from cart");
     } catch (err: any) {
       toast.error("Failed to remove item");
+    }
+  };
+
+  const checkout = async () => {
+    setCheckingOut(true);
+    try {
+      await api.post("/api/orders/checkout", {});
+      toast.success("Order placed successfully!");
+      router.push("/dashboard");
+    } catch (err: any) {
+      toast.error(err.message || "Checkout failed");
+    } finally {
+      setCheckingOut(false);
     }
   };
 
@@ -155,8 +171,12 @@ export default function CartPage() {
                     <span className="text-[#4399E1]">{total.toLocaleString()} sum</span>
                   </div>
                 </div>
-                <button className="w-full bg-[#192A51] text-white py-4 rounded-2xl font-bold mt-8 hover:bg-[#253d75] transition shadow-lg">
-                  Checkout Now
+                <button
+                  onClick={checkout}
+                  disabled={checkingOut}
+                  className="w-full bg-[#192A51] text-white py-4 rounded-2xl font-bold mt-8 hover:bg-[#253d75] transition shadow-lg disabled:opacity-50"
+                >
+                  {checkingOut ? "Processing..." : "Checkout Now"}
                 </button>
                 <Link href="/shop" className="block text-center text-sm font-bold text-[#4399E1] mt-4 hover:underline">
                   Continue Shopping

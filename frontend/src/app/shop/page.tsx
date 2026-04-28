@@ -36,7 +36,34 @@ export default function ShopPage() {
       .then(setProducts)
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    if (api.getToken()) {
+      api.get<any[]>("/api/wishlist")
+        .then(items => setWishlist(items.map(i => i.id)))
+        .catch(console.error);
+    }
   }, []);
+
+  const toggleWishlist = async (productId: string) => {
+    if (!api.getToken()) {
+      toast.error("Please sign in to add items to favorites");
+      return;
+    }
+    const isWished = wishlist.includes(productId);
+    try {
+      if (isWished) {
+        await api.delete(`/api/wishlist/${productId}`);
+        setWishlist(w => w.filter(id => id !== productId));
+        toast.success("Removed from favorites");
+      } else {
+        await api.post("/api/wishlist", { productId });
+        setWishlist(w => [...w, productId]);
+        toast.success("Added to favorites");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update favorites");
+    }
+  };
 
   const addToCart = async (productId: string) => {
     if (!api.getToken()) {
@@ -175,7 +202,7 @@ export default function ShopPage() {
                       </span>
                     )}
                     <button
-                      onClick={() => setWishlist(w => w.includes(p.id) ? w.filter(i => i !== p.id) : [...w, p.id])}
+                      onClick={() => toggleWishlist(p.id)}
                       className="absolute top-2 right-2 w-7 h-7 bg-white dark:bg-[#1a2744] rounded-full flex items-center justify-center shadow transition opacity-0 group-hover:opacity-100"
                     >
                       <Heart size={13} className={wishlist.includes(p.id) ? "fill-[#FFA9AC] text-[#FFA9AC]" : "text-[#6b7a99]"} />
