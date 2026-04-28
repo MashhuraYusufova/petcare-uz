@@ -51,15 +51,20 @@ export default function HomePage() {
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   const addToCart = async (productId: string) => {
+    console.log("addToCart called for product:", productId);
     if (!api.getToken()) {
+      console.log("No token found, showing error toast");
       toast.error("Please sign in to add items to cart");
       return;
     }
     setAddingToCart(productId);
     try {
-      await api.post("/api/cart", { productId, quantity: 1 });
+      console.log("Sending POST request to /api/cart...");
+      const res = await api.post("/api/cart", { productId, quantity: 1 });
+      console.log("Cart update success:", res);
       toast.success("Added to cart");
     } catch (err: any) {
+      console.error("Cart update failed:", err);
       toast.error(err.message || "Failed to add to cart");
     } finally {
       setAddingToCart(null);
