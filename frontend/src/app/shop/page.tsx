@@ -31,6 +31,16 @@ export default function ShopPage() {
   const [sort, setSort] = useState("Featured");
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const q = new URLSearchParams(window.location.search).get("search");
+      if (q) {
+        setSearch(q);
+        setDebouncedSearch(q);
+      }
+    }
+  }, []);
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 

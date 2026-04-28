@@ -12,6 +12,7 @@ import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Container, Row, Col, Card, Badge, Button, InputGroup, FormControl } from "react-bootstrap";
+import { useRouter } from "next/navigation";
 
 const categories = [
   { icon: Bone, label: "Food & Treats", color: "rgba(67, 153, 225, 0.15)", count: "240+ items" },
@@ -51,6 +52,22 @@ const features = [
 export default function HomePage() {
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+    } else {
+      router.push('/shop');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSearch();
+    }
+  };
 
   useEffect(() => {
     if (api.getToken()) {
@@ -146,8 +163,20 @@ export default function HomePage() {
             <Col md={8}>
               <div style={{ backgroundColor: "var(--input-bg)", border: "1px solid var(--card-border)", borderRadius: 16, display: "flex", alignItems: "center", padding: "0 16px", gap: 12, boxShadow: "0 2px 12px rgba(0,0,0,0.06)" }}>
                 <Search size={20} style={{ color: "var(--muted-text)", flexShrink: 0 }} />
-                <input type="text" placeholder="Search products, vets, or care tips..." style={{ flex: 1, padding: "16px 0", fontSize: 14, background: "transparent", border: "none", outline: "none", color: "var(--foreground)", fontFamily: "'Montserrat', sans-serif" }} />
-                <Button style={{ backgroundColor: "#4399E1", border: "none", fontSize: 14, fontWeight: 600, padding: "10px 20px", borderRadius: 12 }}>Search</Button>
+                <input 
+                  type="text" 
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Search products, vets, or care tips..." 
+                  style={{ flex: 1, padding: "16px 0", fontSize: 14, background: "transparent", border: "none", outline: "none", color: "var(--foreground)", fontFamily: "'Montserrat', sans-serif" }} 
+                />
+                <Button 
+                  onClick={handleSearch}
+                  style={{ backgroundColor: "#4399E1", border: "none", fontSize: 14, fontWeight: 600, padding: "10px 20px", borderRadius: 12 }}
+                >
+                  Search
+                </Button>
               </div>
             </Col>
           </Row>
