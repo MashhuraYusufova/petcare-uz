@@ -91,12 +91,12 @@ export default function CartPage() {
   const total = subtotal + shipping;
 
   return (
-    <div className="min-vh-100 d-flex flex-column bg-white">
+    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
       <main className="flex-grow-1 py-5">
         <Container>
-          <h1 className="fw-bold mb-5 d-flex align-items-center gap-3" style={{ color: "#192A51", fontSize: '2rem' }}>
+          <h1 className="fw-bold mb-5 d-flex align-items-center gap-3" style={{ color: 'var(--foreground)', fontSize: '2rem' }}>
             <ShoppingBag style={{ color: "#4399E1" }} /> Shopping Cart
           </h1>
 
@@ -107,11 +107,11 @@ export default function CartPage() {
               ))}
             </div>
           ) : items.length === 0 ? (
-            <Card className="rounded-4 p-5 text-center border-0 bg-light shadow-none">
+            <Card className="rounded-4 p-5 text-center border-0 shadow-none" style={{ backgroundColor: 'var(--section-bg)' }}>
               <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: 80, height: 80, backgroundColor: "#DDEDFF" }}>
                 <ShoppingBag size={32} style={{ color: "#4399E1" }} />
               </div>
-              <h2 className="fw-bold mb-2" style={{ color: "#192A51" }}>Your cart is empty</h2>
+              <h2 className="fw-bold mb-2" style={{ color: 'var(--foreground)' }}>Your cart is empty</h2>
               <p className="text-muted mb-5">Looks like you haven't added any premium products yet.</p>
               <Link href="/shop" className="btn btn-lg fw-bold rounded-4 px-5 py-3 shadow-none transition" style={{ backgroundColor: "#4399E1", color: "#ffffff" }}>
                 Start Shopping <ArrowRight size={18} className="ms-2" />
@@ -122,7 +122,7 @@ export default function CartPage() {
               <Col lg={8}>
                 <div className="d-flex flex-column gap-4">
                   {items.map(item => (
-                    <Card key={item.id} className="rounded-4 p-4 border shadow-none bg-white">
+                    <Card key={item.id} className="rounded-4 p-4 border shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                       <Row className="align-items-center g-4">
                         <Col xs="auto">
                           <div className="rounded-3 overflow-hidden border" style={{ width: 96, height: 96 }}>
@@ -131,25 +131,27 @@ export default function CartPage() {
                         </Col>
                         <Col className="min-w-0">
                           <p className="extra-small fw-bold text-uppercase mb-1" style={{ color: "#4399E1", fontSize: 10, letterSpacing: '0.05em' }}>{item.product.brand}</p>
-                          <h3 className="h6 fw-bold mb-1 text-dark truncate">{item.product.name}</h3>
+                          <h3 className="h6 fw-bold mb-1 truncate" style={{ color: 'var(--foreground)' }}>{item.product.name}</h3>
                           <p className="fw-bold mb-0" style={{ color: "#4399E1" }}>{item.product.price.toLocaleString()} sum</p>
                         </Col>
                         <Col xs="auto">
-                          <div className="d-flex align-items-center gap-2 p-1 bg-light rounded-3 border">
+                          <div className="d-flex align-items-center gap-2 p-1 rounded-3 border" style={{ backgroundColor: 'var(--section-bg)', borderColor: 'var(--card-border)' }}>
                             <Button
                               variant="link"
                               size="sm"
                               onClick={() => updateQuantity(item.productId, item.quantity - 1)}
-                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center hover-bg-white text-dark"
+                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center"
+                              style={{ color: 'var(--foreground)' }}
                             >
                               <Minus size={14} />
                             </Button>
-                            <span className="small fw-bold text-center" style={{ width: 24 }}>{item.quantity}</span>
+                            <span className="small fw-bold text-center" style={{ width: 24, color: 'var(--foreground)' }}>{item.quantity}</span>
                             <Button
                               variant="link"
                               size="sm"
                               onClick={() => updateQuantity(item.productId, item.quantity + 1)}
-                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center hover-bg-white text-dark"
+                              className="p-0 w-8 h-8 rounded-2 text-decoration-none d-flex align-items-center justify-content-center"
+                              style={{ color: 'var(--foreground)' }}
                             >
                               <Plus size={14} />
                             </Button>
@@ -172,20 +174,20 @@ export default function CartPage() {
               </Col>
 
               <Col lg={4}>
-                <Card className="rounded-4 p-4 border shadow-sm bg-white sticky-top" style={{ top: '6rem' }}>
-                  <h3 className="h5 fw-bold mb-4 text-dark">Order Summary</h3>
+                <Card className="rounded-4 p-4 border shadow-sm sticky-top" style={{ top: '6rem', backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                  <h3 className="h5 fw-bold mb-4" style={{ color: 'var(--foreground)' }}>Order Summary</h3>
                   <div className="d-flex flex-column gap-3 small">
                     <div className="d-flex justify-content-between text-muted">
                       <span>Subtotal</span>
-                      <span className="fw-bold text-dark">{subtotal.toLocaleString()} sum</span>
+                      <span className="fw-bold" style={{ color: 'var(--foreground)' }}>{subtotal.toLocaleString()} sum</span>
                     </div>
                     <div className="d-flex justify-content-between text-muted">
                       <span>Shipping</span>
-                      <span className="fw-bold text-dark">{shipping.toLocaleString()} sum</span>
+                      <span className="fw-bold" style={{ color: 'var(--foreground)' }}>{shipping.toLocaleString()} sum</span>
                     </div>
                     <hr className="my-2 border-light" />
-                    <div className="d-flex justify-content-between h5 fw-bold mb-0 pt-1">
-                      <span className="text-dark">Total</span>
+                    <div className="d-flex justify-content-between h5 fw-bold mb-0 pt-1" style={{ color: 'var(--foreground)' }}>
+                      <span>Total</span>
                       <span style={{ color: "#4399E1" }}>{total.toLocaleString()} sum</span>
                     </div>
                   </div>

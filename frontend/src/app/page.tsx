@@ -14,12 +14,12 @@ import { toast } from "sonner";
 import { Container, Row, Col, Card, Badge, Button, InputGroup, FormControl } from "react-bootstrap";
 
 const categories = [
-  { icon: Bone, label: "Food & Treats", color: "#DDEDFF", count: "240+ items" },
-  { icon: Gamepad2, label: "Toys & Play", color: "#ffeef0", count: "120+ items" },
-  { icon: Scissors, label: "Grooming", color: "#f0fdf4", count: "80+ items" },
-  { icon: Pill, label: "Health & Meds", color: "#fff7ed", count: "60+ items" },
-  { icon: Home, label: "Beds & Homes", color: "#faf5ff", count: "95+ items" },
-  { icon: GraduationCap, label: "Training", color: "#ecfdf5", count: "45+ items" },
+  { icon: Bone, label: "Food & Treats", color: "var(--section-bg)", count: "240+ items" },
+  { icon: Gamepad2, label: "Toys & Play", color: "var(--section-bg)", count: "120+ items" },
+  { icon: Scissors, label: "Grooming", color: "var(--section-bg)", count: "80+ items" },
+  { icon: Pill, label: "Health & Meds", color: "var(--section-bg)", count: "60+ items" },
+  { icon: Home, label: "Beds & Homes", color: "var(--section-bg)", count: "95+ items" },
+  { icon: GraduationCap, label: "Training", color: "var(--section-bg)", count: "45+ items" },
 ];
 
 const productsData = [
@@ -309,12 +309,12 @@ export default function HomePage() {
               <Col xs={12} sm={4} key={b.title}>
                 <Link href="/learn" className="text-decoration-none">
                   <Card className="h-100 border-0 shadow-sm" style={{ borderRadius: 16, overflow: "hidden", backgroundColor: 'var(--card-bg)' }}>
-                    <div style={{ backgroundColor: "#DDEDFF", height: 144, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ backgroundColor: "var(--section-bg)", height: 144, display: "flex", alignItems: "center", justifyContent: "center" }}>
                       <b.Icon size={56} style={{ color: "rgba(67,153,225,0.6)" }} />
                     </div>
                     <Card.Body className="p-3 d-flex flex-column gap-2">
                       <div className="d-flex align-items-center gap-2">
-                        <Badge pill style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 11 }}>{b.cat}</Badge>
+                        <Badge pill style={{ backgroundColor: "var(--section-bg)", color: "#4399E1", fontSize: 11 }}>{b.cat}</Badge>
                         <span style={{ fontSize: 11, color: "var(--muted-text)" }}>{b.date}</span>
                       </div>
                       <Card.Title className="fs-6 fw-semibold mb-0" style={{ color: "var(--foreground)" }}>{b.title}</Card.Title>

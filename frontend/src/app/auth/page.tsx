@@ -54,7 +54,7 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-vh-100 d-flex bg-white">
+    <div className="min-vh-100 d-flex" style={{ backgroundColor: 'var(--background)' }}>
       {/* Left visual panel */}
       <div className="d-none d-lg-flex flex-column justify-content-between p-5 text-white position-relative overflow-hidden" style={{ width: '50%', background: "linear-gradient(135deg, #4399E1 0%, #192A51 100%)" }}>
         <div className="position-absolute inset-0 opacity-10 pointer-events-none">
@@ -94,7 +94,7 @@ export default function AuthPage() {
       </div>
 
       {/* Right form panel */}
-      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 position-relative">
+      <div className="flex-grow-1 d-flex flex-column align-items-center justify-content-center p-4 position-relative" style={{ backgroundColor: 'var(--background)' }}>
         <div className="position-absolute top-0 start-0 end-0 p-4 d-flex align-items-center justify-content-between">
           <Link href="/" className="d-lg-none d-flex align-items-center gap-2 text-decoration-none small" style={{ color: "#6b7a99" }}>
             <ArrowLeft size={16} /> Back
@@ -111,14 +111,14 @@ export default function AuthPage() {
           </div>
 
           {mode !== "forgot" && (
-            <Nav className="bg-light rounded-4 p-1 mb-5 nav-pills nav-fill">
+            <Nav className="rounded-4 p-1 mb-5 nav-pills nav-fill" style={{ backgroundColor: 'var(--section-bg)' }}>
               {(["login", "signup"] as Mode[]).map(m => (
                 <Nav.Item key={m}>
                   <Nav.Link
                     active={mode === m}
                     onClick={() => { setMode(m); setError(""); }}
-                    className={`rounded-3 small fw-bold py-2 border-0 ${mode === m ? "bg-white shadow-sm" : "text-muted"}`}
-                    style={{ color: mode === m ? "#4399E1" : "" }}
+                    className={`rounded-3 small fw-bold py-2 border-0 ${mode === m ? "shadow-sm" : ""}`}
+                    style={{ backgroundColor: mode === m ? 'var(--card-bg)' : 'transparent', color: mode === m ? '#4399E1' : 'var(--muted-text)' }}
                   >
                     {m === "login" ? "Sign In" : "Sign Up"}
                   </Nav.Link>
@@ -127,10 +127,10 @@ export default function AuthPage() {
             </Nav>
           )}
 
-          <h2 className="fw-bold mb-1" style={{ color: "#192A51", fontSize: '1.5rem' }}>
+          <h2 className="fw-bold mb-1" style={{ color: 'var(--foreground)', fontSize: '1.5rem' }}>
             {mode === "login" ? "Sign in to your account" : mode === "signup" ? "Create your account" : "Forgot password?"}
           </h2>
-          <p className="small mb-5" style={{ color: "#6b7a99" }}>
+          <p className="small mb-5" style={{ color: 'var(--muted-text)' }}>
             {mode === "login" ? "Enter your credentials to continue" : mode === "signup" ? "It only takes a minute — join free!" : "We'll send a reset link to your email"}
           </p>
 
@@ -144,16 +144,17 @@ export default function AuthPage() {
             {mode === "signup" && (
               <Form.Group>
                 <Form.Label className="extra-small fw-bold text-uppercase mb-2" style={{ fontSize: 10, letterSpacing: '0.05em' }}>Full Name</Form.Label>
-                <InputGroup className="bg-light border rounded-3 overflow-hidden">
+                <InputGroup className="border rounded-3 overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
                   <InputGroup.Text className="bg-transparent border-0 pe-0">
-                    <User size={16} style={{ color: "#6b7a99" }} />
+                    <User size={16} style={{ color: 'var(--muted-text)' }} />
                   </InputGroup.Text>
                   <Form.Control
                     value={name}
                     onChange={e => setName(e.target.value)}
                     type="text"
                     placeholder="Your full name"
-                    className="bg-transparent border-0 py-2.5 small shadow-none"
+                    className="border-0 py-2.5 small shadow-none"
+                    style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}
                     required
                   />
                 </InputGroup>
@@ -162,16 +163,17 @@ export default function AuthPage() {
 
             <Form.Group>
               <Form.Label className="extra-small fw-bold text-uppercase mb-2" style={{ fontSize: 10, letterSpacing: '0.05em' }}>Email Address</Form.Label>
-              <InputGroup className="bg-light border rounded-3 overflow-hidden">
+              <InputGroup className="border rounded-3 overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
                 <InputGroup.Text className="bg-transparent border-0 pe-0">
-                  <Mail size={16} style={{ color: "#6b7a99" }} />
+                  <Mail size={16} style={{ color: 'var(--muted-text)' }} />
                 </InputGroup.Text>
                 <Form.Control
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   type="email"
                   placeholder="you@email.com"
-                  className="bg-transparent border-0 py-2.5 small shadow-none"
+                  className="border-0 py-2.5 small shadow-none"
+                  style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}
                   required
                 />
               </InputGroup>
@@ -187,16 +189,17 @@ export default function AuthPage() {
                     </Button>
                   )}
                 </div>
-                <InputGroup className="bg-light border rounded-3 overflow-hidden">
+                <InputGroup className="border rounded-3 overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
                   <InputGroup.Text className="bg-transparent border-0 pe-0">
-                    <Lock size={16} style={{ color: "#6b7a99" }} />
+                    <Lock size={16} style={{ color: 'var(--muted-text)' }} />
                   </InputGroup.Text>
                   <Form.Control
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     type={show ? "text" : "password"}
                     placeholder="••••••••"
-                    className="bg-transparent border-0 py-2.5 small shadow-none"
+                    className="border-0 py-2.5 small shadow-none"
+                    style={{ backgroundColor: 'transparent', color: 'var(--foreground)' }}
                     required
                   />
                   <Button variant="link" onClick={() => setShow(s => !s)} className="bg-transparent border-0 text-decoration-none" style={{ color: "#6b7a99" }}>
@@ -241,12 +244,12 @@ export default function AuthPage() {
               </div>
               <Row className="g-3">
                 <Col xs={6}>
-                  <Button variant="outline-light" className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2 text-dark">
+                  <Button className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--foreground)', borderColor: 'var(--card-border)' }}>
                     <Globe size={16} style={{ color: "#4399E1" }} /> Google
                   </Button>
                 </Col>
                 <Col xs={6}>
-                  <Button variant="outline-light" className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2 text-dark">
+                  <Button className="w-100 rounded-3 py-2.5 small fw-semibold border d-flex align-items-center justify-content-center gap-2" style={{ backgroundColor: 'var(--card-bg)', color: 'var(--foreground)', borderColor: 'var(--card-border)' }}>
                     <Send size={16} style={{ color: "#4399E1" }} /> Telegram
                   </Button>
                 </Col>

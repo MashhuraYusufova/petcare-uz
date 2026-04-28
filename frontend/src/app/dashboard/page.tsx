@@ -158,11 +158,11 @@ export default function DashboardPage() {
   }
 
   if (authLoading || (!user && !authLoading)) {
-    return <div className="min-vh-100 d-flex align-items-center justify-content-center bg-white"><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>;
+    return <div className="min-vh-100 d-flex align-items-center justify-content-center" style={{ backgroundColor: 'var(--background)' }}><div className="spinner-border text-primary" role="status"><span className="visually-hidden">Loading...</span></div></div>;
   }
 
   return (
-    <div className="min-vh-100 d-flex flex-column bg-white">
+    <div className="min-vh-100 d-flex flex-column" style={{ backgroundColor: 'var(--background)' }}>
       <Navbar />
 
       <Container className="py-5">
@@ -182,14 +182,14 @@ export default function DashboardPage() {
                 </div>
               </Card>
 
-              <Nav className="flex-column gap-1 bg-light rounded-4 p-2 border border-light">
+              <Nav className="flex-column gap-1 rounded-4 p-2 border" style={{ backgroundColor: 'var(--section-bg)', borderColor: 'var(--card-border)' }}>
                 {tabs.map(t => (
                   <Nav.Link
                     key={t}
                     onClick={() => setTab(t)}
                     active={tab === t}
-                    className={`d-flex align-items-center gap-2.5 small fw-bold py-2.5 px-3 rounded-3 transition ${tab === t ? "bg-white text-primary shadow-sm" : "text-muted"}`}
-                    style={{ color: tab === t ? "#4399E1" : "" }}
+                    className={`d-flex align-items-center gap-2.5 small fw-bold py-2.5 px-3 rounded-3 transition ${tab === t ? "shadow-sm" : ""}`}
+                    style={{ backgroundColor: tab === t ? 'var(--card-bg)' : 'transparent', color: tab === t ? '#4399E1' : 'var(--muted-text)' }}
                   >
                     {t === "Overview" && <UserRound size={15} />}
                     {t === "Orders" && <Package size={15} />}
@@ -216,7 +216,7 @@ export default function DashboardPage() {
                 {[1, 2, 3].map(i => <div key={i} className="bg-light rounded-4 border animate-pulse" style={{ height: 100 }} />)}
               </div>
             ) : (
-              <main>
+              <main style={{ color: 'var(--foreground)' }}>
                 {tab === "Overview" && data && (
                   <div className="d-flex flex-column gap-5">
                     <Row className="g-4">
@@ -227,12 +227,12 @@ export default function DashboardPage() {
                         { icon: <PawPrint size={20} style={{ color: "#4399E1" }} />, label: "My Pets", value: data.stats.petsCount, bg: "#DDEDFF", tab: "My Pets" },
                       ].map(s => (
                         <Col xs={6} md={3} key={s.label}>
-                          <Card className="rounded-4 p-3 border-light h-100 shadow-none cursor-pointer transition hover-shadow-sm" onClick={() => setTab(s.tab)}>
+                          <Card className="rounded-4 p-3 h-100 shadow-none cursor-pointer transition" onClick={() => setTab(s.tab)} style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                             <div className="d-flex align-items-center gap-3">
                               <div className="rounded-3 d-flex align-items-center justify-content-center shrink-0" style={{ width: 44, height: 44, backgroundColor: s.bg }}>{s.icon}</div>
                               <div>
-                                <p className="h5 fw-bold mb-0 text-dark">{s.value}</p>
-                                <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p>
+                                <p className="h5 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{s.value}</p>
+                                <p className="extra-small mb-0" style={{ fontSize: 11, color: 'var(--muted-text)' }}>{s.label}</p>
                               </div>
                             </div>
                           </Card>
@@ -242,9 +242,9 @@ export default function DashboardPage() {
 
                     <Row className="g-4">
                       <Col md={6}>
-                        <Card className="rounded-4 p-4 border-light h-100 shadow-none">
+                        <Card className="rounded-4 p-4 h-100 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                           <div className="d-flex align-items-center justify-content-between mb-4">
-                            <h3 className="small fw-bold mb-0 text-dark">Recent Order</h3>
+                            <h3 className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Recent Order</h3>
                             <Button variant="link" size="sm" onClick={() => setTab("Orders")} className="extra-small p-0 text-decoration-none fw-bold" style={{ color: "#4399E1", fontSize: 11 }}>View all</Button>
                           </div>
                           {data.recentOrders[0] ? (
@@ -253,7 +253,7 @@ export default function DashboardPage() {
                                 <img src={data.recentOrders[0].img} alt={data.recentOrders[0].item} className="w-100 h-100 object-fit-cover" />
                               </div>
                               <div className="min-w-0 flex-grow-1">
-                                <p className="small fw-bold mb-0 text-dark truncate">{data.recentOrders[0].item}</p>
+                                <p className="small fw-bold mb-0 truncate" style={{ color: 'var(--foreground)' }}>{data.recentOrders[0].item}</p>
                                 <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{data.recentOrders[0].date}</p>
                               </div>
                               <Badge pill style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 10 }}>{data.recentOrders[0].status}</Badge>
@@ -264,9 +264,9 @@ export default function DashboardPage() {
                         </Card>
                       </Col>
                       <Col md={6}>
-                        <Card className="rounded-4 p-4 border-light h-100 shadow-none">
+                        <Card className="rounded-4 p-4 h-100 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                           <div className="d-flex align-items-center justify-content-between mb-4">
-                            <h3 className="small fw-bold mb-0 text-dark">Upcoming Appointment</h3>
+                            <h3 className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Upcoming Appointment</h3>
                             <Button variant="link" size="sm" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ color: "#4399E1", fontSize: 11 }}>View all</Button>
                           </div>
                           {data.upcomingAppointments[0] ? (
@@ -275,7 +275,7 @@ export default function DashboardPage() {
                                 <UserRound size={24} style={{ color: "#FFA9AC" }} />
                               </div>
                               <div className="min-w-0 flex-grow-1">
-                                <p className="small fw-bold mb-0 text-dark">{data.upcomingAppointments[0].vet.name}</p>
+                                <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{data.upcomingAppointments[0].vet.name}</p>
                                 <p className="extra-small fw-bold mb-0" style={{ color: "#FFA9AC", fontSize: 11 }}>{data.upcomingAppointments[0].date}</p>
                                 <p className="extra-small text-muted mb-0 truncate" style={{ fontSize: 10 }}>{data.upcomingAppointments[0].vet.clinic}</p>
                               </div>
@@ -290,9 +290,9 @@ export default function DashboardPage() {
                 )}
 
                 {tab === "Orders" && (
-                  <Card className="rounded-4 border-light overflow-hidden shadow-none">
-                    <Card.Header className="bg-white p-4 border-bottom-0">
-                      <h2 className="h6 fw-bold mb-0 text-dark">Order History</h2>
+                  <Card className="rounded-4 overflow-hidden shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                    <Card.Header className="p-4 border-bottom-0" style={{ backgroundColor: 'var(--card-bg)' }}>
+                      <h2 className="h6 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Order History</h2>
                     </Card.Header>
                     {orders.length === 0 ? (
                       <Card.Body className="text-center py-5">
@@ -301,16 +301,16 @@ export default function DashboardPage() {
                     ) : (
                       <div className="list-group list-group-flush">
                         {orders.map(o => (
-                          <div key={o.id} className="list-group-item p-4 border-light d-flex align-items-center gap-4 transition hover-bg-light">
+                          <div key={o.id} className="list-group-item p-4 d-flex align-items-center gap-4 transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                             <div className="rounded-3 overflow-hidden border shrink-0" style={{ width: 56, height: 56 }}>
                               <img src={o.img} alt={o.item} className="w-100 h-100 object-fit-cover" />
                             </div>
                             <div className="flex-grow-1 min-w-0">
-                              <p className="small fw-bold mb-0 text-dark">{o.item}</p>
+                              <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{o.item}</p>
                               <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{o.date}</p>
                             </div>
                             <div className="text-end">
-                              <p className="small fw-bold mb-1 text-dark">{o.price} sum</p>
+                              <p className="small fw-bold mb-1" style={{ color: 'var(--foreground)' }}>{o.price} sum</p>
                               <Badge pill style={{ backgroundColor: o.status === "Delivered" ? "#DDEDFF" : "#ffeef0", color: o.status === "Delivered" ? "#4399E1" : "#FFA9AC", fontSize: 10 }}>{o.status}</Badge>
                             </div>
                           </div>
@@ -321,9 +321,9 @@ export default function DashboardPage() {
                 )}
 
                 {tab === "Favorites" && (
-                  <Card className="rounded-4 border-light overflow-hidden shadow-none">
-                    <Card.Header className="bg-white p-4 border-bottom-0 d-flex align-items-center justify-content-between">
-                      <h2 className="h6 fw-bold mb-0 text-dark">Favorite Products</h2>
+                  <Card className="rounded-4 overflow-hidden shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                    <Card.Header className="p-4 border-bottom-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                      <h2 className="h6 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Favorite Products</h2>
                       <Link href="/shop" className="extra-small fw-bold text-decoration-none" style={{ color: "#4399E1", fontSize: 11 }}>Go to Shop</Link>
                     </Card.Header>
                     {wishlist.length === 0 ? (
@@ -335,13 +335,13 @@ export default function DashboardPage() {
                       <Row className="g-0 border-top">
                         {wishlist.map(p => (
                           <Col sm={6} key={p.id} className="border-end border-bottom border-light">
-                            <div className="p-4 d-flex align-items-center gap-3 group transition hover-bg-light h-100">
+                            <div className="p-4 d-flex align-items-center gap-3 group transition h-100" style={{ backgroundColor: 'var(--card-bg)' }}>
                               <div className="rounded-3 overflow-hidden border shrink-0" style={{ width: 64, height: 64 }}>
                                 <img src={p.img} alt={p.name} className="w-100 h-100 object-fit-cover transition duration-300 group-hover-scale-110" />
                               </div>
                               <div className="flex-grow-1 min-w-0">
                                 <p className="extra-small fw-bold text-uppercase mb-0" style={{ color: "#4399E1", fontSize: 9 }}>{p.brand}</p>
-                                <h3 className="small fw-bold mb-1 text-dark truncate">{p.name}</h3>
+                                <h3 className="small fw-bold mb-1 truncate" style={{ color: 'var(--foreground)' }}>{p.name}</h3>
                                 <p className="small fw-bold mb-0" style={{ color: "#4399E1" }}>{p.price.toLocaleString()} sum</p>
                               </div>
                               <Button
@@ -366,13 +366,13 @@ export default function DashboardPage() {
                       <p className="small text-muted p-4 bg-light rounded-4">No appointments yet</p>
                     ) : (
                       appointments.map(a => (
-                        <Card key={a.id} className="rounded-4 p-4 border-light shadow-none">
+                        <Card key={a.id} className="rounded-4 p-4 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                           <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
                             <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 56, height: 56, backgroundColor: "#ffeef0" }}>
                               <UserRound size={28} style={{ color: "#FFA9AC" }} />
                             </div>
                             <div className="flex-grow-1">
-                              <p className="small fw-bold mb-0 text-dark">{a.vet.name}</p>
+                              <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{a.vet.name}</p>
                               <p className="extra-small fw-medium mb-1" style={{ color: "#4399E1" }}>{a.vet.spec}</p>
                               <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{a.vet.clinic} · {a.date}</p>
                             </div>
@@ -404,17 +404,17 @@ export default function DashboardPage() {
                 {tab === "My Pets" && (
                   <div className="d-flex flex-column gap-4">
                     {pets.map(p => (
-                      <Card key={p.id} className="rounded-4 p-4 border-light shadow-none">
+                      <Card key={p.id} className="rounded-4 p-4 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                         <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
                           <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
                             <PetIcon species={p.species} />
                           </div>
                           <div className="flex-grow-1">
-                            <p className="h6 fw-bold mb-0 text-dark">{p.name}</p>
+                            <p className="h6 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{p.name}</p>
                             <p className="extra-small fw-medium mb-2" style={{ color: "#4399E1" }}>{p.species} · {p.breed}</p>
                             <div className="d-flex gap-4">
-                              <span className="extra-small text-muted">Age: <b className="text-dark">{p.age}</b></span>
-                              <span className="extra-small text-muted">Weight: <b className="text-dark">{p.weight}</b></span>
+                              <span className="extra-small" style={{ color: 'var(--muted-text)' }}>Age: <b style={{ color: 'var(--foreground)' }}>{p.age}</b></span>
+                              <span className="extra-small" style={{ color: 'var(--muted-text)' }}>Weight: <b style={{ color: 'var(--foreground)' }}>{p.weight}</b></span>
                             </div>
                           </div>
                           <div className="d-flex flex-column align-items-end gap-2 ms-sm-auto">
@@ -437,31 +437,31 @@ export default function DashboardPage() {
                             <Col xs={6}>
                               <Form.Group>
                                 <Form.Label className="extra-small fw-bold text-dark mb-1">Name</Form.Label>
-                                <Form.Control value={newPet.name} onChange={e => setNewPet(p => ({ ...p, name: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="Pet's name" />
+                                <Form.Control value={newPet.name} onChange={e => setNewPet(p => ({ ...p, name: e.target.value }))} className="rounded-3 shadow-none small border-0" style={{ backgroundColor: 'var(--input-bg)', color: 'var(--foreground)' }} placeholder="Pet's name" />
                               </Form.Group>
                             </Col>
                             <Col xs={6}>
                               <Form.Group>
                                 <Form.Label className="extra-small fw-bold text-dark mb-1">Breed</Form.Label>
-                                <Form.Control value={newPet.breed} onChange={e => setNewPet(p => ({ ...p, breed: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. Golden Retriever" />
+                                <Form.Control value={newPet.breed} onChange={e => setNewPet(p => ({ ...p, breed: e.target.value }))} className="rounded-3 shadow-none small border-0" style={{ backgroundColor: 'var(--input-bg)', color: 'var(--foreground)' }} placeholder="e.g. Golden Retriever" />
                               </Form.Group>
                             </Col>
                             <Col xs={6}>
                               <Form.Group>
                                 <Form.Label className="extra-small fw-bold text-dark mb-1">Age</Form.Label>
-                                <Form.Control value={newPet.age} onChange={e => setNewPet(p => ({ ...p, age: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. 2 yrs" />
+                                <Form.Control value={newPet.age} onChange={e => setNewPet(p => ({ ...p, age: e.target.value }))} className="rounded-3 shadow-none small border-0" style={{ backgroundColor: 'var(--input-bg)', color: 'var(--foreground)' }} placeholder="e.g. 2 yrs" />
                               </Form.Group>
                             </Col>
                             <Col xs={6}>
                               <Form.Group>
                                 <Form.Label className="extra-small fw-bold text-dark mb-1">Weight</Form.Label>
-                                <Form.Control value={newPet.weight} onChange={e => setNewPet(p => ({ ...p, weight: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0" placeholder="e.g. 10 kg" />
+                                <Form.Control value={newPet.weight} onChange={e => setNewPet(p => ({ ...p, weight: e.target.value }))} className="rounded-3 shadow-none small border-0" style={{ backgroundColor: 'var(--input-bg)', color: 'var(--foreground)' }} placeholder="e.g. 10 kg" />
                               </Form.Group>
                             </Col>
                             <Col xs={12}>
                               <Form.Group>
                                 <Form.Label className="extra-small fw-bold text-dark mb-1">Species</Form.Label>
-                                <Form.Select value={newPet.species} onChange={e => setNewPet(p => ({ ...p, species: e.target.value }))} className="rounded-3 shadow-none small bg-light border-0">
+                                <Form.Select value={newPet.species} onChange={e => setNewPet(p => ({ ...p, species: e.target.value }))} className="rounded-3 shadow-none small border-0" style={{ backgroundColor: 'var(--input-bg)', color: 'var(--foreground)' }}>
                                   <option>Dog</option><option>Cat</option><option>Bird</option><option>Rabbit</option><option>Other</option>
                                 </Form.Select>
                               </Form.Group>
