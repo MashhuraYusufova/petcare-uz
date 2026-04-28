@@ -6,7 +6,7 @@ import {
   Search, Star, ArrowRight, ShoppingBag, Stethoscope, BookOpen, Heart, Award,
   ChevronRight, Bone, Gamepad2, Scissors, Pill, Home, GraduationCap,
   Fish, Cat, Bath, PawPrint, UserRound, Truck, RefreshCw, ShieldCheck,
-  MessageCircle, Salad, Hospital, Dog, ShoppingCart
+  MessageCircle, Salad, Hospital, Dog, Plus
 } from "lucide-react";
 import { useState } from "react";
 import { api } from "@/lib/api";
@@ -211,9 +211,11 @@ export default function HomePage() {
                     <button
                       onClick={() => addToCart(p.id)}
                       disabled={addingToCart === p.id}
-                      className="bg-[#4399E1] hover:bg-[#2d84d0] text-white p-2 rounded-xl transition disabled:opacity-50"
+                      aria-label={`Add ${p.name} to cart`}
+                      className="inline-flex items-center gap-2 bg-[#4399E1] hover:bg-[#2d84d0] text-white px-3 py-2 rounded-xl text-sm font-semibold transition disabled:opacity-50"
                     >
-                      <ShoppingCart size={14} className={addingToCart === p.id ? "animate-pulse" : ""} />
+                      <Plus size={14} className={addingToCart === p.id ? "animate-pulse" : ""} />
+                      Add to cart
                     </button>
                   </div>
                 </div>

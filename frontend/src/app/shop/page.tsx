@@ -1,7 +1,7 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Search, Star, Heart, SlidersHorizontal, ChevronDown, ShoppingCart } from "lucide-react";
+import { Search, Star, Heart, SlidersHorizontal, ChevronDown, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
@@ -196,9 +196,11 @@ export default function ShopPage() {
                       <button
                         onClick={() => addToCart(p.id)}
                         disabled={addingToCart === p.id}
-                        className="bg-[#4399E1] hover:bg-[#2d84d0] text-white p-1.5 rounded-lg transition disabled:opacity-50"
+                        aria-label={`Add ${p.name} to cart`}
+                        className="inline-flex items-center gap-1.5 bg-[#4399E1] hover:bg-[#2d84d0] text-white px-2.5 py-1.5 rounded-lg text-xs font-semibold transition disabled:opacity-50"
                       >
-                        <ShoppingCart size={13} className={addingToCart === p.id ? "animate-pulse" : ""} />
+                        <Plus size={13} className={addingToCart === p.id ? "animate-pulse" : ""} />
+                        Add
                       </button>
                     </div>
                   </div>
