@@ -24,6 +24,7 @@ exports.deleteVet = deleteVet;
 exports.updateUserRole = updateUserRole;
 const prisma_1 = __importDefault(require("../prisma"));
 const vet_profile_service_1 = require("./vet-profile.service");
+const vet_email_service_1 = require("./vet-email.service");
 const email_1 = require("../utils/email");
 function getOverviewStats() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -84,8 +85,9 @@ function deleteProduct(id) {
 }
 function createVet(data) {
     return __awaiter(this, void 0, void 0, function* () {
+        const email = data.email ? yield (0, vet_email_service_1.assertVetEmailAvailable)(data.email) : undefined;
         return prisma_1.default.vet.create({
-            data: Object.assign(Object.assign({}, data), { email: data.email ? (0, email_1.normalizeEmail)(data.email) : undefined }),
+            data: Object.assign(Object.assign({}, data), { email }),
         });
     });
 }
@@ -94,9 +96,14 @@ function updateVet(id, data) {
         const vet = yield prisma_1.default.vet.findUnique({ where: { id } });
         if (!vet)
             throw new Error("Vet not found");
+        const email = data.email === undefined
+            ? undefined
+            : data.email === null
+                ? null
+                : yield (0, vet_email_service_1.assertVetEmailAvailable)(data.email, id);
         return prisma_1.default.vet.update({
             where: { id },
-            data: Object.assign(Object.assign({}, data), { email: data.email === undefined ? undefined : data.email === null ? null : (0, email_1.normalizeEmail)(data.email) }),
+            data: Object.assign(Object.assign({}, data), { email }),
         });
     });
 }
@@ -116,7 +123,7 @@ function updateUserRole(id, role) {
         const updatedUser = yield prisma_1.default.user.update({ where: { id }, data: { role } });
         if (role === "vet") {
             const normalizedEmail = (0, email_1.normalizeEmail)(updatedUser.email);
-            const existingVet = yield prisma_1.default.vet.findFirst({ where: { email: normalizedEmail } });
+            const existingVet = yield (0, vet_email_service_1.findVetByEmail)(normalizedEmail);
             if (!existingVet) {
                 yield (0, vet_profile_service_1.createVetProfileForUser)(updatedUser);
             }

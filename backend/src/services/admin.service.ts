@@ -1,5 +1,6 @@
 import prisma from "../prisma";
 import { createVetProfileForUser } from "./vet-profile.service";
+import { assertVetEmailAvailable, findVetByEmail } from "./vet-email.service";
 import { normalizeEmail } from "../utils/email";
 
 export async function getOverviewStats() {
@@ -63,10 +64,12 @@ export async function createVet(data: {
   name: string; spec: string; clinic: string; district: string; rating: number;
   reviews: number; exp: string; price: string; avail: boolean; slots: string[]; email?: string;
 }) {
+  const email = data.email ? await assertVetEmailAvailable(data.email) : undefined;
+
   return (prisma.vet as any).create({
     data: {
       ...data,
-      email: data.email ? normalizeEmail(data.email) : undefined,
+      email,
     },
   });
 }
@@ -77,11 +80,18 @@ export async function updateVet(id: string, data: Partial<{
 }>) {
   const vet = await prisma.vet.findUnique({ where: { id } });
   if (!vet) throw new Error("Vet not found");
+  const email =
+    data.email === undefined
+      ? undefined
+      : data.email === null
+        ? null
+        : await assertVetEmailAvailable(data.email, id);
+
   return (prisma.vet as any).update({
     where: { id },
     data: {
       ...data,
-      email: data.email === undefined ? undefined : data.email === null ? null : normalizeEmail(data.email),
+      email,
     },
   });
 }
@@ -100,7 +110,7 @@ export async function updateUserRole(id: string, role: string) {
 
   if (role === "vet") {
     const normalizedEmail = normalizeEmail(updatedUser.email);
-    const existingVet = await (prisma.vet as any).findFirst({ where: { email: normalizedEmail } });
+    const existingVet = await findVetByEmail(normalizedEmail);
 
     if (!existingVet) {
       await createVetProfileForUser(updatedUser);

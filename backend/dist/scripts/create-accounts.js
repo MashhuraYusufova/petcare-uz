@@ -16,6 +16,7 @@ const client_1 = require("@prisma/client");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const email_1 = require("../utils/email");
+const vet_email_service_1 = require("../services/vet-email.service");
 dotenv_1.default.config();
 const prisma = new client_1.PrismaClient();
 const db = prisma;
@@ -49,22 +50,17 @@ function main() {
             slots: ["09:00", "10:00", "11:00", "14:00", "15:00"],
             email: vetEmail,
         };
+        const existing = yield db.vet.findFirst({ where: { email: vetEmail } });
+        const email = yield (0, vet_email_service_1.assertVetEmailAvailable)(vetEmail, existing === null || existing === void 0 ? void 0 : existing.id);
         let vetProfile;
-        try {
-            vetProfile = yield db.vet.upsert({
-                where: { email: vetEmail },
-                update: { name: vetProfileData.name, email: vetProfileData.email },
-                create: vetProfileData,
+        if (existing) {
+            vetProfile = yield db.vet.update({
+                where: { id: existing.id },
+                data: Object.assign(Object.assign({}, vetProfileData), { email }),
             });
         }
-        catch (_a) {
-            const existing = yield db.vet.findFirst({ where: { email: vetEmail } });
-            if (existing) {
-                vetProfile = yield db.vet.update({ where: { id: existing.id }, data: { email: vetEmail } });
-            }
-            else {
-                vetProfile = yield db.vet.create({ data: vetProfileData });
-            }
+        else {
+            vetProfile = yield db.vet.create({ data: Object.assign(Object.assign({}, vetProfileData), { email }) });
         }
         console.log("✓ Vet profile created:", vetProfile.name, "| email:", vetProfile.email);
     });

@@ -45,7 +45,7 @@ model Vet {
   price     String
   avail     Boolean
   slots     String[]
-  email     String?  @unique
+  email     String?
   appointments Appointment[]
 }
 

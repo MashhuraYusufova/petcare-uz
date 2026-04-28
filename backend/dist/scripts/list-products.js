@@ -12,25 +12,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createVetProfileForUser = createVetProfileForUser;
 const prisma_1 = __importDefault(require("../prisma"));
-const vet_email_service_1 = require("./vet-email.service");
-const DEFAULT_VET_PROFILE = {
-    spec: "General Veterinarian",
-    clinic: "PetCare Clinic",
-    district: "Tashkent",
-    rating: 5,
-    reviews: 0,
-    exp: "1 year",
-    price: "50,000 UZS",
-    avail: true,
-    slots: ["09:00", "10:00", "11:00", "14:00", "15:00"],
-};
-function createVetProfileForUser(user) {
+function main() {
     return __awaiter(this, void 0, void 0, function* () {
-        const email = yield (0, vet_email_service_1.assertVetEmailAvailable)(user.email);
-        return prisma_1.default.vet.create({
-            data: Object.assign({ name: user.name, email }, DEFAULT_VET_PROFILE),
-        });
+        const products = yield prisma_1.default.product.findMany();
+        console.log(JSON.stringify(products, null, 2));
+        yield prisma_1.default.$disconnect();
     });
 }
+main();

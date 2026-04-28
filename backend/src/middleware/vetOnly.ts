@@ -2,7 +2,8 @@ import { Response, NextFunction } from "express";
 import prisma from "../prisma";
 import { AuthRequest } from "../types";
 import { createVetProfileForUser } from "../services/vet-profile.service";
-import { emailsMatch, normalizeEmail } from "../utils/email";
+import { assertVetEmailAvailable, findVetByEmail } from "../services/vet-email.service";
+import { normalizeEmail } from "../utils/email";
 
 export async function vetOnly(req: AuthRequest, res: Response, next: NextFunction) {
   if (req.user?.role !== "vet") {
@@ -11,12 +12,7 @@ export async function vetOnly(req: AuthRequest, res: Response, next: NextFunctio
   }
 
   const normalizedEmail = normalizeEmail(req.user.email);
-  let vet = await (prisma.vet as any).findFirst({ where: { email: normalizedEmail } });
-
-  if (!vet) {
-    const vets = await (prisma.vet as any).findMany({ where: { email: { not: null } } });
-    vet = vets.find((candidate: { email: string | null }) => emailsMatch(candidate.email, normalizedEmail)) ?? null;
-  }
+  let vet = await findVetByEmail(normalizedEmail);
 
   if (!vet) {
     const user = await prisma.user.findUnique({
@@ -29,9 +25,10 @@ export async function vetOnly(req: AuthRequest, res: Response, next: NextFunctio
       const unlinkedMatch = sameNameVets.filter(candidate => !candidate.email);
 
       if (unlinkedMatch.length === 1) {
+        const email = await assertVetEmailAvailable(normalizedEmail, unlinkedMatch[0].id);
         vet = await (prisma.vet as any).update({
           where: { id: unlinkedMatch[0].id },
-          data: { email: normalizedEmail },
+          data: { email },
         });
       } else if (unlinkedMatch.length === 0) {
         vet = await createVetProfileForUser(user);
@@ -41,9 +38,10 @@ export async function vetOnly(req: AuthRequest, res: Response, next: NextFunctio
 
   if (vet?.email && vet.email !== normalizedEmail) {
     try {
+      const email = await assertVetEmailAvailable(normalizedEmail, vet.id);
       vet = await (prisma.vet as any).update({
         where: { id: vet.id },
-        data: { email: normalizedEmail },
+        data: { email },
       });
     } catch {
       // Keep the matched record even if normalization cannot be persisted.

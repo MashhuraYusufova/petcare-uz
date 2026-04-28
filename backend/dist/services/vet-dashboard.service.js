@@ -20,16 +20,10 @@ exports.declineAppointment = declineAppointment;
 exports.updateAvailability = updateAvailability;
 exports.updateVetProfile = updateVetProfile;
 const prisma_1 = __importDefault(require("../prisma"));
-const email_1 = require("../utils/email");
+const vet_email_service_1 = require("./vet-email.service");
 function getVetByEmail(email) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a;
-        const normalizedEmail = (0, email_1.normalizeEmail)(email);
-        const exact = yield prisma_1.default.vet.findFirst({ where: { email: normalizedEmail } });
-        if (exact)
-            return exact;
-        const vets = yield prisma_1.default.vet.findMany({ where: { email: { not: null } } });
-        return (_a = vets.find((vet) => (0, email_1.emailsMatch)(vet.email, normalizedEmail))) !== null && _a !== void 0 ? _a : null;
+        return (0, vet_email_service_1.findVetByEmail)(email);
     });
 }
 function getVetAppointments(vetId) {

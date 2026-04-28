@@ -1,6 +1,6 @@
 import prisma from "../prisma";
 import { AnyVet } from "../types";
-import { normalizeEmail } from "../utils/email";
+import { assertVetEmailAvailable } from "./vet-email.service";
 
 const DEFAULT_VET_PROFILE = {
   spec: "General Veterinarian",
@@ -19,10 +19,12 @@ export async function createVetProfileForUser(user: {
   name: string;
   email: string;
 }): Promise<AnyVet> {
+  const email = await assertVetEmailAvailable(user.email);
+
   return (prisma.vet as any).create({
     data: {
       name: user.name,
-      email: normalizeEmail(user.email),
+      email,
       ...DEFAULT_VET_PROFILE,
     },
   });

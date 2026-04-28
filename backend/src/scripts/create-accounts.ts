@@ -2,6 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import dotenv from "dotenv";
 import { normalizeEmail } from "../utils/email";
+import { assertVetEmailAvailable } from "../services/vet-email.service";
 
 dotenv.config();
 
@@ -41,20 +42,17 @@ async function main() {
     email: vetEmail,
   };
 
+  const existing = await db.vet.findFirst({ where: { email: vetEmail } });
+  const email = await assertVetEmailAvailable(vetEmail, existing?.id);
+
   let vetProfile: any;
-  try {
-    vetProfile = await db.vet.upsert({
-      where: { email: vetEmail },
-      update: { name: vetProfileData.name, email: vetProfileData.email },
-      create: vetProfileData,
+  if (existing) {
+    vetProfile = await db.vet.update({
+      where: { id: existing.id },
+      data: { ...vetProfileData, email },
     });
-  } catch {
-    const existing = await db.vet.findFirst({ where: { email: vetEmail } });
-    if (existing) {
-      vetProfile = await db.vet.update({ where: { id: existing.id }, data: { email: vetEmail } });
-    } else {
-      vetProfile = await db.vet.create({ data: vetProfileData });
-    }
+  } else {
+    vetProfile = await db.vet.create({ data: { ...vetProfileData, email } });
   }
   console.log("✓ Vet profile created:", vetProfile.name, "| email:", vetProfile.email);
 }

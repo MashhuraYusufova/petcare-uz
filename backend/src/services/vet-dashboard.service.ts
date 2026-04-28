@@ -1,13 +1,8 @@
 import prisma from "../prisma";
-import { emailsMatch, normalizeEmail } from "../utils/email";
+import { findVetByEmail } from "./vet-email.service";
 
 export async function getVetByEmail(email: string) {
-  const normalizedEmail = normalizeEmail(email);
-  const exact = await (prisma.vet as any).findFirst({ where: { email: normalizedEmail } });
-  if (exact) return exact;
-
-  const vets = await (prisma.vet as any).findMany({ where: { email: { not: null } } });
-  return vets.find((vet: { email: string | null }) => emailsMatch(vet.email, normalizedEmail)) ?? null;
+  return findVetByEmail(email);
 }
 
 export async function getVetAppointments(vetId: string) {

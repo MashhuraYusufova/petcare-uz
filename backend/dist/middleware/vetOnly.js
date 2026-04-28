@@ -15,20 +15,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.vetOnly = vetOnly;
 const prisma_1 = __importDefault(require("../prisma"));
 const vet_profile_service_1 = require("../services/vet-profile.service");
+const vet_email_service_1 = require("../services/vet-email.service");
 const email_1 = require("../utils/email");
 function vetOnly(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        var _a, _b;
+        var _a;
         if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) !== "vet") {
             res.status(403).json({ error: "Vet access required" });
             return;
         }
         const normalizedEmail = (0, email_1.normalizeEmail)(req.user.email);
-        let vet = yield prisma_1.default.vet.findFirst({ where: { email: normalizedEmail } });
-        if (!vet) {
-            const vets = yield prisma_1.default.vet.findMany({ where: { email: { not: null } } });
-            vet = (_b = vets.find((candidate) => (0, email_1.emailsMatch)(candidate.email, normalizedEmail))) !== null && _b !== void 0 ? _b : null;
-        }
+        let vet = yield (0, vet_email_service_1.findVetByEmail)(normalizedEmail);
         if (!vet) {
             const user = yield prisma_1.default.user.findUnique({
                 where: { id: req.user.userId },
@@ -38,9 +35,10 @@ function vetOnly(req, res, next) {
                 const sameNameVets = yield prisma_1.default.vet.findMany({ where: { name: user.name } });
                 const unlinkedMatch = sameNameVets.filter(candidate => !candidate.email);
                 if (unlinkedMatch.length === 1) {
+                    const email = yield (0, vet_email_service_1.assertVetEmailAvailable)(normalizedEmail, unlinkedMatch[0].id);
                     vet = yield prisma_1.default.vet.update({
                         where: { id: unlinkedMatch[0].id },
-                        data: { email: normalizedEmail },
+                        data: { email },
                     });
                 }
                 else if (unlinkedMatch.length === 0) {
@@ -50,12 +48,13 @@ function vetOnly(req, res, next) {
         }
         if ((vet === null || vet === void 0 ? void 0 : vet.email) && vet.email !== normalizedEmail) {
             try {
+                const email = yield (0, vet_email_service_1.assertVetEmailAvailable)(normalizedEmail, vet.id);
                 vet = yield prisma_1.default.vet.update({
                     where: { id: vet.id },
-                    data: { email: normalizedEmail },
+                    data: { email },
                 });
             }
-            catch (_c) {
+            catch (_b) {
                 // Keep the matched record even if normalization cannot be persisted.
             }
         }

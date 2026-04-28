@@ -26,6 +26,7 @@ const wishlist_1 = __importDefault(require("./routes/wishlist"));
 const dashboard_1 = __importDefault(require("./routes/dashboard"));
 const admin_1 = __importDefault(require("./routes/admin"));
 const vet_dashboard_1 = __importDefault(require("./routes/vet-dashboard"));
+const cart_1 = __importDefault(require("./routes/cart"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 const port = process.env.PORT || 3001;
@@ -41,6 +42,7 @@ app.use("/api/wishlist", wishlist_1.default);
 app.use("/api/dashboard", dashboard_1.default);
 app.use("/api/admin", admin_1.default);
 app.use("/api/vet", vet_dashboard_1.default);
+app.use("/api/cart", cart_1.default);
 app.get("/api/health", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield prisma_1.default.user.findFirst();
