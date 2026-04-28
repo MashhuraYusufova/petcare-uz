@@ -1,11 +1,17 @@
 import prisma from "../prisma";
 
-export async function getAllVets(filters?: { spec?: string; district?: string; avail?: boolean }) {
+export async function getAllVets(filters?: { spec?: string; district?: string; avail?: boolean; search?: string }) {
   return prisma.vet.findMany({
     where: {
       ...(filters?.spec && { spec: filters.spec }),
       ...(filters?.district && { district: filters.district }),
       ...(filters?.avail !== undefined && { avail: filters.avail }),
+      ...(filters?.search && {
+        OR: [
+          { name: { contains: filters.search, mode: "insensitive" } },
+          { clinic: { contains: filters.search, mode: "insensitive" } }
+        ]
+      })
     },
     orderBy: { rating: "desc" },
   });

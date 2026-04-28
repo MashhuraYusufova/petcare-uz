@@ -30,15 +30,28 @@ export default function ShopPage() {
   const [activecat, setActivecat] = useState("All");
   const [sort, setSort] = useState("Featured");
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [wishlist, setWishlist] = useState<string[]>([]);
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   useEffect(() => {
-    api.get<Product[]>("/api/products")
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.append("search", debouncedSearch);
+    if (activecat !== "All") params.append("cat", activecat);
+
+    api.get<Product[]>(`/api/products?${params.toString()}`)
       .then(setProducts)
       .catch(console.error)
       .finally(() => setLoading(false));
+  }, [debouncedSearch, activecat]);
 
+  useEffect(() => {
     api.get<{ name: string }[]>("/api/products/categories")
       .then(cats => setCategories(["All", ...cats.map(c => c.name)]))
       .catch(console.error);
@@ -87,10 +100,7 @@ export default function ShopPage() {
     }
   };
 
-  let filtered = products.filter(p =>
-    (activecat === "All" || p.cat === activecat) &&
-    (!search || p.name.toLowerCase().includes(search.toLowerCase()))
-  );
+  let filtered = products;
 
   if (sort === "Price: Low to High") filtered = [...filtered].sort((a, b) => a.price - b.price);
   else if (sort === "Price: High to Low") filtered = [...filtered].sort((a, b) => b.price - a.price);

@@ -2,12 +2,13 @@ import { Request, Response } from "express";
 import * as vetService from "../services/vet.service";
 
 export async function getVets(req: Request, res: Response) {
-  const { spec, district, avail } = req.query;
+  const { spec, district, avail, search } = req.query;
   try {
     const vets = await vetService.getAllVets({
       spec: typeof spec === "string" ? spec : undefined,
       district: typeof district === "string" ? district : undefined,
       avail: avail === "true" ? true : avail === "false" ? false : undefined,
+      search: typeof search === "string" ? search : undefined,
     });
     res.json(vets);
   } catch (err: any) {

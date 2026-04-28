@@ -28,6 +28,7 @@ export default function VetsPage() {
   const [vets, setVets] = useState<Vet[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [spec, setSpec] = useState("All Specializations");
   const [district, setDistrict] = useState("All Districts");
   const [selected, setSelected] = useState<string | null>(null);
@@ -38,17 +39,24 @@ export default function VetsPage() {
   const { user } = useAuth();
 
   useEffect(() => {
-    api.get<Vet[]>("/api/vets")
+    const timer = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  useEffect(() => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (debouncedSearch) params.append("search", debouncedSearch);
+    if (spec !== "All Specializations") params.append("spec", spec);
+    if (district !== "All Districts") params.append("district", district);
+
+    api.get<Vet[]>(`/api/vets?${params.toString()}`)
       .then(setVets)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [debouncedSearch, spec, district]);
 
-  const filtered = vets.filter(v =>
-    (!search || v.name.toLowerCase().includes(search.toLowerCase()) || v.clinic.toLowerCase().includes(search.toLowerCase())) &&
-    (spec === "All Specializations" || v.spec === spec) &&
-    (district === "All Districts" || v.district === district)
-  );
+  const filtered = vets;
 
   const selectedVet = vets.find(v => v.id === selected);
 
