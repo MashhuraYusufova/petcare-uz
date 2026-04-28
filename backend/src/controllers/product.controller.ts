@@ -14,6 +14,15 @@ export async function getProducts(req: Request, res: Response) {
   }
 }
 
+export async function getCategories(req: Request, res: Response) {
+  try {
+    const categories = await productService.getCategories();
+    res.json(categories);
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 export async function getProduct(req: Request, res: Response) {
   try {
     const product = await productService.getProductById(String(req.params.id));

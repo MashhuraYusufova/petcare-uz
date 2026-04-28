@@ -108,7 +108,7 @@ export default function CartPage() {
             </div>
           ) : items.length === 0 ? (
             <Card className="rounded-4 p-5 text-center border-0 shadow-none" style={{ backgroundColor: 'var(--section-bg)' }}>
-              <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: 80, height: 80, backgroundColor: "#DDEDFF" }}>
+              <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-4" style={{ width: 80, height: 80, backgroundColor: "rgba(67, 153, 225, 0.15)" }}>
                 <ShoppingBag size={32} style={{ color: "#4399E1" }} />
               </div>
               <h2 className="fw-bold mb-2" style={{ color: 'var(--foreground)' }}>Your cart is empty</h2>

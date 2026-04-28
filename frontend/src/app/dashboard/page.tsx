@@ -221,10 +221,10 @@ export default function DashboardPage() {
                   <div className="d-flex flex-column gap-5">
                     <Row className="g-4">
                       {[
-                        { icon: <ShoppingBag size={20} style={{ color: "#4399E1" }} />, label: "Orders", value: data.stats.ordersCount, bg: "#DDEDFF", tab: "Orders" },
-                        { icon: <Calendar size={20} style={{ color: "#FFA9AC" }} />, label: "Appointments", value: data.stats.appointmentsCount, bg: "#ffeef0", tab: "Appointments" },
-                        { icon: <Heart size={20} style={{ color: "#FFA9AC" }} />, label: "Wishlist", value: data.stats.wishlistCount, bg: "#ffeef0", tab: "Favorites" },
-                        { icon: <PawPrint size={20} style={{ color: "#4399E1" }} />, label: "My Pets", value: data.stats.petsCount, bg: "#DDEDFF", tab: "My Pets" },
+                        { icon: <ShoppingBag size={20} style={{ color: "#4399E1" }} />, label: "Orders", value: data.stats.ordersCount, bg: "rgba(67, 153, 225, 0.15)", tab: "Orders" },
+                        { icon: <Calendar size={20} style={{ color: "#FFA9AC" }} />, label: "Appointments", value: data.stats.appointmentsCount, bg: "rgba(255, 169, 172, 0.15)", tab: "Appointments" },
+                        { icon: <Heart size={20} style={{ color: "#FFA9AC" }} />, label: "Wishlist", value: data.stats.wishlistCount, bg: "rgba(255, 169, 172, 0.15)", tab: "Favorites" },
+                        { icon: <PawPrint size={20} style={{ color: "#4399E1" }} />, label: "My Pets", value: data.stats.petsCount, bg: "rgba(67, 153, 225, 0.15)", tab: "My Pets" },
                       ].map(s => (
                         <Col xs={6} md={3} key={s.label}>
                           <Card className="rounded-4 p-3 h-100 shadow-none cursor-pointer transition" onClick={() => setTab(s.tab)} style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                                 <p className="small fw-bold mb-0 truncate" style={{ color: 'var(--foreground)' }}>{data.recentOrders[0].item}</p>
                                 <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{data.recentOrders[0].date}</p>
                               </div>
-                              <Badge pill style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 10 }}>{data.recentOrders[0].status}</Badge>
+                              <Badge pill style={{ backgroundColor: "rgba(67, 153, 225, 0.15)", color: "#4399E1", fontSize: 10 }}>{data.recentOrders[0].status}</Badge>
                             </div>
                           ) : (
                             <p className="small text-muted mb-0">No orders yet</p>
@@ -271,7 +271,7 @@ export default function DashboardPage() {
                           </div>
                           {data.upcomingAppointments[0] ? (
                             <div className="d-flex align-items-center gap-3">
-                              <div className="rounded-3 d-flex align-items-center justify-content-center shrink-0" style={{ width: 48, height: 48, backgroundColor: "#ffeef0" }}>
+                              <div className="rounded-3 d-flex align-items-center justify-content-center shrink-0" style={{ width: 48, height: 48, backgroundColor: "rgba(255, 169, 172, 0.15)" }}>
                                 <UserRound size={24} style={{ color: "#FFA9AC" }} />
                               </div>
                               <div className="min-w-0 flex-grow-1">
@@ -311,7 +311,7 @@ export default function DashboardPage() {
                             </div>
                             <div className="text-end">
                               <p className="small fw-bold mb-1" style={{ color: 'var(--foreground)' }}>{o.price} sum</p>
-                              <Badge pill style={{ backgroundColor: o.status === "Delivered" ? "#DDEDFF" : "#ffeef0", color: o.status === "Delivered" ? "#4399E1" : "#FFA9AC", fontSize: 10 }}>{o.status}</Badge>
+                              <Badge pill style={{ backgroundColor: o.status === "Delivered" ? "rgba(67, 153, 225, 0.15)" : "rgba(255, 169, 172, 0.15)", color: o.status === "Delivered" ? "#4399E1" : "#FFA9AC", fontSize: 10 }}>{o.status}</Badge>
                             </div>
                           </div>
                         ))}
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                       appointments.map(a => (
                         <Card key={a.id} className="rounded-4 p-4 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                           <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
-                            <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 56, height: 56, backgroundColor: "#ffeef0" }}>
+                            <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 56, height: 56, backgroundColor: "rgba(255, 169, 172, 0.15)" }}>
                               <UserRound size={28} style={{ color: "#FFA9AC" }} />
                             </div>
                             <div className="flex-grow-1">
@@ -377,7 +377,7 @@ export default function DashboardPage() {
                               <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{a.vet.clinic} · {a.date}</p>
                             </div>
                             <div className="d-flex flex-column align-items-end gap-2 ms-sm-auto">
-                              <Badge pill style={{ backgroundColor: a.status === "Upcoming" ? "#ffeef0" : a.status === "Cancelled" ? "#fee2e2" : "#DDEDFF", color: a.status === "Upcoming" ? "#FFA9AC" : a.status === "Cancelled" ? "#dc2626" : "#4399E1", fontSize: 10 }}>{a.status}</Badge>
+                              <Badge pill style={{ backgroundColor: a.status === "Upcoming" ? "rgba(255, 169, 172, 0.15)" : a.status === "Cancelled" ? "rgba(220, 38, 38, 0.15)" : "rgba(67, 153, 225, 0.15)", color: a.status === "Upcoming" ? "#FFA9AC" : a.status === "Cancelled" ? "#dc2626" : "#4399E1", fontSize: 10 }}>{a.status}</Badge>
                               {a.status === "Upcoming" && (
                                 <Button
                                   variant="link"
@@ -406,7 +406,7 @@ export default function DashboardPage() {
                     {pets.map(p => (
                       <Card key={p.id} className="rounded-4 p-4 shadow-none" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
                         <div className="d-flex align-items-center gap-4 flex-wrap flex-sm-nowrap">
-                          <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
+                          <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "rgba(67, 153, 225, 0.15)" }}>
                             <PetIcon species={p.species} />
                           </div>
                           <div className="flex-grow-1">

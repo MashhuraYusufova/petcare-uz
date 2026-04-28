@@ -86,6 +86,7 @@ export default function AdminPage() {
 
   const [stats, setStats] = useState<OverviewStats | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<{ id: string, name: string }[]>([]);
   const [vets, setVets] = useState<Vet[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [users, setUsers] = useState<User[]>([]);
@@ -113,8 +114,9 @@ export default function AdminPage() {
       api.get<Product[]>("/api/products"),
       api.get<Vet[]>("/api/vets"),
       api.get<Appointment[]>("/api/admin/appointments"),
-    ]).then(([s, p, v, a]) => {
-      setStats(s); setProducts(p); setVets(v); setAppointments(a);
+      api.get<{ id: string, name: string }[]>("/api/products/categories"),
+    ]).then(([s, p, v, a, c]) => {
+      setStats(s); setProducts(p); setVets(v); setAppointments(a); setCategories(c);
     }).catch(console.error).finally(() => setLoading(false));
   }, [user]);
 
@@ -246,7 +248,7 @@ export default function AdminPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="min-vh-100 d-flex bg-light">
+    <div className="min-vh-100 d-flex" style={{ backgroundColor: 'var(--background)' }}>
       <aside className="d-none d-lg-block shrink-0" style={{ width: 240 }}>
         <AdminSidebar tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} />
       </aside>
@@ -256,13 +258,13 @@ export default function AdminPage() {
       </Offcanvas>
 
       <div className="flex-grow-1 d-flex flex-column min-w-0">
-        <header className="bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3">
+        <header className="border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
           <div className="d-flex align-items-center gap-3">
-            <Button variant="link" className="d-lg-none p-0 text-dark" onClick={() => setSidebarOpen(true)}>
+            <Button variant="link" className="d-lg-none p-0" onClick={() => setSidebarOpen(true)} style={{ color: 'var(--foreground)' }}>
               <Menu size={20} />
             </Button>
             <div>
-              <h1 className="h6 fw-bold mb-0 text-dark">{tab}</h1>
+              <h1 className="h6 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{tab}</h1>
               <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Admin Dashboard · PetCare.uz</p>
             </div>
           </div>
@@ -297,7 +299,7 @@ export default function AdminPage() {
                       { label: "Vet Appointments", value: stats.appointmentsCount.toString(), change: "", up: true, icon: "🩺" },
                     ].map(s => (
                       <Col xs={6} lg={3} key={s.label}>
-                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100">
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100" style={{ backgroundColor: 'var(--card-bg)' }}>
                           <div className="d-flex align-items-center justify-content-between mb-3">
                             <span className="fs-3">{s.icon}</span>
                             {s.change && (
@@ -306,16 +308,16 @@ export default function AdminPage() {
                               </Badge>
                             )}
                           </div>
-                          <p className="h5 fw-bold mb-1 text-dark">{s.value}</p>
+                          <p className="h5 fw-bold mb-1" style={{ color: 'var(--foreground)' }}>{s.value}</p>
                           <p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p>
                         </Card>
                       </Col>
                     ))}
                   </Row>
 
-                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                    <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
-                      <p className="small fw-bold mb-0 text-dark">Recent Appointments</p>
+                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                    <Card.Header className="p-4 border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                      <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Recent Appointments</p>
                       <Button variant="link" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ fontSize: 11, color: "#4399E1" }}>View all</Button>
                     </Card.Header>
                     <div className="table-responsive">
@@ -349,9 +351,9 @@ export default function AdminPage() {
               )}
 
               {tab === "Products" && (
-                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                  <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
-                    <p className="small fw-bold mb-0 text-dark">Manage Products ({products.length})</p>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <Card.Header className="p-4 border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                    <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Manage Products ({products.length})</p>
                     <Button onClick={startCreateProduct} size="sm" className="rounded-3 px-3 fw-bold border-0 shadow-sm" style={{ backgroundColor: "#4399E1", fontSize: 11 }}>+ Add Product</Button>
                   </Card.Header>
 
@@ -364,7 +366,22 @@ export default function AdminPage() {
                         <Row className="g-3">
                           <Col lg={8}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Name</Form.Label><Form.Control value={productForm.name} onChange={e => setProductForm(p => ({ ...p, name: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
                           <Col lg={4}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Brand</Form.Label><Form.Control value={productForm.brand} onChange={e => setProductForm(p => ({ ...p, brand: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
-                          <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Category</Form.Label><Form.Control value={productForm.cat} onChange={e => setProductForm(p => ({ ...p, cat: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
+                          <Col lg={6}>
+                            <Form.Group>
+                              <Form.Label className="extra-small fw-bold text-dark mb-1">Category</Form.Label>
+                              <Form.Select
+                                value={productForm.cat}
+                                onChange={e => setProductForm(p => ({ ...p, cat: e.target.value }))}
+                                className="bg-light border-0 shadow-none small p-2.5 rounded-3"
+                                required
+                              >
+                                <option value="">Select Category</option>
+                                {categories.map(c => (
+                                  <option key={c.id} value={c.name}>{c.name}</option>
+                                ))}
+                              </Form.Select>
+                            </Form.Group>
+                          </Col>
                           <Col lg={6}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Image URL</Form.Label><Form.Control value={productForm.img} onChange={e => setProductForm(p => ({ ...p, img: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" required /></Form.Group></Col>
                           <Col xs={6} lg={3}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Price</Form.Label><Form.Control value={productForm.price} onChange={e => setProductForm(p => ({ ...p, price: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" type="number" required /></Form.Group></Col>
                           <Col xs={6} lg={3}><Form.Group><Form.Label className="extra-small fw-bold text-dark mb-1">Stock</Form.Label><Form.Control value={productForm.stock} onChange={e => setProductForm(p => ({ ...p, stock: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" type="number" required /></Form.Group></Col>
@@ -399,9 +416,9 @@ export default function AdminPage() {
               )}
 
               {tab === "Veterinarians" && (
-                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                  <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between">
-                    <p className="small fw-bold mb-0 text-dark">Manage Veterinarians ({vets.length})</p>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <Card.Header className="p-4 border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                    <p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Manage Veterinarians ({vets.length})</p>
                     <Button onClick={startCreateVet} size="sm" className="rounded-3 px-3 fw-bold border-0 shadow-sm" style={{ backgroundColor: "#4399E1", fontSize: 11 }}>+ Add Vet</Button>
                   </Card.Header>
 
@@ -444,8 +461,8 @@ export default function AdminPage() {
               )}
 
               {tab === "Appointments" && (
-                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Appointments ({appointments.length})</p></Card.Header>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <Card.Header className="p-4 border-0" style={{ backgroundColor: 'var(--card-bg)' }}><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>All Appointments ({appointments.length})</p></Card.Header>
                   <div className="table-responsive">
                     <Table hover className="mb-0 small align-middle">
                       <thead className="bg-light"><tr className="border-top">{["User", "Vet", "Date", "Status"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
@@ -465,8 +482,8 @@ export default function AdminPage() {
               )}
 
               {tab === "Users" && (
-                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Users ({users.length})</p></Card.Header>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <Card.Header className="p-4 border-0" style={{ backgroundColor: 'var(--card-bg)' }}><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>All Users ({users.length})</p></Card.Header>
                   <div className="table-responsive">
                     <Table hover className="mb-0 small align-middle">
                       <thead className="bg-light"><tr className="border-top">{["Name", "Email", "Role", "Joined", "Actions"].map(h => <th key={h} className="px-4 py-3 extra-small fw-bold text-muted text-uppercase">{h}</th>)}</tr></thead>
@@ -487,7 +504,7 @@ export default function AdminPage() {
               )}
 
               {(tab === "Blog Posts" || tab === "Analytics" || tab === "Settings") && (
-                <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🚧</div><h2 className="h4 fw-bold text-dark">{tab} Module</h2><p className="text-muted">Under construction.</p></div>
+                <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🚧</div><h2 className="h4 fw-bold" style={{ color: 'var(--foreground)' }}>{tab} Module</h2><p style={{ color: 'var(--muted-text)' }}>Under construction.</p></div>
               )}
             </Container>
           )}

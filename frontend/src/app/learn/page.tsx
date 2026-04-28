@@ -137,12 +137,12 @@ export default function LearnPage() {
               return (
                 <Col xs={12} sm={6} lg={3} key={a.id}>
                   <Card className="rounded-4 overflow-hidden shadow-none h-100 transition hover-shadow-sm group cursor-pointer" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', border: '1px solid var(--card-border)' }}>
-                    <div className="d-flex align-items-center justify-content-center" style={{ height: 144, backgroundColor: "#DDEDFF" }}>
+                    <div className="d-flex align-items-center justify-content-center" style={{ height: 144, backgroundColor: "var(--section-bg)" }}>
                       <Icon size={52} className="transition duration-300 group-hover-scale-110" style={{ color: "rgba(67, 153, 225, 0.6)" }} />
                     </div>
                     <Card.Body className="p-4 d-flex flex-column gap-2">
                       <div className="d-flex align-items-center justify-content-between mb-1">
-                        <Badge pill className="fw-bold px-2 py-0.5" style={{ backgroundColor: "#DDEDFF", color: "#4399E1", fontSize: 9 }}>{a.cat}</Badge>
+                        <Badge pill className="fw-bold px-2 py-0.5" style={{ backgroundColor: "var(--section-bg)", color: "#4399E1", fontSize: 9 }}>{a.cat}</Badge>
                         <span className="extra-small" style={{ fontSize: 9, color: 'var(--muted-text)' }}>{a.date}</span>
                       </div>
                       <Card.Title className="small fw-bold mb-2 lh-sm h-100" style={{ height: '2.8em', overflow: 'hidden', color: 'var(--foreground)' }}>{a.title}</Card.Title>

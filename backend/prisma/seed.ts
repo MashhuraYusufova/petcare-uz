@@ -5,9 +5,21 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
+  // 0. Create Categories
+  const categoriesList = ["Food & Treats", "Toys", "Grooming", "Health", "Beds", "Training"];
+  await Promise.all(
+    categoriesList.map(name => prisma.category.upsert({
+      where: { name },
+      update: {},
+      create: { name }
+    }))
+  );
+
   // 1. Create a User
-  const user = await prisma.user.create({
-    data: {
+  const user = await prisma.user.upsert({
+    where: { email: "akbar@email.com" },
+    update: {},
+    create: {
       name: "Akbar Toshev",
       email: "akbar@email.com",
       role: "user",

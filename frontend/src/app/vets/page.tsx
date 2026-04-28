@@ -141,7 +141,7 @@ export default function VetsPage() {
                     style={{ backgroundColor: 'var(--card-bg)', borderColor: selected === v.id ? "#4399E1" : "var(--card-border)", color: 'var(--foreground)' }}
                   >
                     <div className="d-flex align-items-start gap-4 flex-wrap flex-sm-nowrap">
-                      <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
+                      <div className="rounded-4 d-flex align-items-center justify-content-center shrink-0" style={{ width: 64, height: 64, backgroundColor: "rgba(67, 153, 225, 0.15)" }}>
                         <UserRound size={32} style={{ color: "#4399E1" }} />
                       </div>
                       <div className="flex-grow-1">
@@ -150,7 +150,7 @@ export default function VetsPage() {
                             <p className="fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{v.name}</p>
                             <p className="small fw-medium mb-0" style={{ color: "#4399E1" }}>{v.spec}</p>
                           </div>
-                          <Badge pill className="fw-semibold px-2.5 py-1" style={{ backgroundColor: v.avail ? "#ffeef0" : "var(--section-bg)", color: v.avail ? "#FFA9AC" : "var(--muted-text)", fontSize: 10 }}>
+                          <Badge pill className="fw-semibold px-2.5 py-1" style={{ backgroundColor: v.avail ? "rgba(255, 169, 172, 0.15)" : "rgba(107, 122, 153, 0.15)", color: v.avail ? "#FFA9AC" : "var(--muted-text)", fontSize: 10 }}>
                             ● {v.avail ? "Available" : "Unavailable"}
                           </Badge>
                         </div>
@@ -204,7 +204,7 @@ export default function VetsPage() {
                 <Card className="rounded-4 p-4 shadow-sm" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)', color: 'var(--foreground)' }}>
                   {!selectedVet ? (
                     <div className="text-center py-4">
-                      <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "#DDEDFF" }}>
+                      <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "rgba(67, 153, 225, 0.15)" }}>
                         <Stethoscope size={32} style={{ color: "#4399E1" }} />
                       </div>
                       <p className="fw-bold mb-1 small" style={{ color: 'var(--foreground)' }}>Select a Vet</p>
@@ -212,7 +212,7 @@ export default function VetsPage() {
                     </div>
                   ) : booked ? (
                     <div className="text-center py-4">
-                      <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "#ffeef0" }}>
+                      <div className="rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style={{ width: 64, height: 64, backgroundColor: "rgba(255, 169, 172, 0.15)" }}>
                         <CheckCircle size={36} style={{ color: "#FFA9AC" }} />
                       </div>
                       <p className="fw-bold mb-1" style={{ color: 'var(--foreground)' }}>Appointment Booked!</p>
@@ -230,7 +230,7 @@ export default function VetsPage() {
                     <>
                       <h3 className="fw-bold mb-4 small" style={{ color: 'var(--foreground)' }}>Book Appointment</h3>
                       <div className="d-flex align-items-center gap-3 mb-4">
-                        <div className="rounded-3 d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, backgroundColor: "#DDEDFF" }}>
+                        <div className="rounded-3 d-flex align-items-center justify-content-center" style={{ width: 48, height: 48, backgroundColor: "rgba(67, 153, 225, 0.15)" }}>
                           <UserRound size={24} style={{ color: "#4399E1" }} />
                         </div>
                         <div>

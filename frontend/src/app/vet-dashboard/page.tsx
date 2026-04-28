@@ -117,7 +117,7 @@ export default function VetDashboardPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="min-vh-100 d-flex bg-light">
+    <div className="min-vh-100 d-flex" style={{ backgroundColor: 'var(--background)' }}>
       <aside className="d-none d-lg-block shrink-0" style={{ width: 240 }}>
         <VetSidebar vet={vet} user={user} tab={tab} setTab={setTab} setSidebarOpen={setSidebarOpen} pendingCount={pending.length} />
       </aside>
@@ -127,11 +127,11 @@ export default function VetDashboardPage() {
       </Offcanvas>
 
       <div className="flex-grow-1 d-flex flex-column min-w-0">
-        <header className="bg-white border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3">
+        <header className="border-bottom px-4 py-3 d-flex align-items-center justify-content-between sticky-top z-3" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
           <div className="d-flex align-items-center gap-3">
-            <Button variant="link" className="d-lg-none p-0 text-dark" onClick={() => setSidebarOpen(true)}><Menu size={20} /></Button>
+            <Button variant="link" className="d-lg-none p-0" onClick={() => setSidebarOpen(true)} style={{ color: 'var(--foreground)' }}><Menu size={20} /></Button>
             <div>
-              <h1 className="h6 fw-bold mb-0 text-dark">{tab}</h1>
+              <h1 className="h6 fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{tab}</h1>
               <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Veterinarian Dashboard</p>
             </div>
           </div>
@@ -145,30 +145,30 @@ export default function VetDashboardPage() {
           {loading ? (
             <Row className="g-4">{[1, 2, 3, 4].map(i => <Col xs={6} lg={3} key={i}><Card className="rounded-4 border-0 shadow-sm animate-pulse" style={{ height: 100 }} /></Col>)}</Row>
           ) : !vet ? (
-            <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🔗</div><h2 className="h4 fw-bold text-dark">Vet profile not linked</h2><p className="text-muted mx-auto" style={{ maxWidth: 400 }}>Your account has the vet role but isn&apos;t linked to a profile. Ask an admin to set <code className="bg-light px-1 rounded">{user.email}</code> on your record.</p></div>
+            <div className="text-center py-5 mt-5"><div className="display-1 opacity-10 mb-4">🔗</div><h2 className="h4 fw-bold" style={{ color: 'var(--foreground)' }}>Vet profile not linked</h2><p style={{ color: 'var(--muted-text)', maxWidth: 400, margin: '0 auto' }}>Your account has the vet role but isn&apos;t linked to a profile. Ask an admin to set <code style={{ backgroundColor: 'var(--section-bg)', padding: '0 4px', borderRadius: 4 }}>{user.email}</code> on your record.</p></div>
           ) : (
             <Container fluid className="px-0">
               {tab === "Overview" && stats && (
                 <div className="d-flex flex-column gap-4">
                   <Row className="g-4">
                     {[
-                      { label: "Upcoming", value: stats.upcomingCount.toString(), icon: "📅", color: "#DDEDFF" },
-                      { label: "Pending", value: stats.pendingCount.toString(), icon: "⏳", color: "#fff7ed" },
-                      { label: "Completed", value: stats.completedCount.toString(), icon: "✅", color: "#dcfce7" },
-                      { label: "Rating", value: `${stats.rating} ⭐`, icon: "🏆", color: "#faf5ff" },
+                      { label: "Upcoming", value: stats.upcomingCount.toString(), icon: "📅", color: "var(--section-bg)" },
+                      { label: "Pending", value: stats.pendingCount.toString(), icon: "⏳", color: "var(--section-bg)" },
+                      { label: "Completed", value: stats.completedCount.toString(), icon: "✅", color: "var(--section-bg)" },
+                      { label: "Rating", value: `${stats.rating} ⭐`, icon: "🏆", color: "var(--section-bg)" },
                     ].map(s => (
                       <Col xs={6} lg={3} key={s.label}>
-                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100"><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 mb-3" style={{ width: 44, height: 44, backgroundColor: s.color }}>{s.icon}</div><p className="h4 fw-bold mb-1 text-dark">{s.value}</p><p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p></Card>
+                        <Card className="rounded-4 border-0 shadow-sm p-4 h-100" style={{ backgroundColor: 'var(--card-bg)' }}><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 mb-3" style={{ width: 44, height: 44, backgroundColor: s.color }}>{s.icon}</div><p className="h4 fw-bold mb-1" style={{ color: 'var(--foreground)' }}>{s.value}</p><p className="extra-small text-muted mb-0" style={{ fontSize: 11 }}>{s.label}</p></Card>
                       </Col>
                     ))}
                   </Row>
 
-                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                    <Card.Header className="bg-white p-4 border-0 d-flex align-items-center justify-content-between"><p className="small fw-bold mb-0 text-dark">Upcoming Schedule</p><Button variant="link" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ fontSize: 11, color: "#4399E1" }}>View all</Button></Card.Header>
+                  <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                    <Card.Header className="p-4 border-0 d-flex align-items-center justify-content-between" style={{ backgroundColor: 'var(--card-bg)' }}><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>Upcoming Schedule</p><Button variant="link" onClick={() => setTab("Appointments")} className="extra-small p-0 text-decoration-none fw-bold" style={{ fontSize: 11, color: "#4399E1" }}>View all</Button></Card.Header>
                     {upcoming.length === 0 ? <Card.Body className="text-center py-4"><p className="small text-muted mb-0">No upcoming appointments</p></Card.Body> : (
                       <div className="list-group list-group-flush border-top">
                         {upcoming.slice(0, 5).map(a => (
-                          <div key={a.id} className="list-group-item p-4 border-0 d-flex align-items-center gap-4 transition hover-bg-light">
+                          <div key={a.id} className="list-group-item p-4 border-0 d-flex align-items-center gap-4 transition" style={{ backgroundColor: 'var(--card-bg)' }}>
                             <div className="extra-small fw-bold text-primary text-nowrap" style={{ width: 64 }}>{a.date.split("·")[1]?.trim() ?? "—"}</div>
                             <div className="flex-grow-1 min-w-0"><p className="small fw-bold mb-0 text-dark truncate">{a.user.name}</p><p className="extra-small text-muted mb-0 truncate" style={{ fontSize: 10 }}>{a.reason || "No reason specified"}</p></div>
                             <Badge pill className={`extra-small fw-bold ${a.status === "Confirmed" ? "bg-success-subtle text-success" : "bg-primary-subtle text-primary"}`}>{a.status}</Badge>
@@ -181,13 +181,13 @@ export default function VetDashboardPage() {
               )}
 
               {tab === "Appointments" && (
-                <Card className="rounded-4 border-0 shadow-sm overflow-hidden">
-                  <Card.Header className="bg-white p-4 border-0"><p className="small fw-bold mb-0 text-dark">All Appointments ({appointments.length})</p></Card.Header>
+                <Card className="rounded-4 border-0 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <Card.Header className="p-4 border-0" style={{ backgroundColor: 'var(--card-bg)' }}><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>All Appointments ({appointments.length})</p></Card.Header>
                   <div className="list-group list-group-flush border-top">
                     {appointments.length === 0 ? <div className="p-5 text-center text-muted small">No appointments yet</div> : appointments.map(a => (
-                      <div key={a.id} className="list-group-item p-4 border-light d-flex align-items-start gap-4 transition hover-bg-light">
-                        <div className="text-center shrink-0" style={{ width: 80 }}><p className="small fw-bold text-primary mb-0">{a.date.split("·")[1]?.trim() ?? "—"}</p><p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>{a.date.split("·")[0]?.trim()}</p></div>
-                        <div className="flex-grow-1 min-w-0"><p className="small fw-bold mb-0 text-dark">{a.user.name}</p><p className="extra-small text-muted mb-1" style={{ fontSize: 11 }}>{a.user.email}</p>{a.reason && <p className="extra-small text-muted mb-0" style={{ fontSize: 10 }}>Reason: {a.reason}</p>}</div>
+                      <div key={a.id} className="list-group-item p-4 d-flex align-items-start gap-4 transition" style={{ backgroundColor: 'var(--card-bg)', borderColor: 'var(--card-border)' }}>
+                        <div className="text-center shrink-0" style={{ width: 80 }}><p className="small fw-bold mb-0" style={{ color: '#4399E1' }}>{a.date.split("·")[1]?.trim() ?? "—"}</p><p className="extra-small mb-0" style={{ fontSize: 10, color: 'var(--muted-text)' }}>{a.date.split("·")[0]?.trim()}</p></div>
+                        <div className="flex-grow-1 min-w-0"><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{a.user.name}</p><p className="extra-small mb-1" style={{ fontSize: 11, color: 'var(--muted-text)' }}>{a.user.email}</p>{a.reason && <p className="extra-small mb-0" style={{ fontSize: 10, color: 'var(--muted-text)' }}>Reason: {a.reason}</p>}</div>
                         <Badge pill className={`extra-small fw-bold shrink-0 ${a.status === "Confirmed" ? "bg-success-subtle text-success" : a.status === "Completed" ? "bg-primary-subtle text-primary" : a.status === "Cancelled" || a.status === "Declined" ? "bg-danger-subtle text-danger" : "bg-warning-subtle text-warning"}`}>{a.status}</Badge>
                       </div>
                     ))}
@@ -196,13 +196,13 @@ export default function VetDashboardPage() {
               )}
 
               {tab === "Availability" && (
-                <Card className="rounded-4 border-0 shadow-sm p-4">
-                  <h3 className="h6 fw-bold mb-1 text-dark">Manage Availability</h3>
+                <Card className="rounded-4 border-0 shadow-sm p-4" style={{ backgroundColor: 'var(--card-bg)' }}>
+                  <h3 className="h6 fw-bold mb-1" style={{ color: 'var(--foreground)' }}>Manage Availability</h3>
                   <p className="extra-small text-muted mb-4">Click available slots to block them. Booked slots cannot be changed.</p>
                   <Row className="g-2 mb-4">
                     {availability.map(s => (
                       <Col xs={4} sm={3} md={2} key={s.time}>
-                        <Button variant={s.status === "booked" ? "primary" : s.status === "available" ? "outline-success" : "light"} disabled={s.status === "booked"} onClick={() => toggleSlot(s.time)} className={`w-100 py-2.5 rounded-3 d-flex flex-column align-items-center gap-1 border-0 shadow-none ${s.status === "blocked" ? "text-decoration-line-through text-muted opacity-50" : ""}`} style={{ backgroundColor: s.status === "booked" ? "#4399E1" : s.status === "available" ? "#dcfce7" : "#f8faff", color: s.status === "booked" ? "#ffffff" : s.status === "available" ? "#15803d" : "#6b7a99" }}><span className="small fw-bold">{s.time}</span><span className="extra-small opacity-75" style={{ fontSize: 9 }}>{s.status === "booked" ? "Booked" : s.status === "available" ? "Free" : "Blocked"}</span></Button>
+                        <Button variant={s.status === "booked" ? "primary" : s.status === "available" ? "outline-success" : "light"} disabled={s.status === "booked"} onClick={() => toggleSlot(s.time)} className={`w-100 py-2.5 rounded-3 d-flex flex-column align-items-center gap-1 border-0 shadow-none ${s.status === "blocked" ? "text-decoration-line-through opacity-50" : ""}`} style={{ backgroundColor: s.status === "booked" ? "#4399E1" : s.status === "available" ? "#dcfce7" : "var(--section-bg)", color: s.status === "booked" ? "#ffffff" : s.status === "available" ? "#15803d" : "var(--muted-text)" }}><span className="small fw-bold">{s.time}</span><span className="extra-small opacity-75" style={{ fontSize: 9 }}>{s.status === "booked" ? "Booked" : s.status === "available" ? "Free" : "Blocked"}</span></Button>
                       </Col>
                     ))}
                   </Row>
@@ -213,15 +213,15 @@ export default function VetDashboardPage() {
 
               {tab === "Patient Requests" && (
                 <div className="d-flex flex-column gap-3">
-                  {pending.length === 0 ? <Card className="rounded-4 border-0 shadow-sm p-5 text-center"><div className="fs-1 mb-3">✅</div><p className="small fw-bold mb-1 text-dark">No pending requests</p><p className="extra-small text-muted mb-0">All patient requests have been handled.</p></Card> : pending.map(r => (
-                    <Card key={r.id} className="rounded-4 border-0 shadow-sm p-4"><div className="d-flex align-items-start gap-3"><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 shrink-0" style={{ width: 48, height: 48, backgroundColor: "#DDEDFF" }}>🐾</div><div className="flex-grow-1 min-w-0"><div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3"><div><p className="small fw-bold mb-0 text-dark">{r.user.name}</p><p className="extra-small text-muted mb-1" style={{ fontSize: 10 }}>{r.date}</p>{r.reason && <p className="extra-small text-muted mb-0 lh-sm" style={{ fontSize: 11 }}>Reason: {r.reason}</p>}</div><div className="d-flex gap-2 shrink-0"><Button size="sm" onClick={() => confirmAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border-0 shadow-sm d-flex align-items-center gap-2" style={{ backgroundColor: "#4399E1", fontSize: 11 }}><CheckCircle size={14} /> Accept</Button><Button size="sm" variant="outline-light" onClick={() => declineAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border extra-small d-flex align-items-center gap-2 text-muted" style={{ fontSize: 11 }}><XCircle size={14} /> Decline</Button></div></div></div></div></Card>
+                  {pending.length === 0 ? <Card className="rounded-4 border-0 shadow-sm p-5 text-center" style={{ backgroundColor: 'var(--card-bg)' }}><div className="fs-1 mb-3">✅</div><p className="small fw-bold mb-1" style={{ color: 'var(--foreground)' }}>No pending requests</p><p className="extra-small mb-0" style={{ color: 'var(--muted-text)' }}>All patient requests have been handled.</p></Card> : pending.map(r => (
+                    <Card key={r.id} className="rounded-4 border-0 shadow-sm p-4" style={{ backgroundColor: 'var(--card-bg)' }}><div className="d-flex align-items-start gap-3"><div className="rounded-3 d-flex align-items-center justify-content-center fs-4 shrink-0" style={{ width: 48, height: 48, backgroundColor: "var(--section-bg)" }}>🐾</div><div className="flex-grow-1 min-w-0"><div className="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3"><div><p className="small fw-bold mb-0" style={{ color: 'var(--foreground)' }}>{r.user.name}</p><p className="extra-small mb-1" style={{ fontSize: 10, color: 'var(--muted-text)' }}>{r.date}</p>{r.reason && <p className="extra-small mb-0 lh-sm" style={{ fontSize: 11, color: 'var(--muted-text)' }}>Reason: {r.reason}</p>}</div><div className="d-flex gap-2 shrink-0"><Button size="sm" onClick={() => confirmAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border-0 shadow-sm d-flex align-items-center gap-2" style={{ backgroundColor: "#4399E1", fontSize: 11 }}><CheckCircle size={14} /> Accept</Button><Button size="sm" onClick={() => declineAppointment(r.id)} disabled={actingId === r.id} className="rounded-3 px-3 py-2 fw-bold border extra-small d-flex align-items-center gap-2" style={{ fontSize: 11, backgroundColor: 'var(--section-bg)', borderColor: 'var(--card-border)', color: 'var(--muted-text)' }}><XCircle size={14} /> Decline</Button></div></div></div></div></Card>
                   ))}
                 </div>
               )}
 
               {tab === "Profile Settings" && vet && (
-                <Card className="rounded-4 border-0 shadow-sm p-4" style={{ maxWidth: 600 }}>
-                  <h3 className="h6 fw-bold mb-5 text-dark">Profile Settings</h3>
+                <Card className="rounded-4 border-0 shadow-sm p-4" style={{ maxWidth: 600, backgroundColor: 'var(--card-bg)' }}>
+                  <h3 className="h6 fw-bold mb-5" style={{ color: 'var(--foreground)' }}>Profile Settings</h3>
                   <Form className="d-flex flex-column gap-4">
                     {(["name", "spec", "clinic", "exp", "price"] as const).map(field => (
                       <Form.Group key={field}><Form.Label className="extra-small fw-bold text-dark mb-1 text-uppercase" style={{ fontSize: 10 }}>{field === "spec" ? "Specialization" : field === "exp" ? "Experience" : field === "price" ? "Price (sum/visit)" : field}</Form.Label><Form.Control value={(profileForm as any)[field]} onChange={e => setProfileForm((f: any) => ({ ...f, [field]: e.target.value }))} className="bg-light border-0 shadow-none small p-2.5 rounded-3" /></Form.Group>

@@ -20,11 +20,12 @@ interface Product {
   cat: string;
 }
 
-const categories = ["All", "Food & Treats", "Toys", "Grooming", "Health", "Beds", "Training"];
+// const categories = ["All", "Food & Treats", "Toys", "Grooming", "Health", "Beds", "Training"];
 const sortOptions = ["Featured", "Price: Low to High", "Price: High to Low", "Best Rating", "Newest"];
 
 export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [loading, setLoading] = useState(true);
   const [activecat, setActivecat] = useState("All");
   const [sort, setSort] = useState("Featured");
@@ -37,6 +38,10 @@ export default function ShopPage() {
       .then(setProducts)
       .catch(console.error)
       .finally(() => setLoading(false));
+
+    api.get<{ name: string }[]>("/api/products/categories")
+      .then(cats => setCategories(["All", ...cats.map(c => c.name)]))
+      .catch(console.error);
 
     if (api.getToken()) {
       api.get<any[]>("/api/wishlist")
@@ -100,7 +105,7 @@ export default function ShopPage() {
           <h1 className="fw-bold mb-1" style={{ color: "var(--foreground)", fontSize: '2rem' }}>Pet Shop</h1>
           <p className="small mb-4" style={{ color: "var(--muted-text)" }}>Premium products for your beloved pets</p>
           <div className="position-relative" style={{ maxWidth: 576 }}>
-            <InputGroup className="bg-white border rounded-4 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
+            <InputGroup className="border rounded-4 shadow-sm overflow-hidden" style={{ backgroundColor: 'var(--input-bg)', borderColor: 'var(--card-border)' }}>
               <InputGroup.Text className="bg-transparent border-0 ps-3">
                 <Search size={18} style={{ color: "var(--muted-text)" }} />
               </InputGroup.Text>
@@ -222,7 +227,7 @@ export default function ShopPage() {
                           size="sm"
                           onClick={() => toggleWishlist(p.id)}
                           className="position-absolute rounded-circle p-1 d-flex align-items-center justify-content-center border-0 shadow-sm"
-                          style={{ top: 8, right: 8, width: 28, height: 28, zIndex: 2, backgroundColor: "rgba(255,255,255,0.9)" }}
+                          style={{ top: 8, right: 8, width: 28, height: 28, zIndex: 2, backgroundColor: "var(--card-bg)" }}
                         >
                           <Heart size={13} style={{ fill: wishlist.includes(p.id) ? "#FFA9AC" : "transparent", color: wishlist.includes(p.id) ? "#FFA9AC" : "#6b7a99" }} />
                         </Button>

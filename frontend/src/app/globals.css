@@ -121,3 +121,114 @@ nextjs-portal {
 .dark .text-muted {
   color: var(--muted-text) !important;
 }
+
+/* Card background */
+.dark .card {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .card-header {
+  background-color: var(--card-bg) !important;
+  border-color: var(--card-border) !important;
+  color: var(--foreground) !important;
+}
+
+/* Topbar / admin-vet header */
+.dark .bg-white {
+  background-color: var(--card-bg) !important;
+}
+
+/* Main layout wrapper */
+.dark .bg-light {
+  background-color: var(--background) !important;
+}
+
+/* Tables */
+.dark .table {
+  color: var(--foreground) !important;
+  border-color: var(--card-border) !important;
+}
+
+.dark .table thead th,
+.dark .table th {
+  background-color: var(--section-bg) !important;
+  color: var(--muted-text) !important;
+  border-color: var(--card-border) !important;
+}
+
+.dark .table td,
+.dark .table tr {
+  border-color: var(--card-border) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .table-hover tbody tr:hover {
+  background-color: var(--section-bg) !important;
+  color: var(--foreground) !important;
+}
+
+/* text-dark override */
+.dark .text-dark {
+  color: var(--foreground) !important;
+}
+
+/* Bootstrap subtle badge variants in dark mode */
+.dark .bg-success-subtle {
+  background-color: rgba(34, 197, 94, 0.15) !important;
+}
+.dark .text-success {
+  color: #4ade80 !important;
+}
+.dark .bg-primary-subtle {
+  background-color: rgba(67, 153, 225, 0.15) !important;
+}
+.dark .text-primary {
+  color: #60aff0 !important;
+}
+.dark .bg-danger-subtle {
+  background-color: rgba(239, 68, 68, 0.15) !important;
+}
+.dark .text-danger {
+  color: #f87171 !important;
+}
+.dark .bg-warning-subtle {
+  background-color: rgba(245, 158, 11, 0.15) !important;
+}
+.dark .text-warning {
+  color: #fbbf24 !important;
+}
+.dark .bg-secondary-subtle {
+  background-color: rgba(100, 116, 139, 0.15) !important;
+}
+.dark .text-secondary {
+  color: #94a3b8 !important;
+}
+
+/* Offcanvas */
+.dark .offcanvas {
+  background-color: var(--card-bg) !important;
+  color: var(--foreground) !important;
+}
+
+.dark .offcanvas-header {
+  border-color: var(--card-border) !important;
+}
+
+/* Input group text */
+.dark .input-group-text {
+  background-color: transparent !important;
+  border-color: var(--card-border) !important;
+  color: var(--muted-text) !important;
+}
+
+/* Checkbox / radio label */
+.dark .form-check-label {
+  color: var(--foreground) !important;
+}
+
+/* Table border override */
+.dark .border {
+  border-color: var(--card-border) !important;
+}

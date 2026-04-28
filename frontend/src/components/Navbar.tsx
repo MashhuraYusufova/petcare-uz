@@ -108,7 +108,7 @@ export default function Navbar() {
                 <Link
                   href={user.role === "admin" ? "/admin" : user.role === "vet" ? "/vet-dashboard" : "/dashboard"}
                   className="btn btn-sm fw-semibold rounded-pill px-3 d-flex align-items-center gap-2"
-                  style={{ backgroundColor: 'var(--section-bg)', color: '#4399E1', border: 'none' }}
+                  style={{ backgroundColor: 'rgba(67, 153, 225, 0.15)', color: '#4399E1', border: 'none' }}
                 >
                   <User size={14} />
                   {user.name.split(" ")[0]}

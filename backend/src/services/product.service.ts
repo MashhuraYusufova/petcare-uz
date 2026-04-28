@@ -10,6 +10,12 @@ export async function getAllProducts(filters?: { cat?: string; search?: string }
   });
 }
 
+export async function getCategories() {
+  return prisma.category.findMany({
+    orderBy: { name: "asc" },
+  });
+}
+
 export async function getProductById(id: string) {
   const product = await prisma.product.findUnique({ where: { id } });
   if (!product) throw new Error("Product not found");
