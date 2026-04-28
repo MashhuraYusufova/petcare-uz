@@ -39,6 +39,10 @@ export default function ShopPage() {
   }, []);
 
   const addToCart = async (productId: string) => {
+    if (!api.getToken()) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
     setAddingToCart(productId);
     try {
       await api.post("/api/cart", { productId, quantity: 1 });

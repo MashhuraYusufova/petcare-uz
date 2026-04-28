@@ -6,6 +6,7 @@ import ErrorReporter from "@/components/ErrorReporter";
 import Script from "next/script";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { AuthProvider } from "@/lib/auth-context";
+import { Toaster } from "sonner";
 
 const montserrat = Montserrat({
   variable: "--font-montserrat",
@@ -40,6 +41,7 @@ export default function RootLayout({
             data-custom-data='{"appName": "PetCare", "version": "1.0.0"}'
           />
           {children}
+          <Toaster richColors position="top-right" />
           <VisualEditsMessenger />
           </AuthProvider>
         </ThemeProvider>

@@ -22,10 +22,10 @@ const categories = [
 ];
 
 const productsData = [
-  { id: "p1", name: "Royal Canin Adult — Salmon Recipe", price: 89000, oldPrice: 120000, rating: 4.8, reviews: 234, tag: "Bestseller", img: "/prod-1.jpg", brand: "Royal Canin" },
-  { id: "p2", name: "Cat Interactive Feather Toy Set", price: 45000, oldPrice: null, rating: 4.6, reviews: 89, tag: "New", img: "/prod-2.jpg", brand: "Zooplus" },
-  { id: "p3", name: "Beaphar Dog Shampoo Sensitive", price: 32000, oldPrice: 40000, rating: 4.7, reviews: 156, tag: "Sale", img: "/prod-3.jpg", brand: "Beaphar" },
-  { id: "p4", name: "Hills Science Kitten Starter Kit", price: 120000, oldPrice: null, rating: 4.9, reviews: 78, tag: "Popular", img: "/prod-4.jpg", brand: "Hills" },
+  { id: "69f09bb2f72189a2330da568", name: "Royal Canin Adult — Salmon Recipe", price: 89000, oldPrice: 120000, rating: 4.8, reviews: 234, tag: "Bestseller", img: "/prod-1.jpg", brand: "Royal Canin" },
+  { id: "69f09bb2f72189a2330da569", name: "Cat Interactive Feather Toy Set", price: 45000, oldPrice: null, rating: 4.6, reviews: 89, tag: "New", img: "/prod-2.jpg", brand: "Zooplus" },
+  { id: "69f09bb2f72189a2330da56a", name: "Beaphar Dog Shampoo Sensitive", price: 32000, oldPrice: 40000, rating: 4.7, reviews: 156, tag: "Sale", img: "/prod-3.jpg", brand: "Beaphar" },
+  { id: "69f0bc1fa7e3bf3929a7f317", name: "Royal Canin Puppy Starter Kit", price: 120000, oldPrice: null, rating: 4.9, reviews: 78, tag: "Popular", img: "/prod-4.jpg", brand: "Royal Canin" },
 ];
 
 const vets = [
@@ -51,6 +51,10 @@ export default function HomePage() {
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
 
   const addToCart = async (productId: string) => {
+    if (!api.getToken()) {
+      toast.error("Please sign in to add items to cart");
+      return;
+    }
     setAddingToCart(productId);
     try {
       await api.post("/api/cart", { productId, quantity: 1 });
