@@ -34,14 +34,11 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const dashboardController = __importStar(require("../controllers/dashboard.controller"));
+const orderController = __importStar(require("../controllers/order.controller"));
 const auth_1 = require("../middleware/auth");
 const router = (0, express_1.Router)();
 const wrap = (fn) => (req, res) => fn(req, res);
 router.use(auth_1.authMiddleware);
-router.get("/summary", wrap(dashboardController.getSummary));
-router.get("/orders", wrap(dashboardController.getOrders));
-router.get("/appointments", wrap(dashboardController.getAppointments));
-router.get("/pets", wrap(dashboardController.getPets));
-router.get("/wishlist", wrap(dashboardController.getWishlist));
+router.get("/", wrap(orderController.getOrders));
+router.post("/checkout", wrap(orderController.checkout));
 exports.default = router;

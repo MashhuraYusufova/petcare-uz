@@ -42,27 +42,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getSummary = getSummary;
 exports.getOrders = getOrders;
-exports.getAppointments = getAppointments;
-exports.getPets = getPets;
-exports.getWishlist = getWishlist;
-const dashboardService = __importStar(require("../services/dashboard.service"));
+exports.checkout = checkout;
 const orderService = __importStar(require("../services/order.service"));
-const appointmentService = __importStar(require("../services/appointment.service"));
-const petService = __importStar(require("../services/pet.service"));
-const wishlistService = __importStar(require("../services/wishlist.service"));
-function getSummary(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const data = yield dashboardService.getDashboardSummary(req.user.userId);
-            res.json(data);
-        }
-        catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    });
-}
 function getOrders(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
@@ -74,36 +56,14 @@ function getOrders(req, res) {
         }
     });
 }
-function getAppointments(req, res) {
+function checkout(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const appointments = yield appointmentService.getAppointmentsByUser(req.user.userId);
-            res.json(appointments);
+            const orders = yield orderService.createOrderFromCart(req.user.userId);
+            res.status(201).json(orders);
         }
         catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    });
-}
-function getPets(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const pets = yield petService.getPetsByUser(req.user.userId);
-            res.json(pets);
-        }
-        catch (err) {
-            res.status(500).json({ error: err.message });
-        }
-    });
-}
-function getWishlist(req, res) {
-    return __awaiter(this, void 0, void 0, function* () {
-        try {
-            const items = yield wishlistService.getWishlist(req.user.userId);
-            res.json(items);
-        }
-        catch (err) {
-            res.status(500).json({ error: err.message });
+            res.status(400).json({ error: err.message });
         }
     });
 }

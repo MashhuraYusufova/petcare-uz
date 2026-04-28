@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOverviewStats = getOverviewStats;
+exports.getAdvancedAnalytics = getAdvancedAnalytics;
 exports.getAllUsers = getAllUsers;
 exports.getAllAppointments = getAllAppointments;
 exports.createProduct = createProduct;
@@ -41,6 +42,41 @@ function getOverviewStats() {
             return sum + (isNaN(num) ? 0 : num);
         }, 0);
         return { usersCount, ordersCount, appointmentsCount, productsCount, vetsCount, totalRevenue };
+    });
+}
+function getAdvancedAnalytics() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const orders = yield prisma_1.default.order.findMany({
+            select: { item: true, price: true, date: true }
+        });
+        const productCounts = orders.reduce((acc, order) => {
+            acc[order.item] = (acc[order.item] || 0) + 1;
+            return acc;
+        }, {});
+        const topProducts = Object.entries(productCounts)
+            .map(([name, count]) => ({ name, count }))
+            .sort((a, b) => b.count - a.count)
+            .slice(0, 5);
+        const mostBoughtProduct = topProducts.length > 0 ? topProducts[0].name : "N/A";
+        const revenueByDate = orders.reduce((acc, order) => {
+            const dateStr = order.date.split('T')[0] || order.date;
+            const priceNum = parseInt(order.price.replace(/,/g, ""), 10);
+            const amount = isNaN(priceNum) ? 0 : priceNum;
+            acc[dateStr] = (acc[dateStr] || 0) + amount;
+            return acc;
+        }, {});
+        const revenueTimeline = Object.entries(revenueByDate)
+            .map(([date, revenue]) => ({ date, revenue }))
+            .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+        const highestRevenueDay = revenueTimeline.length > 0
+            ? revenueTimeline.reduce((max, curr) => (curr.revenue > max.revenue ? curr : max), revenueTimeline[0])
+            : { date: "N/A", revenue: 0 };
+        return {
+            topProducts,
+            revenueTimeline,
+            mostBoughtProduct,
+            highestRevenueDay
+        };
     });
 }
 function getAllUsers() {

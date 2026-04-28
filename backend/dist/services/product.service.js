@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAllProducts = getAllProducts;
+exports.getCategories = getCategories;
 exports.getProductById = getProductById;
 const prisma_1 = __importDefault(require("../prisma"));
 function getAllProducts(filters) {
@@ -20,6 +21,13 @@ function getAllProducts(filters) {
         return prisma_1.default.product.findMany({
             where: Object.assign(Object.assign({}, ((filters === null || filters === void 0 ? void 0 : filters.cat) && { cat: filters.cat })), ((filters === null || filters === void 0 ? void 0 : filters.search) && { name: { contains: filters.search, mode: "insensitive" } })),
             orderBy: { rating: "desc" },
+        });
+    });
+}
+function getCategories() {
+    return __awaiter(this, void 0, void 0, function* () {
+        return prisma_1.default.category.findMany({
+            orderBy: { name: "asc" },
         });
     });
 }

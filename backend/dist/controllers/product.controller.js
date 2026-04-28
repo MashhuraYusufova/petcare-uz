@@ -43,6 +43,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getProducts = getProducts;
+exports.getCategories = getCategories;
 exports.getProduct = getProduct;
 const productService = __importStar(require("../services/product.service"));
 function getProducts(req, res) {
@@ -54,6 +55,17 @@ function getProducts(req, res) {
                 search: typeof search === "string" ? search : undefined,
             });
             res.json(products);
+        }
+        catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+}
+function getCategories(req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const categories = yield productService.getCategories();
+            res.json(categories);
         }
         catch (err) {
             res.status(500).json({ error: err.message });

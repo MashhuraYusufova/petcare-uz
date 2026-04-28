@@ -37,5 +37,6 @@ const express_1 = require("express");
 const productController = __importStar(require("../controllers/product.controller"));
 const router = (0, express_1.Router)();
 router.get("/", productController.getProducts);
+router.get("/categories", productController.getCategories);
 router.get("/:id", productController.getProduct);
 exports.default = router;

@@ -43,6 +43,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getOverview = getOverview;
+exports.getAnalytics = getAnalytics;
 exports.getUsers = getUsers;
 exports.getAppointments = getAppointments;
 exports.createProduct = createProduct;
@@ -57,6 +58,16 @@ function getOverview(_req, res) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
             res.json(yield adminService.getOverviewStats());
+        }
+        catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    });
+}
+function getAnalytics(_req, res) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            res.json(yield adminService.getAdvancedAnalytics());
         }
         catch (err) {
             res.status(500).json({ error: err.message });

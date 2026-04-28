@@ -41,6 +41,7 @@ const router = (0, express_1.Router)();
 const wrap = (fn) => (req, res) => fn(req, res);
 router.use(auth_1.authMiddleware, (req, res, next) => (0, adminOnly_1.adminOnly)(req, res, next));
 router.get("/overview", wrap(adminController.getOverview));
+router.get("/analytics", wrap(adminController.getAnalytics));
 router.get("/users", wrap(adminController.getUsers));
 router.patch("/users/:id/role", wrap(adminController.updateUserRole));
 router.get("/appointments", wrap(adminController.getAppointments));
