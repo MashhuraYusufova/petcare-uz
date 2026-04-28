@@ -221,8 +221,8 @@ export default function ShopPage() {
                           variant="light"
                           size="sm"
                           onClick={() => toggleWishlist(p.id)}
-                          className="position-absolute rounded-circle p-1 d-flex align-items-center justify-content-center border-0 shadow-sm opacity-0 group-hover-opacity-100 transition"
-                          style={{ top: 8, right: 8, width: 28, height: 28 }}
+                          className="position-absolute rounded-circle p-1 d-flex align-items-center justify-content-center border-0 shadow-sm"
+                          style={{ top: 8, right: 8, width: 28, height: 28, zIndex: 2, backgroundColor: "rgba(255,255,255,0.9)" }}
                         >
                           <Heart size={13} style={{ fill: wishlist.includes(p.id) ? "#FFA9AC" : "transparent", color: wishlist.includes(p.id) ? "#FFA9AC" : "#6b7a99" }} />
                         </Button>

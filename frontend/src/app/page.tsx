@@ -8,7 +8,7 @@ import {
   Fish, Cat, Bath, PawPrint, UserRound, Truck, RefreshCw, ShieldCheck,
   MessageCircle, Salad, Hospital, Dog, Plus
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
 import { Container, Row, Col, Card, Badge, Button, InputGroup, FormControl } from "react-bootstrap";
@@ -50,6 +50,36 @@ const features = [
 
 export default function HomePage() {
   const [addingToCart, setAddingToCart] = useState<string | null>(null);
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (api.getToken()) {
+      api.get<any[]>("/api/wishlist")
+        .then(items => setWishlist(items.map(i => i.id)))
+        .catch(console.error);
+    }
+  }, []);
+
+  const toggleWishlist = async (productId: string) => {
+    if (!api.getToken()) {
+      toast.error("Please sign in to add items to favorites");
+      return;
+    }
+    const isWished = wishlist.includes(productId);
+    try {
+      if (isWished) {
+        await api.delete(`/api/wishlist/${productId}`);
+        setWishlist(w => w.filter(id => id !== productId));
+        toast.success("Removed from favorites");
+      } else {
+        await api.post("/api/wishlist", { productId });
+        setWishlist(w => [...w, productId]);
+        toast.success("Added to favorites");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update favorites");
+    }
+  };
 
   const addToCart = async (productId: string) => {
     if (!api.getToken()) {
@@ -171,12 +201,21 @@ export default function HomePage() {
           <Row className="g-4">
             {productsData.map(p => (
               <Col xs={12} sm={6} lg={3} key={p.id}>
-                <Card className="h-100 border-0 shadow-sm" style={{ borderRadius: 16, overflow: "hidden" }}>
+                <Card className="h-100 border-0 shadow-sm position-relative" style={{ borderRadius: 16, overflow: "hidden" }}>
                   <div style={{ position: "relative", height: 176, overflow: "hidden" }}>
                     <img src={p.img} alt={p.name} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                     <Badge pill style={{ position: "absolute", top: 12, left: 12, backgroundColor: p.tag === "Sale" || p.tag === "Popular" || p.tag === "Bestseller" ? "#FFA9AC" : "#4399E1", fontSize: "0.75rem" }}>
                       {p.tag}
                     </Badge>
+                    <Button
+                      variant="light"
+                      size="sm"
+                      onClick={() => toggleWishlist(p.id)}
+                      className="position-absolute rounded-circle p-1 d-flex align-items-center justify-content-center border-0 shadow-sm"
+                      style={{ top: 12, right: 12, width: 32, height: 32, zIndex: 2, backgroundColor: "rgba(255,255,255,0.9)" }}
+                    >
+                      <Heart size={15} style={{ fill: wishlist.includes(p.id) ? "#FFA9AC" : "transparent", color: wishlist.includes(p.id) ? "#FFA9AC" : "#6b7a99" }} />
+                    </Button>
                   </div>
                   <Card.Body className="d-flex flex-column gap-2 p-3">
                     <p className="mb-0 fw-medium" style={{ fontSize: 11, color: "#6b7a99" }}>{p.brand}</p>
